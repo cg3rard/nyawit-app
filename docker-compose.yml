@@ -22,6 +22,8 @@ services:
     container_name: nyawit-backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     environment:
       DATABASE_URL: mysql+pymysql://root:root@mysql:3306/nyawit
     depends_on:
@@ -33,6 +35,9 @@ services:
     container_name: nyawit-frontend
     ports:
       - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
 
