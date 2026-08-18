@@ -1,11 +1,11 @@
 services:
   mysql:
     image: mysql:8.4
-    container_name: nyawit-mysql
+    container_name: costore-mysql
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: nyawit
+      MYSQL_DATABASE: costore
     ports:
       - "3307:3306"
     volumes:
@@ -19,20 +19,20 @@ services:
 
   backend:
     build: ./backend
-    container_name: nyawit-backend
+    container_name: costore-backend
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
     environment:
-      DATABASE_URL: mysql+pymysql://root:root@mysql:3306/nyawit
+      DATABASE_URL: mysql+pymysql://root:root@mysql:3306/costore
     depends_on:
       mysql:
         condition: service_healthy
 
   frontend:
     build: ./frontend
-    container_name: nyawit-frontend
+    container_name: costore-frontend
     ports:
       - "5173:5173"
     volumes:

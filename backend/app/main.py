@@ -2,9 +2,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
+import app.models  # noqa: F401 — registers all models with Base.metadata at startup
+from app.core.config import settings
 from app.database import engine
+from app.routes import products
 
-app = FastAPI(title="Nyawit API")
+app = FastAPI(title="CoStore API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -17,10 +20,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Routers
+app.include_router(products.router)
+
 
 @app.get("/")
 def root():
-    return {"message": "Nyawit API Running"}
+    return {"message": "CoStore API Running"}
 
 
 @app.get("/db-test")

@@ -1,32 +1,30 @@
-# Gunakan base image Python yang ringan dan stabil
+# Python 3.10 retained: required by AI Engine (torch/bitsandbytes/peft).
+# CoStore FastAPI is fully compatible with 3.10.
 FROM python:3.10-slim
 
-# Set environment variables untuk mencegah buffer output Python
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive
 
-# Set working directory di dalam kontainer
 WORKDIR /app
 
-# Install dependensi sistem dasar untuk kompilasi C/C++
+# System deps for C/C++ compilation (required by bitsandbytes, scipy, etc.)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy file requirements terlebih dahulu untuk caching layer Docker
 COPY requirements.txt .
 
-# Install dependensi Python
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-# Copy seluruh source code backend ke dalam kontainer
 COPY . .
 
-# Expose port FastAPI
+# Make the CoStore entrypoint executable
+RUN chmod +x entrypoint.sh
+
 EXPOSE 8000
 
-# Jalankan server FastAPI menggunakan Uvicorn
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Runs alembic migrations then starts the CoStore FastAPI app via app.main:app
+CMD ["sh", "entrypoint.sh"]

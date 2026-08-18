@@ -1,21 +1,32 @@
-import os
+from typing import Generator
 
-from dotenv import load_dotenv
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import Session, sessionmaker
 
-from app.models.product import Base
+from app.core.config import settings
+from app.models.base import Base
 
-load_dotenv()
-
-DATABASE_URL = os.getenv("DATABASE_URL")
-
-engine = create_engine(DATABASE_URL)
+engine = create_engine(settings.DATABASE_URL)
 
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
-    bind=engine
+    bind=engine,
 )
 
-Base.metadata.create_all(bind=engine)
+
+def get_db() -> Generator[Session, None, None]:
+    """
+    FastAPI dependency that provides a SQLAlchemy database session.
+    Ensures the session is always closed after the request, even on error.
+
+    Usage in a route:
+        @router.get("/example")
+        def example(db: Session = Depends(get_db)):
+            ...
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
