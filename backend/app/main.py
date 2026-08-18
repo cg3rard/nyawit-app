@@ -5,7 +5,7 @@ from sqlalchemy import text
 import app.models  # noqa: F401 — registers all models with Base.metadata at startup
 from app.core.config import settings
 from app.database import engine
-from app.routes import inventory, products
+from app.routes import inventory, products, transactions
 
 app = FastAPI(title="CoStore API")
 
@@ -23,6 +23,7 @@ app.add_middleware(
 # Routers
 app.include_router(products.router)
 app.include_router(inventory.router)
+app.include_router(transactions.router)
 
 
 @app.get("/")

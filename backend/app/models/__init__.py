@@ -2,3 +2,4 @@
 from app.models.base import Base  # noqa: F401
 from app.models.product import Product  # noqa: F401
 from app.models.stock_movement import StockMovement  # noqa: F401
+from app.models.transaction import Transaction, TransactionItem  # noqa: F401
