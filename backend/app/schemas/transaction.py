@@ -32,3 +32,10 @@ class TransactionRead(BaseModel):
     items: List[TransactionItemRead]
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class SalesSummary(BaseModel):
+    """Read-only aggregated sales summary."""
+    total_transactions: int
+    total_revenue: Decimal
+    total_items_sold: int

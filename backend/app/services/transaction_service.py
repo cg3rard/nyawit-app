@@ -1,13 +1,15 @@
 import uuid
+from datetime import date
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.product import Product
 from app.models.stock_movement import MovementType, StockMovement
 from app.models.transaction import Transaction, TransactionItem
-from app.schemas.transaction import TransactionCreate, TransactionItemRequest
+from app.schemas.transaction import SalesSummary, TransactionCreate, TransactionItemRequest
 
 
 def _generate_code() -> str:
@@ -128,3 +130,58 @@ def create_transaction(db: Session, data: TransactionCreate) -> Transaction:
     )
 
     return transaction
+
+
+# ---------------------------------------------------------------------------
+# READ-ONLY queries — never write to DB, never touch stock
+# ---------------------------------------------------------------------------
+
+def _attach_items(db: Session, transaction: Transaction) -> Transaction:
+    """Attach items list to a transaction object for response serialisation."""
+    transaction.items = (
+        db.query(TransactionItem)
+        .filter(TransactionItem.transaction_id == transaction.id)
+        .all()
+    )
+    return transaction
+
+
+def get_transactions(
+    db: Session,
+    start_date: Optional[date] = None,
+    end_date: Optional[date] = None,
+) -> List[Transaction]:
+    """Return all transactions, newest first. Optionally filtered by date range."""
+    q = db.query(Transaction)
+    if start_date is not None:
+        q = q.filter(Transaction.created_at >= start_date)
+    if end_date is not None:
+        # include the full end_date day
+        from datetime import datetime, timedelta
+        end_dt = datetime.combine(end_date, datetime.max.time())
+        q = q.filter(Transaction.created_at <= end_dt)
+    transactions = q.order_by(Transaction.id.desc()).all()
+    for t in transactions:
+        _attach_items(db, t)
+    return transactions
+
+
+def get_transaction_by_id(db: Session, transaction_id: int) -> Optional[Transaction]:
+    """Return a single transaction with items, or None if not found."""
+    transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+    if transaction is None:
+        return None
+    return _attach_items(db, transaction)
+
+
+def get_sales_summary(db: Session) -> SalesSummary:
+    """Return aggregated totals. Pure SELECT — no writes."""
+    total_transactions = db.query(func.count(Transaction.id)).scalar() or 0
+    total_revenue = db.query(func.sum(Transaction.total_amount)).scalar() or Decimal("0")
+    total_items_sold = db.query(func.sum(TransactionItem.quantity)).scalar() or 0
+
+    return SalesSummary(
+        total_transactions=int(total_transactions),
+        total_revenue=Decimal(str(total_revenue)),
+        total_items_sold=int(total_items_sold),
+    )
