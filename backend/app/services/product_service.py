@@ -4,8 +4,8 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.models.product import Product
+from app.models.stock_movement import MovementType, StockMovement
 from app.schemas.product import ProductCreate, ProductUpdate
-
 
 def get_products(db: Session) -> List[Product]:
     """Return all products ordered by id ascending."""
@@ -19,7 +19,8 @@ def get_product_by_id(db: Session, product_id: int) -> Optional[Product]:
 
 def create_product(db: Session, data: ProductCreate) -> Product:
     """
-    Persist a new product and return it.
+    Create a product and record its initial stock as an inventory movement.
+    Both operations are committed in a single transaction.
     Raises IntegrityError if product_code already exists.
     """
     product = Product(
@@ -31,7 +32,21 @@ def create_product(db: Session, data: ProductCreate) -> Product:
         stock=data.stock,
         expiry_date=data.expiry_date,
     )
+
     db.add(product)
+    db.flush()
+
+    if data.stock > 0:
+        movement = StockMovement(
+            product_id=product.id,
+            movement_type=MovementType.ADJUSTMENT,
+            quantity=data.stock,
+            stock_before=0,
+            stock_after=data.stock,
+            reason="Initial stock",
+        )
+        db.add(movement)
+
     db.commit()
     db.refresh(product)
     return product

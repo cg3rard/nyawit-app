@@ -31,7 +31,6 @@ class ProductUpdate(BaseModel):
     category: Optional[str] = Field(default=None, min_length=1, max_length=100)
     purchase_price: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
     selling_price: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
-    stock: Optional[int] = Field(default=None, ge=0)
     expiry_date: Optional[date] = Field(default=None)
 
 
