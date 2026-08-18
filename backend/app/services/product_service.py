@@ -66,7 +66,18 @@ def update_product(db: Session, product: Product, data: ProductUpdate) -> Produc
     return product
 
 
-def delete_product(db: Session, product: Product) -> None:
-    """Delete a product from the database."""
+def delete_product(db: Session, product: Product) -> bool:
+    """Delete a product only if it has no inventory movement history."""
+    has_movements = (
+        db.query(StockMovement)
+        .filter(StockMovement.product_id == product.id)
+        .first()
+        is not None
+    )
+
+    if has_movements:
+        return False
+
     db.delete(product)
     db.commit()
+    return True

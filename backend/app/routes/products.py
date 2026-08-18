@@ -72,5 +72,12 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Product not found",
         )
-    product_service.delete_product(db, product)
+    deleted = product_service.delete_product(db, product)
+
+    if not deleted:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Product cannot be deleted because it has inventory movement history.",
+        )
+
     return Response(status_code=status.HTTP_204_NO_CONTENT)
