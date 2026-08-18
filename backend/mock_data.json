@@ -1,0 +1,40 @@
+{
+  "scenarios": {
+    "red_risk": {
+      "scenario_id": "SCENARIO-RED-01",
+      "scenario_name": "Stok Menipis & Permintaan Tinggi (Perlu Restock)",
+      "description": "Barang fast-moving dengan sisa stok kritis di bawah 1 hari operasional.",
+      "payload": {
+        "product_name": "Kopi Tubruk Spesial 200g",
+        "current_stock": 5,
+        "sales_recent_7d": [8, 9, 7, 10, 8, 9, 8],
+        "sales_prior_7d": [5, 4, 6, 5, 5, 6, 5]
+      },
+      "expected_status": "Merah"
+    },
+    "yellow_risk": {
+      "scenario_id": "SCENARIO-YELLOW-01",
+      "scenario_name": "Penjualan Anjlok & Stok Menumpuk (Dead Stock Risk)",
+      "description": "Barang slow-moving dengan penurunan penjualan drastis (>80%) dan persediaan berlebih.",
+      "payload": {
+        "product_name": "Minyak Goreng Pouch 2L",
+        "current_stock": 140,
+        "sales_recent_7d": [1, 0, 1, 0, 1, 0, 1],
+        "sales_prior_7d": [6, 7, 5, 6, 7, 6, 8]
+      },
+      "expected_status": "Kuning"
+    },
+    "green_safe": {
+      "scenario_id": "SCENARIO-GREEN-01",
+      "scenario_name": "Perputaran Normal & Stok Stabil (Aman)",
+      "description": "Tingkat persediaan dan tren penjualan berada dalam batas wajar operasional.",
+      "payload": {
+        "product_name": "Sabun Mandi Fresh 100g",
+        "current_stock": 45,
+        "sales_recent_7d": [3, 4, 3, 4, 3, 4, 3],
+        "sales_prior_7d": [3, 3, 4, 3, 3, 4, 3]
+      },
+      "expected_status": "Hijau"
+    }
+  }
+}

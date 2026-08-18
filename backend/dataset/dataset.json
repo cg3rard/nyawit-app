@@ -1,0 +1,1282 @@
+[
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Minyak Goreng Pouch 2L | Status: Kuning | Stok: 147 pcs | SMA_7: 0.9 pcs/hari | Trend: -89.5% | DOI: 171.5 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PROMO_DISKON\", \"recommendation\": \"Terapkan diskon promosi 20% atau program Buy 2 Get 1 untuk mempercepat perputaran barang.\", \"rationale\": \"Perputaran barang melambat drastis (0.9 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 171.5 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kripik Singkong Balado 150g | Status: Merah | Stok: 21 pcs | SMA_7: 11.0 pcs/hari | Trend: +26.2% | DOI: 1.9 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_PRIORITAS\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 154 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Perputaran barang tinggi (11.0 pcs/hari) dan persediaan kritis di bawah batas aman (1.9 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Pembersih Lantai Citrus 750ml | Status: Hijau | Stok: 104 pcs | SMA_7: 9.0 pcs/hari | Trend: +18.9% | DOI: 11.6 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Lanjutkan monitoring penjualan rutin dan pastikan display rak tetap terisi rapi.\", \"rationale\": \"Rasio perputaran barang optimal (9.0 pcs/hari) dengan cadangan stok aman tanpa risiko kekurangan barang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Pembersih Lantai Citrus 750ml | Status: Merah | Stok: 6 pcs | SMA_7: 14.3 pcs/hari | Trend: +11.1% | DOI: 0.4 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"REORDER_SEGERA\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 200 pcs ke supplier utama hari ini.\", \"rationale\": \"Risiko stockout tinggi dalam 0.4 hari karena permintaan stabil (+11.1%) sedangkan sisa stok menipis.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Shampoo Anti-Dandruff 180ml | Status: Kuning | Stok: 99 pcs | SMA_7: 3.4 pcs/hari | Trend: -65.7% | DOI: 28.9 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Pindahkan produk ke rak display depan/area kasir dan pasang label promo flash sale 30%.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 99 pcs di saat permintaan turun 65.7%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Soda Lemon Kaleng 330ml | Status: Hijau | Stok: 82 pcs | SMA_7: 8.4 pcs/hari | Trend: +11.3% | DOI: 9.7 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Lanjutkan monitoring penjualan rutin dan pastikan display rak tetap terisi rapi.\", \"rationale\": \"Stok 82 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Snack Rumput Laut 20g | Status: Kuning | Stok: 143 pcs | SMA_7: 1.0 pcs/hari | Trend: -90.1% | DOI: 143.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"FLASH_SALE\", \"recommendation\": \"Terapkan diskon promosi 30% atau program Buy 2 Get 1 untuk mempercepat perputaran barang.\", \"rationale\": \"Perputaran barang melambat drastis (1.0 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 143.0 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Cairan Cuci Piring Jeruk Nipis 700ml | Status: Hijau | Stok: 64 pcs | SMA_7: 4.9 pcs/hari | Trend: +36.0% | DOI: 13.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Tingkat persediaan stabil mencukupi untuk 13.2 hari ke depan dengan fluktuasi penjualan wajar (+36.0%).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Sabun Cair Pouch 450ml | Status: Merah | Stok: 12 pcs | SMA_7: 8.4 pcs/hari | Trend: +9.3% | DOI: 1.4 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_PRIORITAS\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 118 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Stok tersisa 12 pcs hanya cukup untuk 1.4 hari ke depan dengan tren penjualan +9.3%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Mie Instan Goreng 85g | Status: Hijau | Stok: 96 pcs | SMA_7: 8.6 pcs/hari | Trend: +9.1% | DOI: 11.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"MONITORING_RUTIN\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Stok 96 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tepung Terigu Serbaguna 1kg | Status: Kuning | Stok: 132 pcs | SMA_7: 2.9 pcs/hari | Trend: -76.7% | DOI: 46.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RELOKASI_DISPLAY\", \"recommendation\": \"Pindahkan produk ke rak display depan/area kasir dan pasang label promo flash sale 30%.\", \"rationale\": \"Penjualan anjlok 76.7% dalam 7 hari terakhir dengan estimasi waktu habis mencapai 46.2 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tepung Terigu Serbaguna 1kg | Status: Merah | Stok: 17 pcs | SMA_7: 9.3 pcs/hari | Trend: +80.6% | DOI: 1.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Segera pesan ulang minimal 130 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Risiko stockout tinggi dalam 1.8 hari karena permintaan stabil (+80.6%) sedangkan sisa stok menipis.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kopi Hitam Sachet 10x20g | Status: Kuning | Stok: 160 pcs | SMA_7: 2.1 pcs/hari | Trend: -74.6% | DOI: 74.7 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"FLASH_SALE\", \"recommendation\": \"Jalankan program clearance diskon 30% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Perputaran barang melambat drastis (2.1 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 74.7 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Biskuit Kaleng Aneka Rasa 300g | Status: Hijau | Stok: 124 pcs | SMA_7: 8.7 pcs/hari | Trend: +17.3% | DOI: 14.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Lanjutkan monitoring penjualan rutin dan pastikan display rak tetap terisi rapi.\", \"rationale\": \"Stok 124 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Deterjen Bubuk 800g | Status: Hijau | Stok: 103 pcs | SMA_7: 7.6 pcs/hari | Trend: +12.8% | DOI: 13.6 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"MONITORING_RUTIN\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Tingkat persediaan stabil mencukupi untuk 13.6 hari ke depan dengan fluktuasi penjualan wajar (+12.8%).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Gula Pasir Kristal 1kg | Status: Merah | Stok: 11 pcs | SMA_7: 7.0 pcs/hari | Trend: +19.5% | DOI: 1.6 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 98 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Perputaran barang tinggi (7.0 pcs/hari) dan persediaan kritis di bawah batas aman (1.6 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Teh Botol Kotak 250ml | Status: Merah | Stok: 14 pcs | SMA_7: 8.3 pcs/hari | Trend: +16.0% | DOI: 1.7 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"REORDER_SEGERA\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 116 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Risiko stockout tinggi dalam 1.7 hari karena permintaan stabil (+16.0%) sedangkan sisa stok menipis.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tepung Terigu Serbaguna 1kg | Status: Hijau | Stok: 50 pcs | SMA_7: 5.4 pcs/hari | Trend: +31.0% | DOI: 9.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Kondisi persediaan ideal. Masukkan ke jadwal pemesanan ulang standar pada siklus berikutnya.\", \"rationale\": \"Stok 50 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Beras Pandan Wangi 5kg | Status: Kuning | Stok: 85 pcs | SMA_7: 2.4 pcs/hari | Trend: -81.7% | DOI: 35.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PROMO_DISKON\", \"recommendation\": \"Buat paket bundling dengan produk fast-moving pelengkap dan beri potongan harga khusus.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 85 pcs di saat permintaan turun 81.7%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Cokelat Batang 50g | Status: Merah | Stok: 19 pcs | SMA_7: 15.3 pcs/hari | Trend: +25.9% | DOI: 1.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"REORDER_SEGERA\", \"recommendation\": \"Segera pesan ulang minimal 214 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Perputaran barang tinggi (15.3 pcs/hari) dan persediaan kritis di bawah batas aman (1.2 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kecap Manis 550ml | Status: Kuning | Stok: 83 pcs | SMA_7: 2.3 pcs/hari | Trend: -79.2% | DOI: 36.3 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Jalankan program clearance diskon 25% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Perputaran barang melambat drastis (2.3 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 36.3 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Telur Ayam Negeri 1kg | Status: Kuning | Stok: 171 pcs | SMA_7: 4.0 pcs/hari | Trend: -66.7% | DOI: 42.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PROMO_DISKON\", \"recommendation\": \"Jalankan program clearance diskon 25% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 171 pcs di saat permintaan turun 66.7%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Mie Instan Goreng 85g | Status: Merah | Stok: 2 pcs | SMA_7: 5.7 pcs/hari | Trend: +33.3% | DOI: 0.3 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"REORDER_SEGERA\", \"recommendation\": \"Segera pesan ulang minimal 80 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Stok tersisa 2 pcs hanya cukup untuk 0.3 hari ke depan dengan tren penjualan +33.3%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Jus Jeruk 1L | Status: Merah | Stok: 8 pcs | SMA_7: 6.9 pcs/hari | Trend: +50.0% | DOI: 1.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_PRIORITAS\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 96 pcs ke supplier utama hari ini.\", \"rationale\": \"Perputaran barang tinggi (6.9 pcs/hari) dan persediaan kritis di bawah batas aman (1.2 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Minyak Goreng Pouch 2L | Status: Merah | Stok: 6 pcs | SMA_7: 12.4 pcs/hari | Trend: +33.8% | DOI: 0.5 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 174 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Perputaran barang tinggi (12.4 pcs/hari) dan persediaan kritis di bawah batas aman (0.5 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Snack Rumput Laut 20g | Status: Merah | Stok: 5 pcs | SMA_7: 10.3 pcs/hari | Trend: +44.0% | DOI: 0.5 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_PRIORITAS\", \"recommendation\": \"Segera pesan ulang minimal 144 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Perputaran barang tinggi (10.3 pcs/hari) dan persediaan kritis di bawah batas aman (0.5 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Mie Instan Goreng 85g | Status: Merah | Stok: 3 pcs | SMA_7: 5.0 pcs/hari | Trend: -5.4% | DOI: 0.6 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 70 pcs ke supplier utama hari ini.\", \"rationale\": \"Stok tersisa 3 pcs hanya cukup untuk 0.6 hari ke depan dengan tren penjualan -5.4%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Soda Lemon Kaleng 330ml | Status: Kuning | Stok: 167 pcs | SMA_7: 1.9 pcs/hari | Trend: -75.5% | DOI: 89.9 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Buat paket bundling dengan produk fast-moving pelengkap dan beri potongan harga khusus.\", \"rationale\": \"Penjualan anjlok 75.5% dalam 7 hari terakhir dengan estimasi waktu habis mencapai 89.9 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Deterjen Bubuk 800g | Status: Kuning | Stok: 140 pcs | SMA_7: 1.0 pcs/hari | Trend: -88.1% | DOI: 140.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"FLASH_SALE\", \"recommendation\": \"Buat paket bundling dengan produk fast-moving pelengkap dan beri potongan harga khusus.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 140 pcs di saat permintaan turun 88.1%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Susu UHT Cokelat 1L | Status: Hijau | Stok: 114 pcs | SMA_7: 7.7 pcs/hari | Trend: +8.0% | DOI: 14.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Stok 114 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kacang Kulit Gurih 200g | Status: Kuning | Stok: 143 pcs | SMA_7: 1.6 pcs/hari | Trend: -78.0% | DOI: 91.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RELOKASI_DISPLAY\", \"recommendation\": \"Jalankan program clearance diskon 15% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Perputaran barang melambat drastis (1.6 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 91.0 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Beras Pandan Wangi 5kg | Status: Kuning | Stok: 168 pcs | SMA_7: 1.9 pcs/hari | Trend: -72.9% | DOI: 90.5 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Terapkan diskon promosi 20% atau program Buy 2 Get 1 untuk mempercepat perputaran barang.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 168 pcs di saat permintaan turun 72.9%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Beras Pandan Wangi 5kg | Status: Merah | Stok: 20 pcs | SMA_7: 12.4 pcs/hari | Trend: +33.8% | DOI: 1.6 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Segera pesan ulang minimal 174 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Perputaran barang tinggi (12.4 pcs/hari) dan persediaan kritis di bawah batas aman (1.6 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kopi Susu Gula Aren 200ml | Status: Merah | Stok: 19 pcs | SMA_7: 15.4 pcs/hari | Trend: +14.9% | DOI: 1.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"REORDER_SEGERA\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 216 pcs ke supplier utama hari ini.\", \"rationale\": \"Stok tersisa 19 pcs hanya cukup untuk 1.2 hari ke depan dengan tren penjualan +14.9%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Sabun Mandi Batang 100g | Status: Hijau | Stok: 63 pcs | SMA_7: 7.0 pcs/hari | Trend: +6.5% | DOI: 9.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"JAGA_KETERSEDIAAN\", \"recommendation\": \"Kondisi persediaan ideal. Masukkan ke jadwal pemesanan ulang standar pada siklus berikutnya.\", \"rationale\": \"Tingkat persediaan stabil mencukupi untuk 9.0 hari ke depan dengan fluktuasi penjualan wajar (+6.5%).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tisu Kering 250 sheets | Status: Kuning | Stok: 188 pcs | SMA_7: 0.7 pcs/hari | Trend: -92.5% | DOI: 263.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PROMO_DISKON\", \"recommendation\": \"Terapkan diskon promosi 20% atau program Buy 2 Get 1 untuk mempercepat perputaran barang.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 188 pcs di saat permintaan turun 92.5%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Pembersih Lantai Citrus 750ml | Status: Merah | Stok: 26 pcs | SMA_7: 10.7 pcs/hari | Trend: +29.3% | DOI: 2.4 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_URGENT\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 150 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Stok tersisa 26 pcs hanya cukup untuk 2.4 hari ke depan dengan tren penjualan +29.3%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Pasta Gigi Fresh 120g | Status: Kuning | Stok: 183 pcs | SMA_7: 4.0 pcs/hari | Trend: -63.6% | DOI: 45.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Terapkan diskon promosi 25% atau program Buy 2 Get 1 untuk mempercepat perputaran barang.\", \"rationale\": \"Penjualan anjlok 63.6% dalam 7 hari terakhir dengan estimasi waktu habis mencapai 45.8 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Sabun Mandi Batang 100g | Status: Hijau | Stok: 85 pcs | SMA_7: 8.3 pcs/hari | Trend: +31.8% | DOI: 10.3 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"JAGA_KETERSEDIAAN\", \"recommendation\": \"Kondisi persediaan ideal. Masukkan ke jadwal pemesanan ulang standar pada siklus berikutnya.\", \"rationale\": \"Stok 85 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Gula Pasir Kristal 1kg | Status: Hijau | Stok: 70 pcs | SMA_7: 8.0 pcs/hari | Trend: +33.3% | DOI: 8.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"JAGA_KETERSEDIAAN\", \"recommendation\": \"Lanjutkan monitoring penjualan rutin dan pastikan display rak tetap terisi rapi.\", \"rationale\": \"Tingkat persediaan stabil mencukupi untuk 8.8 hari ke depan dengan fluktuasi penjualan wajar (+33.3%).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Mie Kuah Kari Spesial 75g | Status: Merah | Stok: 14 pcs | SMA_7: 14.0 pcs/hari | Trend: +24.1% | DOI: 1.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_URGENT\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 196 pcs ke supplier utama hari ini.\", \"rationale\": \"Perputaran barang tinggi (14.0 pcs/hari) dan persediaan kritis di bawah batas aman (1.0 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Snack Rumput Laut 20g | Status: Hijau | Stok: 69 pcs | SMA_7: 5.7 pcs/hari | Trend: +8.1% | DOI: 12.1 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"JAGA_KETERSEDIAAN\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Rasio perputaran barang optimal (5.7 pcs/hari) dengan cadangan stok aman tanpa risiko kekurangan barang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kecap Manis 550ml | Status: Merah | Stok: 4 pcs | SMA_7: 14.0 pcs/hari | Trend: +24.1% | DOI: 0.3 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 196 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Stok tersisa 4 pcs hanya cukup untuk 0.3 hari ke depan dengan tren penjualan +24.1%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kripik Singkong Balado 150g | Status: Kuning | Stok: 89 pcs | SMA_7: 0.4 pcs/hari | Trend: -94.0% | DOI: 207.7 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Pindahkan produk ke rak display depan/area kasir dan pasang label promo flash sale 15%.\", \"rationale\": \"Perputaran barang melambat drastis (0.4 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 207.7 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Jus Jeruk 1L | Status: Merah | Stok: 2 pcs | SMA_7: 8.0 pcs/hari | Trend: +43.6% | DOI: 0.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"REORDER_SEGERA\", \"recommendation\": \"Segera pesan ulang minimal 112 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Perputaran barang tinggi (8.0 pcs/hari) dan persediaan kritis di bawah batas aman (0.2 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Soda Lemon Kaleng 330ml | Status: Hijau | Stok: 42 pcs | SMA_7: 4.6 pcs/hari | Trend: +39.1% | DOI: 9.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"JAGA_KETERSEDIAAN\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Stok 42 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Sabun Cair Pouch 450ml | Status: Kuning | Stok: 96 pcs | SMA_7: 0.4 pcs/hari | Trend: -93.6% | DOI: 224.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PROMO_DISKON\", \"recommendation\": \"Jalankan program clearance diskon 25% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 96 pcs di saat permintaan turun 93.6%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kripik Singkong Balado 150g | Status: Merah | Stok: 10 pcs | SMA_7: 9.3 pcs/hari | Trend: +66.7% | DOI: 1.1 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_URGENT\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 130 pcs ke supplier utama hari ini.\", \"rationale\": \"Risiko stockout tinggi dalam 1.1 hari karena permintaan stabil (+66.7%) sedangkan sisa stok menipis.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kopi Hitam Sachet 10x20g | Status: Merah | Stok: 10 pcs | SMA_7: 6.6 pcs/hari | Trend: +35.3% | DOI: 1.5 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Segera pesan ulang minimal 92 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Stok tersisa 10 pcs hanya cukup untuk 1.5 hari ke depan dengan tren penjualan +35.3%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Deterjen Bubuk 800g | Status: Merah | Stok: 20 pcs | SMA_7: 8.6 pcs/hari | Trend: +15.4% | DOI: 2.3 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"REORDER_SEGERA\", \"recommendation\": \"Segera pesan ulang minimal 120 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Risiko stockout tinggi dalam 2.3 hari karena permintaan stabil (+15.4%) sedangkan sisa stok menipis.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Jus Jeruk 1L | Status: Kuning | Stok: 91 pcs | SMA_7: 1.3 pcs/hari | Trend: -85.5% | DOI: 70.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Jalankan program clearance diskon 30% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Perputaran barang melambat drastis (1.3 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 70.8 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Teh Botol Kotak 250ml | Status: Kuning | Stok: 158 pcs | SMA_7: 4.3 pcs/hari | Trend: -64.7% | DOI: 36.9 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"FLASH_SALE\", \"recommendation\": \"Jalankan program clearance diskon 30% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 158 pcs di saat permintaan turun 64.7%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Soda Lemon Kaleng 330ml | Status: Merah | Stok: 8 pcs | SMA_7: 12.3 pcs/hari | Trend: +41.0% | DOI: 0.7 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_PRIORITAS\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 172 pcs ke supplier utama hari ini.\", \"rationale\": \"Perputaran barang tinggi (12.3 pcs/hari) dan persediaan kritis di bawah batas aman (0.7 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Pasta Gigi Fresh 120g | Status: Hijau | Stok: 56 pcs | SMA_7: 4.7 pcs/hari | Trend: +43.5% | DOI: 11.9 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Tingkat persediaan stabil mencukupi untuk 11.9 hari ke depan dengan fluktuasi penjualan wajar (+43.5%).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Gula Pasir Kristal 1kg | Status: Merah | Stok: 21 pcs | SMA_7: 10.0 pcs/hari | Trend: +32.1% | DOI: 2.1 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_URGENT\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 140 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Stok tersisa 21 pcs hanya cukup untuk 2.1 hari ke depan dengan tren penjualan +32.1%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Deterjen Bubuk 800g | Status: Merah | Stok: 13 pcs | SMA_7: 7.3 pcs/hari | Trend: +45.7% | DOI: 1.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"REORDER_SEGERA\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 102 pcs ke supplier utama hari ini.\", \"rationale\": \"Perputaran barang tinggi (7.3 pcs/hari) dan persediaan kritis di bawah batas aman (1.8 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Wafer Cokelat Renyah 120g | Status: Kuning | Stok: 177 pcs | SMA_7: 0.9 pcs/hari | Trend: -90.6% | DOI: 206.5 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"FLASH_SALE\", \"recommendation\": \"Jalankan program clearance diskon 15% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Penjualan anjlok 90.6% dalam 7 hari terakhir dengan estimasi waktu habis mencapai 206.5 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Susu UHT Cokelat 1L | Status: Kuning | Stok: 189 pcs | SMA_7: 2.3 pcs/hari | Trend: -80.2% | DOI: 82.7 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Jalankan program clearance diskon 15% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Perputaran barang melambat drastis (2.3 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 82.7 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Cokelat Batang 50g | Status: Hijau | Stok: 99 pcs | SMA_7: 6.6 pcs/hari | Trend: +12.2% | DOI: 15.1 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"MONITORING_RUTIN\", \"recommendation\": \"Lanjutkan monitoring penjualan rutin dan pastikan display rak tetap terisi rapi.\", \"rationale\": \"Rasio perputaran barang optimal (6.6 pcs/hari) dengan cadangan stok aman tanpa risiko kekurangan barang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tepung Terigu Serbaguna 1kg | Status: Hijau | Stok: 58 pcs | SMA_7: 6.7 pcs/hari | Trend: +20.5% | DOI: 8.6 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Kondisi persediaan ideal. Masukkan ke jadwal pemesanan ulang standar pada siklus berikutnya.\", \"rationale\": \"Stok 58 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Biskuit Kaleng Aneka Rasa 300g | Status: Merah | Stok: 18 pcs | SMA_7: 12.4 pcs/hari | Trend: +0.0% | DOI: 1.4 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 174 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Stok tersisa 18 pcs hanya cukup untuk 1.4 hari ke depan dengan tren penjualan +0.0%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tepung Terigu Serbaguna 1kg | Status: Kuning | Stok: 110 pcs | SMA_7: 3.0 pcs/hari | Trend: -66.1% | DOI: 36.7 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"FLASH_SALE\", \"recommendation\": \"Jalankan program clearance diskon 15% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Penjualan anjlok 66.1% dalam 7 hari terakhir dengan estimasi waktu habis mencapai 36.7 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tisu Kering 250 sheets | Status: Hijau | Stok: 69 pcs | SMA_7: 5.7 pcs/hari | Trend: +60.0% | DOI: 12.1 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"MONITORING_RUTIN\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Tingkat persediaan stabil mencukupi untuk 12.1 hari ke depan dengan fluktuasi penjualan wajar (+60.0%).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kacang Kulit Gurih 200g | Status: Hijau | Stok: 66 pcs | SMA_7: 7.7 pcs/hari | Trend: +17.4% | DOI: 8.6 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"JAGA_KETERSEDIAAN\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Stok 66 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kacang Kulit Gurih 200g | Status: Kuning | Stok: 111 pcs | SMA_7: 3.0 pcs/hari | Trend: -69.6% | DOI: 37.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"FLASH_SALE\", \"recommendation\": \"Jalankan program clearance diskon 30% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 111 pcs di saat permintaan turun 69.6%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tepung Terigu Serbaguna 1kg | Status: Merah | Stok: 24 pcs | SMA_7: 10.0 pcs/hari | Trend: +45.8% | DOI: 2.4 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"ORDER_SUPPLIER\", \"recommendation\": \"Terbitkan purchase order (PO) darurat sebanyak 140 pcs ke supplier utama hari ini.\", \"rationale\": \"Stok tersisa 24 pcs hanya cukup untuk 2.4 hari ke depan dengan tren penjualan +45.8%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Pembersih Lantai Citrus 750ml | Status: Hijau | Stok: 57 pcs | SMA_7: 4.4 pcs/hari | Trend: +6.9% | DOI: 12.9 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"MONITORING_RUTIN\", \"recommendation\": \"Pertahankan siklus replenishment reguler sesuai jadwal mingguan tanpa perlu tindakan promosi khusus.\", \"rationale\": \"Stok 57 pcs berada dalam batas wajar operasional harian dengan tren permintaan yang seimbang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Cokelat Batang 50g | Status: Kuning | Stok: 158 pcs | SMA_7: 1.3 pcs/hari | Trend: -89.0% | DOI: 122.9 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RELOKASI_DISPLAY\", \"recommendation\": \"Pindahkan produk ke rak display depan/area kasir dan pasang label promo flash sale 25%.\", \"rationale\": \"Perputaran barang melambat drastis (1.3 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 122.9 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Tisu Kering 250 sheets | Status: Hijau | Stok: 95 pcs | SMA_7: 8.1 pcs/hari | Trend: +11.8% | DOI: 11.7 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"JAGA_KETERSEDIAAN\", \"recommendation\": \"Kondisi persediaan ideal. Masukkan ke jadwal pemesanan ulang standar pada siklus berikutnya.\", \"rationale\": \"Rasio perputaran barang optimal (8.1 pcs/hari) dengan cadangan stok aman tanpa risiko kekurangan barang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Minyak Goreng Pouch 2L | Status: Hijau | Stok: 91 pcs | SMA_7: 6.1 pcs/hari | Trend: +13.2% | DOI: 14.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"JAGA_KETERSEDIAAN\", \"recommendation\": \"Kondisi persediaan ideal. Masukkan ke jadwal pemesanan ulang standar pada siklus berikutnya.\", \"rationale\": \"Rasio perputaran barang optimal (6.1 pcs/hari) dengan cadangan stok aman tanpa risiko kekurangan barang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Gula Pasir Kristal 1kg | Status: Kuning | Stok: 185 pcs | SMA_7: 2.3 pcs/hari | Trend: -72.9% | DOI: 80.9 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"FLASH_SALE\", \"recommendation\": \"Pindahkan produk ke rak display depan/area kasir dan pasang label promo flash sale 20%.\", \"rationale\": \"Perputaran barang melambat drastis (2.3 pcs/hari). Diperlukan tindakan promosi agar modal tidak tertahan 80.9 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Minyak Goreng Pouch 2L | Status: Hijau | Stok: 49 pcs | SMA_7: 5.3 pcs/hari | Trend: +19.4% | DOI: 9.3 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Kondisi persediaan ideal. Masukkan ke jadwal pemesanan ulang standar pada siklus berikutnya.\", \"rationale\": \"Rasio perputaran barang optimal (5.3 pcs/hari) dengan cadangan stok aman tanpa risiko kekurangan barang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Minyak Goreng Pouch 2L | Status: Kuning | Stok: 162 pcs | SMA_7: 0.9 pcs/hari | Trend: -91.5% | DOI: 189.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RELOKASI_DISPLAY\", \"recommendation\": \"Jalankan program clearance diskon 20% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Penjualan anjlok 91.5% dalam 7 hari terakhir dengan estimasi waktu habis mencapai 189.0 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Shampoo Anti-Dandruff 180ml | Status: Hijau | Stok: 67 pcs | SMA_7: 5.6 pcs/hari | Trend: +21.9% | DOI: 12.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Lanjutkan monitoring penjualan rutin dan pastikan display rak tetap terisi rapi.\", \"rationale\": \"Rasio perputaran barang optimal (5.6 pcs/hari) dengan cadangan stok aman tanpa risiko kekurangan barang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Gula Pasir Kristal 1kg | Status: Kuning | Stok: 109 pcs | SMA_7: 0.7 pcs/hari | Trend: -91.7% | DOI: 152.6 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"BUNDLING_PRODUK\", \"recommendation\": \"Jalankan program clearance diskon 15% sebelum barang menumpuk dan mendekati masa kedaluwarsa.\", \"rationale\": \"Terindikasi risiko dead stock tinggi; stok menumpuk 109 pcs di saat permintaan turun 91.7%.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Saus Sambal Botol 335ml | Status: Kuning | Stok: 128 pcs | SMA_7: 2.0 pcs/hari | Trend: -77.0% | DOI: 64.0 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PROMO_DISKON\", \"recommendation\": \"Terapkan diskon promosi 25% atau program Buy 2 Get 1 untuk mempercepat perputaran barang.\", \"rationale\": \"Penjualan anjlok 77.0% dalam 7 hari terakhir dengan estimasi waktu habis mencapai 64.0 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kopi Hitam Sachet 10x20g | Status: Kuning | Stok: 196 pcs | SMA_7: 2.3 pcs/hari | Trend: -80.7% | DOI: 85.8 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PROMO_DISKON\", \"recommendation\": \"Pindahkan produk ke rak display depan/area kasir dan pasang label promo flash sale 20%.\", \"rationale\": \"Penjualan anjlok 80.7% dalam 7 hari terakhir dengan estimasi waktu habis mencapai 85.8 hari.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Saus Sambal Botol 335ml | Status: Merah | Stok: 10 pcs | SMA_7: 9.3 pcs/hari | Trend: +6.6% | DOI: 1.1 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_PRIORITAS\", \"recommendation\": \"Lakukan pemesanan restock sebanyak 130 pcs untuk mengamankan persediaan 2 minggu ke depan.\", \"rationale\": \"Perputaran barang tinggi (9.3 pcs/hari) dan persediaan kritis di bawah batas aman (1.1 hari).\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Cairan Cuci Piring Jeruk Nipis 700ml | Status: Hijau | Stok: 111 pcs | SMA_7: 7.9 pcs/hari | Trend: +22.2% | DOI: 14.1 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"PERTAHANKAN_STOK\", \"recommendation\": \"Kondisi persediaan ideal. Masukkan ke jadwal pemesanan ulang standar pada siklus berikutnya.\", \"rationale\": \"Rasio perputaran barang optimal (7.9 pcs/hari) dengan cadangan stok aman tanpa risiko kekurangan barang.\"}"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "role": "system",
+        "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."
+      },
+      {
+        "role": "user",
+        "content": "Produk: Kopi Hitam Sachet 10x20g | Status: Merah | Stok: 14 pcs | SMA_7: 6.3 pcs/hari | Trend: +63.0% | DOI: 2.2 hari"
+      },
+      {
+        "role": "assistant",
+        "content": "{\"action\": \"RESTOCK_URGENT\", \"recommendation\": \"Segera pesan ulang minimal 88 pcs dan minta pengiriman prioritas.\", \"rationale\": \"Stok tersisa 14 pcs hanya cukup untuk 2.2 hari ke depan dengan tren penjualan +63.0%.\"}"
+      }
+    ]
+  }
+]
