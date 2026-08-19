@@ -1,1 +1,51 @@
 @import "tailwindcss";
+
+/* ── CoStore Design Tokens ─────────────────────────────────────── */
+:root {
+  --color-primary:      #00685F;
+  --color-primary-dark: #008378;
+  --color-secondary:    #4648D4;
+  --color-ai:           #4F46E5;
+  --color-bg:           #F9F9FF;
+  --color-surface:      #FFFFFF;
+  --color-text:         #141B2B;
+  --color-muted:        #3D4947;
+  --color-warning:      #F59E0B;
+  --color-danger:       #EF4444;
+  --color-success:      #10B981;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ── Material Symbols ───────────────────────────────────────────── */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  user-select: none;
+  line-height: 1;
+}
+
+/* ── Skeleton animation ─────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 800px 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }

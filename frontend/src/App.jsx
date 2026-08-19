@@ -1,37 +1,106 @@
-import { useEffect, useState } from "react";
-import api from "./services/api";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import Sidebar from "./components/layout/Sidebar";
+import Dashboard from "./pages/Dashboard";
+import PlaceholderPage from "./pages/PlaceholderPage";
 
-function App() {
-  const [message, setMessage] = useState("Connecting...");
-
-  useEffect(() => {
-    api.get("/")
-      .then((res) => {
-        setMessage(res.data.message);
-      })
-      .catch((err) => {
-        console.error(err);
-        setMessage("Backend connection failed");
-      });
-  }, []);
-
+function AppLayout({ children }) {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="rounded-xl bg-white p-8 shadow-lg">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Nyawit POS
-        </h1>
-
-        <p className="mt-3 text-gray-600">
-          {message}
-        </p>
-
-        <div className="mt-5 inline-block rounded-lg bg-green-100 px-4 py-2 text-green-700">
-          System Ready
-        </div>
+    <div className="flex min-h-screen">
+      {/* Fixed sidebar — desktop only */}
+      <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0">
+        <Sidebar />
+      </div>
+      {/* Main area offset by sidebar width on desktop */}
+      <div className="flex flex-1 flex-col min-w-0 lg:ml-64">
+        {children}
       </div>
     </div>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <AppLayout>
+              <Dashboard />
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/pos"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <PlaceholderPage title="POS / Cashier" />
+              </div>
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/transactions"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <PlaceholderPage title="Transaction History" />
+              </div>
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/products"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <PlaceholderPage title="Product Management" />
+              </div>
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/stock"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <PlaceholderPage title="Stock Management" />
+              </div>
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/ai-insights"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <PlaceholderPage title="AI Insights" />
+              </div>
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <PlaceholderPage title="Settings" />
+              </div>
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/support"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <PlaceholderPage title="Support" />
+              </div>
+            </AppLayout>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+}
