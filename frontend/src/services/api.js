@@ -58,4 +58,14 @@ export const stockOut = (data) =>
 export const adjustStock = (data) =>
   api.post("/api/inventory/adjustment", data).then((r) => r.data);
 
+/* ── AI Insights ─────────────────────────────────────────────────── */
+export const getAIScenarios = () =>
+  api.get("/api/mock/scenarios").then((r) => r.data);
+
+export const simulateScenario = (scenarioKey) =>
+  api.post(`/api/mock/simulate?scenario=${scenarioKey}`).then((r) => r.data);
+
+export const evaluateInventory = (payload) =>
+  api.post("/api/inventory/evaluate", payload).then((r) => r.data);
+
 export default api;

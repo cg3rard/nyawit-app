@@ -1,13 +1,13 @@
 from datetime import date, datetime, time
 from decimal import Decimal
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.models.product import Product
 from app.models.transaction import Transaction, TransactionItem
-from app.schemas.dashboard import DashboardSummary, ExpiryAlert, SalesToday
+from app.schemas.dashboard import DashboardSummary, ExpiryAlert, SalesToday, AIInsightDetail
 from app.services.analytics_service import (
     get_inventory_summary,
     get_low_stock,
@@ -93,6 +93,99 @@ def _get_expiry_alerts(db: Session) -> List[ExpiryAlert]:
     ]
 
 
+def _get_ai_insight(db: Session) -> Optional[AIInsightDetail]:
+    from datetime import timedelta
+    from engine.metrics import InventoryEngine
+    from app.routes.ai import get_llm_recommendation
+    
+    products = db.query(Product).all()
+    if not products:
+        return None
+        
+    today = date.today()
+    start_date = today - timedelta(days=13)
+    
+    # Single query to fetch 14-day history for all products
+    sales_data = (
+        db.query(
+            TransactionItem.product_id,
+            func.date(Transaction.created_at).label("sale_date"),
+            func.sum(TransactionItem.quantity).label("total_qty")
+        )
+        .join(Transaction, Transaction.id == TransactionItem.transaction_id)
+        .filter(Transaction.created_at >= datetime.combine(start_date, time.min))
+        .group_by(TransactionItem.product_id, func.date(Transaction.created_at))
+        .all()
+    )
+    
+    product_sales = {}
+    for row in sales_data:
+        p_id = row.product_id
+        d = row.sale_date
+        if isinstance(d, str):
+            d_str = d
+        elif d is not None:
+            d_str = d.strftime("%Y-%m-%d")
+        else:
+            continue
+            
+        if p_id not in product_sales:
+            product_sales[p_id] = {}
+        product_sales[p_id][d_str] = int(row.total_qty)
+        
+    dates = [today - timedelta(days=i) for i in range(13, -1, -1)]
+    critical_items = []
+    
+    for p in products:
+        sales_map = product_sales.get(p.id, {})
+        history = []
+        for d in dates:
+            d_str = d.strftime("%Y-%m-%d")
+            history.append(sales_map.get(d_str, 0))
+            
+        prior_7d = history[:7]
+        recent_7d = history[7:]
+        
+        metrics = InventoryEngine.calculate_metrics(
+            product_name=p.name,
+            current_stock=p.stock,
+            sales_recent_7d=recent_7d,
+            sales_prior_7d=prior_7d
+        )
+        
+        if metrics.status in ("Merah", "Kuning"):
+            critical_items.append((p.id, p.name, metrics))
+            
+    if not critical_items:
+        return None
+        
+    # Sort: Red first (asc DOI), then Yellow (desc stock)
+    def sort_key(item):
+        _, _, m = item
+        status_val = 0 if m.status == "Merah" else 1
+        metric_val = m.days_of_inventory if m.status == "Merah" else -m.current_stock
+        return (status_val, metric_val)
+        
+    critical_items.sort(key=sort_key)
+    
+    p_id, p_name, m = critical_items[0]
+    ai_rec = get_llm_recommendation(m.prompt_payload, m.status)
+    
+    return AIInsightDetail(
+        product_id=p_id,
+        product_name=p_name,
+        status=m.status,
+        metrics={
+            "current_stock": m.current_stock,
+            "sma_7_daily": m.sma_7,
+            "sma_prior_daily": m.sma_prior,
+            "sales_trend_pct": f"{m.trend_pct:+}%",
+            "days_of_inventory": m.days_of_inventory
+        },
+        ai_recommendation=ai_rec
+    )
+
+
 def get_dashboard_summary(db: Session) -> DashboardSummary:
     """
     Build the full Owner Dashboard payload.
@@ -103,6 +196,7 @@ def get_dashboard_summary(db: Session) -> DashboardSummary:
     """
     LOW_STOCK_THRESHOLD = 5
     TOP_PRODUCTS_LIMIT = 5
+    from app.schemas.dashboard import AIInsightDetail
 
     return DashboardSummary(
         sales_today=_get_sales_today(db),
@@ -120,4 +214,5 @@ def get_dashboard_summary(db: Session) -> DashboardSummary:
         inventory=get_inventory_summary(db, low_stock_threshold=LOW_STOCK_THRESHOLD),
         low_stock_products=get_low_stock(db, threshold=LOW_STOCK_THRESHOLD),
         expiry_alerts=_get_expiry_alerts(db),
+        ai_insight=_get_ai_insight(db),
     )

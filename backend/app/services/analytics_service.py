@@ -139,14 +139,16 @@ def get_inventory_summary(db: Session, low_stock_threshold: int = 5) -> Inventor
     Return aggregated current inventory counts.
     All values sourced from Product.stock — single query with conditional aggregation.
     """
+    from sqlalchemy import case
+
     row = db.query(
         func.count(Product.id).label("total_products"),
         func.coalesce(func.sum(Product.stock), 0).label("total_stock_units"),
         func.sum(
-            func.IF(Product.stock <= 0, 1, 0)
+            case((Product.stock <= 0, 1), else_=0)
         ).label("out_of_stock_products"),
         func.sum(
-            func.IF(Product.stock <= low_stock_threshold, 1, 0)
+            case((Product.stock <= low_stock_threshold, 1), else_=0)
         ).label("low_stock_products"),
     ).one()
 

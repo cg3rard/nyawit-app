@@ -28,6 +28,16 @@ class ExpiryAlert(BaseModel):
     expiry_date: date
 
 
+from typing import Dict, Any, Optional
+
+class AIInsightDetail(BaseModel):
+    product_id: int
+    product_name: str
+    status: str
+    metrics: Dict[str, Any]
+    ai_recommendation: Dict[str, str]
+
+
 class DashboardSummary(BaseModel):
     """
     Single aggregated payload for the CoStore Owner Dashboard.
@@ -40,3 +50,4 @@ class DashboardSummary(BaseModel):
     inventory: InventorySummary
     low_stock_products: List[LowStockProduct]
     expiry_alerts: List[ExpiryAlert]
+    ai_insight: Optional[AIInsightDetail] = None

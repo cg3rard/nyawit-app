@@ -112,7 +112,7 @@ export default function Dashboard() {
                 <div className="lg:col-span-2">
                   <InventoryStatus inventory={data.inventory} />
                 </div>
-                <AIInsightCard />
+                <AIInsightCard insight={data.ai_insight} />
               </div>
 
               {/* Row 4: Action Required + Expiry Alerts */}

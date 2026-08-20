@@ -1,6 +1,7 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Sidebar from "./components/layout/Sidebar";
 import Dashboard from "./pages/Dashboard";
+import AIInsights from "./pages/AIInsights";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import POS from "./pages/POS";
 import Products from "./pages/Products";
@@ -77,7 +78,7 @@ export default function App() {
           element={
             <AppLayout>
               <div className="flex flex-1 flex-col min-h-screen">
-                <PlaceholderPage title="AI Insights" />
+                <AIInsights />
               </div>
             </AppLayout>
           }
