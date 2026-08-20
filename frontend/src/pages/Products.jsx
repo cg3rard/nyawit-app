@@ -3,6 +3,7 @@ import {
   createProduct,
   getProducts,
   updateProduct,
+  deleteProduct,
 } from "../services/api";
 
 import TopBar from "../components/layout/TopBar";
@@ -11,6 +12,7 @@ import MobileSidebar from "../components/layout/MobileSidebar";
 import ProductFilters from "../components/products/ProductFilters";
 import ProductTable from "../components/products/ProductTable";
 import ProductModal from "../components/products/ProductModal";
+import DeleteProductModal from "../components/products/DeleteProductModal";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
@@ -23,12 +25,19 @@ export default function Products() {
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Product modal
+  // Add / Edit modal
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [editingProduct, setEditingProduct] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Delete modal
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deletingProduct, setDeletingProduct] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState(null);
+
+  // ── Load Products ───────────────────────────────────────────────
   const loadProducts = async () => {
     try {
       setLoading(true);
@@ -51,6 +60,7 @@ export default function Products() {
     loadProducts();
   }, []);
 
+  // ── Categories ─────────────────────────────────────────────────
   const categories = useMemo(() => {
     return [
       ...new Set(
@@ -61,6 +71,7 @@ export default function Products() {
     ];
   }, [products]);
 
+  // ── Filter Products ────────────────────────────────────────────
   const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -94,7 +105,7 @@ export default function Products() {
     setError(null);
   };
 
-  // ── Close Modal ────────────────────────────────────────────────
+  // ── Close Add/Edit Modal ───────────────────────────────────────
   const handleCloseModal = () => {
     if (submitting) {
       return;
@@ -130,6 +141,53 @@ export default function Products() {
       );
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // ── Open Delete Modal ──────────────────────────────────────────
+  const handleDeleteProduct = (product) => {
+    setDeletingProduct(product);
+    setDeleteError(null);
+    setDeleteModalOpen(true);
+  };
+
+  // ── Close Delete Modal ─────────────────────────────────────────
+  const handleCloseDeleteModal = () => {
+    if (deleting) {
+      return;
+    }
+
+    setDeleteModalOpen(false);
+    setDeletingProduct(null);
+    setDeleteError(null);
+  };
+
+  // ── Delete Product ─────────────────────────────────────────────
+  const handleConfirmDelete = async () => {
+    if (!deletingProduct) {
+      return;
+    }
+
+    try {
+      setDeleting(true);
+      setDeleteError(null);
+
+      await deleteProduct(deletingProduct.id);
+
+      setDeleteModalOpen(false);
+      setDeletingProduct(null);
+
+      await loadProducts();
+    } catch (err) {
+      const detail = err?.response?.data?.detail;
+
+      setDeleteError(
+        typeof detail === "string"
+          ? detail
+          : err?.message || "Failed to delete product."
+      );
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -180,6 +238,35 @@ export default function Products() {
               </button>
             </div>
 
+            {/* Global Error */}
+            {error && (
+              <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
+                <span className="material-symbols-outlined mt-0.5 text-[20px] text-red-500">
+                  error
+                </span>
+
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-red-700">
+                    Something went wrong
+                  </p>
+
+                  <p className="mt-0.5 text-xs text-red-600">
+                    {error}
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setError(null)}
+                  className="text-red-400 transition hover:text-red-600"
+                >
+                  <span className="material-symbols-outlined text-[18px]">
+                    close
+                  </span>
+                </button>
+              </div>
+            )}
+
             {/* Filters */}
             <div className="mb-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
               <ProductFilters
@@ -191,7 +278,7 @@ export default function Products() {
               />
             </div>
 
-            {/* Table */}
+            {/* Product Table */}
             <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
               <div className="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
                 <div>
@@ -217,21 +304,18 @@ export default function Products() {
                   >
                     refresh
                   </span>
+
                   Refresh
                 </button>
               </div>
 
               {loading ? (
                 <ProductTableLoading />
-              ) : error ? (
-                <ProductError
-                  message={error}
-                  onRetry={loadProducts}
-                />
               ) : (
                 <ProductTable
                   products={filteredProducts}
                   onEdit={handleEditProduct}
+                  onDelete={handleDeleteProduct}
                 />
               )}
             </div>
@@ -247,6 +331,16 @@ export default function Products() {
         onClose={handleCloseModal}
         onSubmit={handleSubmitProduct}
         submitting={submitting}
+      />
+
+      {/* Delete Product Modal */}
+      <DeleteProductModal
+        open={deleteModalOpen}
+        product={deletingProduct}
+        onClose={handleCloseDeleteModal}
+        onConfirm={handleConfirmDelete}
+        deleting={deleting}
+        error={deleteError}
       />
     </div>
   );
@@ -269,32 +363,6 @@ function ProductTableLoading() {
           <div className="ml-auto h-4 w-20 animate-pulse rounded bg-[#E2E8F0]" />
         </div>
       ))}
-    </div>
-  );
-}
-
-function ProductError({ message, onRetry }) {
-  return (
-    <div className="flex min-h-[280px] flex-col items-center justify-center text-center">
-      <span className="material-symbols-outlined mb-3 text-[32px] text-red-500">
-        error
-      </span>
-
-      <p className="text-sm font-semibold text-[#141B2B]">
-        Failed to load products
-      </p>
-
-      <p className="mt-1 max-w-sm text-xs text-[#64748B]">
-        {message}
-      </p>
-
-      <button
-        type="button"
-        onClick={onRetry}
-        className="mt-4 rounded-lg bg-[#00685F] px-4 py-2 text-xs font-semibold text-white"
-      >
-        Retry
-      </button>
     </div>
   );
 }

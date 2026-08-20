@@ -19,6 +19,9 @@ export const createProduct = (product) =>
 export const updateProduct = (productId, product) =>
   api.put(`/api/products/${productId}`, product).then((r) => r.data);
 
+export const deleteProduct = (id) =>
+  api.delete(`/api/products/${id}`).then((r) => r.data);
+
 /* ── Transactions ────────────────────────────────────────────────── */
 export const getTransactions = () =>
   api.get("/api/transactions/").then((r) => r.data);
