@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 export default function DeleteProductModal({
   open,
   product,
@@ -6,6 +8,16 @@ export default function DeleteProductModal({
   deleting,
   error,
 }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape" && open) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   if (!open || !product) {
     return null;
   }

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import ProductForm from "./ProductForm";
 
 export default function ProductModal({
@@ -7,7 +8,18 @@ export default function ProductModal({
   onClose,
   onSubmit,
   submitting = false,
+  categories = [],
 }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape" && open) {
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   if (!open) {
     return null;
   }
@@ -54,6 +66,7 @@ export default function ProductModal({
             onSubmit={onSubmit}
             onCancel={onClose}
             submitting={submitting}
+            categories={categories}
           />
         </div>
       </div>

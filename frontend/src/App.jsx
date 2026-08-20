@@ -5,6 +5,7 @@ import PlaceholderPage from "./pages/PlaceholderPage";
 import POS from "./pages/POS";
 import Products from "./pages/Products";
 import Inventory from "./pages/Inventory";
+import Transactions from "./pages/Transactions";
 
 function AppLayout({ children }) {
   return (
@@ -36,11 +37,9 @@ export default function App() {
         <Route
           path="/pos"
           element={
-            <AppLayout>
-              <div className="flex flex-1 flex-col min-h-screen">
-                <POS />
-              </div>
-            </AppLayout>
+            <div className="flex flex-1 flex-col min-h-screen">
+              <POS />
+            </div>
           }
         />
         <Route
@@ -48,7 +47,7 @@ export default function App() {
           element={
             <AppLayout>
               <div className="flex flex-1 flex-col min-h-screen">
-                <PlaceholderPage title="Transaction History" />
+                <Transactions />
               </div>
             </AppLayout>
           }

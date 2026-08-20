@@ -1,14 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { getProducts, createTransaction } from "../services/api";
-
-import TopBar from "../components/layout/TopBar";
-import MobileSidebar from "../components/layout/MobileSidebar";
 
 import ProductGrid from "../components/pos/ProductGrid";
 import Cart from "../components/pos/Cart";
 import CartSummary from "../components/pos/CartSummary";
+import PaymentModal from "../components/pos/PaymentModal";
+import AddToCartModal from "../components/pos/AddToCartModal";
 
 export default function POS() {
+  const navigate = useNavigate();
+
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
 
@@ -17,10 +19,14 @@ export default function POS() {
 
   const [loading, setLoading] = useState(true);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [paymentModalOpen, setPaymentModalOpen] = useState(false);
+
+  const [selectedProductForCart, setSelectedProductForCart] = useState(null);
+  const [addToCartModalOpen, setAddToCartModalOpen] = useState(false);
 
   const [error, setError] = useState(null);
   const [checkoutSuccess, setCheckoutSuccess] = useState(null);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [receiptToPrint, setReceiptToPrint] = useState(null);
 
   const loadProducts = async () => {
     try {
@@ -33,7 +39,7 @@ export default function POS() {
       setError(
         err?.response?.data?.detail ||
           err?.message ||
-          "Failed to load products."
+          "Failed to load products.",
       );
     } finally {
       setLoading(false);
@@ -45,53 +51,82 @@ export default function POS() {
   }, []);
 
   const categories = useMemo(() => {
-    const values = products
-      .map((product) => product.category)
-      .filter(Boolean);
+    const values = products.map((product) => product.category).filter(Boolean);
 
     return [...new Set(values)];
+  }, [products]);
+
+  const groupedProducts = useMemo(() => {
+    const groups = {};
+    products.forEach((p) => {
+      const key = p.name.trim().toLowerCase();
+      if (!groups[key]) {
+        groups[key] = [];
+      }
+      groups[key].push(p);
+    });
+
+    return Object.values(groups).map((batchList) => {
+      const sortedBatches = [...batchList].sort((a, b) => {
+        if (!a.expiry_date) return 1;
+        if (!b.expiry_date) return -1;
+        return new Date(a.expiry_date) - new Date(b.expiry_date);
+      });
+
+      const first = sortedBatches[0];
+      const totalStock = batchList.reduce((sum, b) => sum + b.stock, 0);
+
+      return {
+        ...first,
+        stock: totalStock,
+        batches: sortedBatches,
+      };
+    });
   }, [products]);
 
   const addToCart = (product) => {
     if (product.stock <= 0) {
       return;
     }
-
     setCheckoutSuccess(null);
+    setSelectedProductForCart(product);
+    setAddToCartModalOpen(true);
+  };
+
+  const handleConfirmAddToCart = (selectedBatch, quantity) => {
+    if (!selectedBatch) return;
 
     setCart((currentCart) => {
-      const existing = currentCart.find(
-        (item) => item.id === product.id
-      );
+      const existing = currentCart.find((item) => item.id === selectedBatch.id);
 
       if (existing) {
-        if (existing.quantity >= product.stock) {
-          return currentCart;
-        }
-
         return currentCart.map((item) =>
-          item.id === product.id
+          item.id === selectedBatch.id
             ? {
                 ...item,
-                quantity: item.quantity + 1,
+                quantity: Math.min(selectedBatch.stock, quantity),
               }
-            : item
+            : item,
         );
       }
 
       return [
         ...currentCart,
         {
-          id: product.id,
-          product_id: product.id,
-          name: product.name,
-          product_code: product.product_code,
-          selling_price: product.selling_price,
-          stock: product.stock,
-          quantity: 1,
+          id: selectedBatch.id,
+          product_id: selectedBatch.id,
+          name: selectedBatch.name,
+          product_code: selectedBatch.product_code,
+          selling_price: selectedBatch.selling_price,
+          stock: selectedBatch.stock,
+          quantity: quantity,
+          expiry_date: selectedBatch.expiry_date,
         },
       ];
     });
+
+    setAddToCartModalOpen(false);
+    setSelectedProductForCart(null);
   };
 
   const increaseQuantity = (productId) => {
@@ -109,7 +144,7 @@ export default function POS() {
           ...item,
           quantity: item.quantity + 1,
         };
-      })
+      }),
     );
   };
 
@@ -122,19 +157,19 @@ export default function POS() {
                 ...item,
                 quantity: item.quantity - 1,
               }
-            : item
+            : item,
         )
-        .filter((item) => item.quantity > 0)
+        .filter((item) => item.quantity > 0),
     );
   };
 
   const removeFromCart = (productId) => {
     setCart((currentCart) =>
-      currentCart.filter((item) => item.id !== productId)
+      currentCart.filter((item) => item.id !== productId),
     );
   };
 
-  const handleCheckout = async () => {
+  const handleConfirmCheckout = async (paymentData) => {
     if (cart.length === 0 || isCheckingOut) {
       return;
     }
@@ -150,15 +185,19 @@ export default function POS() {
 
       const transaction = await createTransaction(payload);
 
-      setCheckoutSuccess(transaction);
+      setCheckoutSuccess({
+        ...transaction,
+        payment_method: paymentData.payment_method,
+        cash_received: paymentData.cash_received,
+        change: paymentData.change,
+      });
       setCart([]);
+      setPaymentModalOpen(false);
 
       await loadProducts();
     } catch (err) {
       const message =
-        err?.response?.data?.detail ||
-        err?.message ||
-        "Checkout failed.";
+        err?.response?.data?.detail || err?.message || "Checkout failed.";
 
       setError(message);
     } finally {
@@ -166,91 +205,141 @@ export default function POS() {
     }
   };
 
+  const handlePrintReceipt = (tx) => {
+    setReceiptToPrint(tx);
+    setTimeout(() => {
+      window.print();
+    }, 100);
+  };
+
+  const formatIdr = (val) => {
+    return new Intl.NumberFormat("id-ID", {
+      style: "currency",
+      currency: "IDR",
+      maximumFractionDigits: 0,
+    })
+      .format(Number(val))
+      .replace("IDR", "Rp");
+  };
+
+  const subtotal = cart.reduce(
+    (sum, item) => sum + Number(item.selling_price) * Number(item.quantity),
+    0,
+  );
+
   return (
-    <div className="flex min-h-screen bg-[#F9F9FF]">
-      <MobileSidebar
-        open={mobileSidebarOpen}
-        onClose={() => setMobileSidebarOpen(false)}
-      />
+    <div className="flex h-screen flex-col bg-[#F9F9FF]">
+      {/* Standalone POS Header */}
+      <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[#E2E8F0] bg-white px-4 lg:px-6">
+        {/* Brand / logo back button */}
+        <button
+          type="button"
+          onClick={() => navigate("/")}
+          className="flex items-center gap-3 transition hover:opacity-85 text-left"
+          title="Back to dashboard"
+        >
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E8F5F3]">
+            <span
+              className="material-symbols-outlined text-[#00685F]"
+              style={{ fontVariationSettings: "'FILL' 1" }}
+            >
+              storefront
+            </span>
+          </div>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar
-          onMenuOpen={() => setMobileSidebarOpen(true)}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          lowStockProducts={[]}
-          expiryAlerts={[]}
-        />
+          <div>
+            <h1
+              className="text-xl font-bold tracking-tight text-[#00685F]"
+              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+            >
+              CoStore
+            </h1>
+            <p className="text-[10px] text-[#64748B] -mt-1 font-medium">
+              Back to Main Dashboard
+            </p>
+          </div>
+        </button>
 
-        <main className="flex min-h-0 flex-1 flex-col bg-[#F9F9FF] md:flex-row">
-          {/* LEFT: PRODUCT AREA */}
-          <section className="flex min-w-0 flex-1 flex-col border-r border-[#E2E8F0]">
-            {/* Header */}
-            <div className="border-b border-[#E2E8F0] bg-white px-4 py-4 lg:px-6">
-              <div className="mb-4">
-                <h1
-                  className="text-xl font-semibold text-[#141B2B]"
-                  style={{
-                    fontFamily: "'Plus Jakarta Sans', sans-serif",
-                  }}
-                >
-                  Point of Sale
-                </h1>
+        {/* Search */}
+        <div className="relative w-full max-w-lg mx-4">
+          <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[19px] text-[#64748B]">
+            search
+          </span>
 
-                <p className="mt-1 text-sm text-[#64748B]">
-                  Select products to start a new sale.
-                </p>
-              </div>
+          <input
+            type="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search products by name or code..."
+            className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] pl-10 pr-4 text-sm text-[#141B2B] outline-none transition-all placeholder:text-[#94A3B8] focus:border-[#00685F] focus:bg-white focus:ring-2 focus:ring-[#00685F]/10"
+          />
+        </div>
 
-              {/* Categories */}
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                <CategoryButton
-                  active={!selectedCategory}
-                  label="All"
-                  onClick={() => setSelectedCategory("")}
-                />
+        {/* Exit Button */}
+        <div>
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            className="flex items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-4 h-10 text-sm font-semibold text-[#64748B] transition hover:bg-[#F8FAFC]"
+          >
+            <span className="material-symbols-outlined text-[18px]">
+              logout
+            </span>
+            Exit POS
+          </button>
+        </div>
+      </header>
 
-                {categories.map((category) => (
-                  <CategoryButton
-                    key={category}
-                    active={selectedCategory === category}
-                    label={category}
-                    onClick={() => setSelectedCategory(category)}
-                  />
-                ))}
-              </div>
-            </div>
+      {/* POS Content Body */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* LEFT: PRODUCT AREA (Larger size) */}
+        <main className="flex flex-1 flex-col min-w-0 bg-[#F9F9FF] border-r border-[#E2E8F0]">
+          {/* Categories bar */}
+          <div className="border-b border-[#E2E8F0] bg-white px-6 py-4 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
+            <CategoryButton
+              active={!selectedCategory}
+              label="All Categories"
+              onClick={() => setSelectedCategory("")}
+            />
 
-            {/* Product content */}
-            <div className="min-h-0 flex-1 overflow-y-auto p-4 lg:p-6">
-              {loading ? (
-                <ProductLoading />
-              ) : error && products.length === 0 ? (
-                <ProductError
-                  message={error}
-                  onRetry={loadProducts}
-                />
-              ) : (
-                <ProductGrid
-                  products={products}
-                  searchQuery={searchQuery}
-                  selectedCategory={selectedCategory}
-                  onAddToCart={addToCart}
-                />
-              )}
-            </div>
-          </section>
+            {categories.map((category) => (
+              <CategoryButton
+                key={category}
+                active={selectedCategory === category}
+                label={category}
+                onClick={() => setSelectedCategory(category)}
+              />
+            ))}
+          </div>
 
-          {/* RIGHT: CART */}
-          <section className="flex w-full shrink-0 flex-col bg-white md:w-[380px]">
-            <div className="flex items-center justify-between border-b border-[#E2E8F0] px-4 py-4">
+          {/* Product Grid Content */}
+          <div className="flex-1 overflow-y-auto p-6">
+            {loading ? (
+              <ProductLoading />
+            ) : error && products.length === 0 ? (
+              <ProductError message={error} onRetry={loadProducts} />
+            ) : (
+              <ProductGrid
+                products={groupedProducts}
+                searchQuery={searchQuery}
+                selectedCategory={selectedCategory}
+                onAddToCart={addToCart}
+              />
+            )}
+          </div>
+        </main>
+
+        {/* RIGHT: CART (Wider layout) */}
+        <aside className="flex w-full shrink-0 flex-col bg-white border-l border-[#E2E8F0] md:w-[440px] h-full justify-between">
+          <div className="flex flex-col min-h-0 flex-1">
+            <div className="flex items-center justify-between border-b border-[#E2E8F0] px-6 py-5">
               <div className="flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#00685F]">
                   shopping_cart
                 </span>
 
                 <h2
-                  className="text-base font-semibold text-[#141B2B]"
+                  className="text-base font-bold text-[#141B2B]"
                   style={{
                     fontFamily: "'Plus Jakarta Sans', sans-serif",
                   }}
@@ -260,65 +349,165 @@ export default function POS() {
               </div>
 
               <span className="rounded-full bg-[#F1F3FF] px-2.5 py-1 text-xs font-semibold text-[#64748B]">
-                {cart.length} products
+                {cart.length} items
               </span>
             </div>
 
             {checkoutSuccess && (
-              <div className="mx-3 mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
-                <div className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-emerald-600">
+              <div className="mx-6 mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+                <div className="flex items-start gap-3">
+                  <span className="material-symbols-outlined text-emerald-600 text-[22px]">
                     check_circle
                   </span>
 
                   <div>
                     <p className="text-sm font-semibold text-emerald-800">
-                      Sale completed
+                      Sale completed successfully
                     </p>
 
-                    <p className="mt-0.5 text-xs text-emerald-700">
+                    <p className="mt-0.5 text-xs text-emerald-700 font-mono">
                       {checkoutSuccess.transaction_code}
                     </p>
+
+                    <button
+                      type="button"
+                      onClick={() => handlePrintReceipt(checkoutSuccess)}
+                      className="mt-2.5 flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300 bg-white px-3 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-50"
+                    >
+                      <span className="material-symbols-outlined text-[15px]">print</span>
+                      Print Receipt
+                    </button>
                   </div>
                 </div>
               </div>
             )}
 
             {error && products.length > 0 && (
-              <div className="mx-3 mt-3 rounded-xl border border-red-200 bg-red-50 p-3">
-                <div className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-red-500">
+              <div className="mx-6 mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
+                <div className="flex items-start gap-3">
+                  <span className="material-symbols-outlined text-red-500 text-[22px]">
                     error
                   </span>
 
                   <div>
-                    <p className="text-xs font-semibold text-red-800">
+                    <p className="text-sm font-semibold text-red-800">
                       Checkout failed
                     </p>
 
-                    <p className="mt-0.5 text-xs text-red-700">
-                      {error}
-                    </p>
+                    <p className="mt-0.5 text-xs text-red-700">{error}</p>
                   </div>
                 </div>
               </div>
             )}
 
-            <Cart
-              items={cart}
-              onIncrease={increaseQuantity}
-              onDecrease={decreaseQuantity}
-              onRemove={removeFromCart}
-            />
+            <div className="flex-1 overflow-y-auto">
+              <Cart
+                items={cart}
+                onIncrease={increaseQuantity}
+                onDecrease={decreaseQuantity}
+                onRemove={removeFromCart}
+              />
+            </div>
+          </div>
 
-            <CartSummary
-              items={cart}
-              onCheckout={handleCheckout}
-              isCheckingOut={isCheckingOut}
-            />
-          </section>
-        </main>
+          <CartSummary
+            items={cart}
+            onCheckout={() => setPaymentModalOpen(true)}
+            isCheckingOut={isCheckingOut}
+          />
+        </aside>
       </div>
+
+      {/* Standalone Payment Modal */}
+      <PaymentModal
+        isOpen={paymentModalOpen}
+        totalAmount={subtotal}
+        onClose={() => setPaymentModalOpen(false)}
+        onConfirm={handleConfirmCheckout}
+        isCheckingOut={isCheckingOut}
+      />
+
+      {/* Add to Cart Quantity Modal */}
+      <AddToCartModal
+        isOpen={addToCartModalOpen}
+        product={selectedProductForCart}
+        cart={cart}
+        onClose={() => {
+          setAddToCartModalOpen(false);
+          setSelectedProductForCart(null);
+        }}
+        onConfirm={handleConfirmAddToCart}
+      />
+
+      {/* Thermal Receipt for printing */}
+      {receiptToPrint && (
+        <div id="thermal-receipt" className="hidden print:block font-mono">
+          <div className="text-center">
+            <h2 className="text-sm font-bold uppercase">CoStore Pro</h2>
+            <p className="text-[10px]">Nyawit Store</p>
+            <p className="text-[10px]">Jakarta, Indonesia</p>
+            <p className="my-1">================================</p>
+          </div>
+          
+          <div className="text-[10px] space-y-0.5 text-left">
+            <p>TXID: <span className="font-bold">{receiptToPrint.transaction_code}</span></p>
+            <p>DATE: {new Date(receiptToPrint.created_at).toLocaleString("id-ID")}</p>
+          </div>
+          
+          <p className="my-1">--------------------------------</p>
+          
+          <div className="space-y-1 text-[10px] text-left">
+            {receiptToPrint.items?.map((item) => {
+              const prod = products.find((p) => p.id === item.product_id);
+              return (
+                <div key={item.id} className="flex flex-col">
+                  <span className="font-semibold">{prod?.name || "Unknown Item"}</span>
+                  <div className="flex justify-between pl-2">
+                    <span>{item.quantity} x {formatIdr(item.unit_price || prod?.selling_price)}</span>
+                    <span>{formatIdr(item.subtotal || (item.quantity * (item.unit_price || prod?.selling_price)))}</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          
+          <p className="my-1">--------------------------------</p>
+          
+          <div className="text-[10px] space-y-1 text-left">
+            <div className="flex justify-between font-bold">
+              <span>TOTAL</span>
+              <span>{formatIdr(receiptToPrint.total_amount)}</span>
+            </div>
+            
+            {receiptToPrint.payment_method === "cash" && (
+              <>
+                <div className="flex justify-between">
+                  <span>CASH PAID</span>
+                  <span>{formatIdr(receiptToPrint.cash_received || receiptToPrint.total_amount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>CHANGE</span>
+                  <span>{formatIdr(receiptToPrint.change || 0)}</span>
+                </div>
+              </>
+            )}
+
+            {receiptToPrint.payment_method === "qris" && (
+              <div className="flex justify-between">
+                <span>PAYMENT METHOD</span>
+                <span>QRIS (PAID)</span>
+              </div>
+            )}
+          </div>
+          
+          <p className="my-1">================================</p>
+          
+          <div className="text-center text-[10px] mt-2">
+            <p className="font-bold">THANK YOU</p>
+            <p>TERIMAKASIH BANYAK</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -329,7 +518,7 @@ function CategoryButton({ active, label, onClick }) {
       type="button"
       onClick={onClick}
       className={[
-        "whitespace-nowrap rounded-full border px-4 py-2 text-xs font-semibold transition-colors",
+        "whitespace-nowrap rounded-full border px-4 py-2.5 text-xs font-bold transition-colors",
         active
           ? "border-[#00685F]/20 bg-[#E8F5F3] text-[#00685F]"
           : "border-[#E2E8F0] bg-white text-[#64748B] hover:border-[#00685F] hover:text-[#00685F]",
@@ -342,7 +531,7 @@ function CategoryButton({ active, label, onClick }) {
 
 function ProductLoading() {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {Array.from({ length: 10 }).map((_, index) => (
         <div
           key={index}
@@ -363,18 +552,14 @@ function ProductError({ message, onRetry }) {
   return (
     <div className="flex min-h-[360px] flex-col items-center justify-center text-center">
       <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-red-50">
-        <span className="material-symbols-outlined text-red-500">
-          error
-        </span>
+        <span className="material-symbols-outlined text-red-500">error</span>
       </div>
 
       <h3 className="text-sm font-semibold text-[#141B2B]">
         Failed to load products
       </h3>
 
-      <p className="mt-1 max-w-sm text-xs text-[#64748B]">
-        {message}
-      </p>
+      <p className="mt-1 max-w-sm text-xs text-[#64748B]">{message}</p>
 
       <button
         type="button"

@@ -16,28 +16,47 @@ function KPICard({ icon, iconBg, label, value, sub }) {
           className="flex h-10 w-10 items-center justify-center rounded-xl"
           style={{ backgroundColor: iconBg }}
         >
-          <span className="material-symbols-outlined text-xl" style={{ color: icon.color }}>
+          <span
+            className="material-symbols-outlined text-xl"
+            style={{ color: icon.color }}
+          >
             {icon.name}
           </span>
         </div>
       </div>
-      <p className="text-2xl font-bold tracking-tight" style={{ color: "var(--color-text)", fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+      <p
+        className="text-2xl font-bold tracking-tight"
+        style={{
+          color: "var(--color-text)",
+          fontFamily: "'Plus Jakarta Sans', sans-serif",
+        }}
+      >
         {value}
       </p>
-      <p className="mt-1 text-sm font-medium" style={{ color: "var(--color-muted)" }}>{label}</p>
-      {sub && <p className="mt-1 text-xs" style={{ color: "var(--color-muted)" }}>{sub}</p>}
+      <p
+        className="mt-1 text-sm font-medium"
+        style={{ color: "var(--color-muted)" }}
+      >
+        {label}
+      </p>
+      {sub && (
+        <p className="mt-1 text-xs" style={{ color: "var(--color-muted)" }}>
+          {sub}
+        </p>
+      )}
     </div>
   );
 }
 
 export default function DashboardKPI({ salesToday }) {
   const revenue = parseFloat(salesToday?.total_revenue || 0);
+  const netIncome = parseFloat(salesToday?.total_net_income || 0);
   const transactions = salesToday?.total_transactions || 0;
   const itemsSold = salesToday?.total_items_sold || 0;
   const avgTransaction = transactions > 0 ? revenue / transactions : 0;
 
   return (
-    <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
       <KPICard
         icon={{ name: "payments", color: "var(--color-primary)" }}
         iconBg="#00685F15"
@@ -45,18 +64,22 @@ export default function DashboardKPI({ salesToday }) {
         value={formatRupiah(revenue)}
       />
       <KPICard
+        icon={{ name: "trending_up", color: "#10B981" }}
+        iconBg="#10B98115"
+        label="Net Income"
+        value={formatRupiah(netIncome)}
+      />
+      <KPICard
         icon={{ name: "receipt_long", color: "var(--color-secondary)" }}
         iconBg="#4648D415"
         label="Transactions"
         value={transactions.toLocaleString("id-ID")}
-        sub="transactions today"
       />
       <KPICard
         icon={{ name: "shopping_bag", color: "var(--color-warning)" }}
         iconBg="#F59E0B15"
         label="Items Sold"
         value={itemsSold.toLocaleString("id-ID")}
-        sub="units sold"
       />
       <KPICard
         icon={{ name: "bar_chart", color: "#8B5CF6" }}

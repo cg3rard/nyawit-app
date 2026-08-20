@@ -36,17 +36,26 @@ def _get_sales_today(db: Session) -> SalesToday:
             func.coalesce(
                 func.sum(TransactionItem.quantity), 0
             ).label("total_items_sold"),
+            func.coalesce(
+                func.sum(TransactionItem.quantity * Product.purchase_price), 0
+            ).label("total_cogs"),
         )
         .outerjoin(TransactionItem, TransactionItem.transaction_id == Transaction.id)
+        .outerjoin(Product, Product.id == TransactionItem.product_id)
         .filter(Transaction.created_at >= start_dt)
         .filter(Transaction.created_at <= end_dt)
         .one()
     )
 
+    revenue = Decimal(str(row.total_revenue))
+    cogs = Decimal(str(row.total_cogs))
+    net_income = revenue - cogs
+
     return SalesToday(
-        total_revenue=Decimal(str(row.total_revenue)),
+        total_revenue=revenue,
         total_transactions=int(row.total_transactions),
         total_items_sold=int(row.total_items_sold),
+        total_net_income=net_income,
     )
 
 

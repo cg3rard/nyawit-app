@@ -1,7 +1,7 @@
 import ProductEmptyState from "./ProductEmptyState";
 import ProductStatus from "./ProductStatus";
 
-export default function ProductTable({ products, onEdit, onDelete }) {
+export default function ProductTable({ products, onEdit, onDelete, onAdjustStock }) {
   if (products.length === 0) {
     return <ProductEmptyState />;
   }
@@ -42,31 +42,41 @@ export default function ProductTable({ products, onEdit, onDelete }) {
         </thead>
 
         <tbody className="divide-y divide-[#E2E8F0]">
-          {products.map((product) => (
-            <tr
-              key={product.id}
-              className="bg-white transition-colors hover:bg-[#F9F9FF]"
-            >
-              {/* Product */}
-              <td className="px-5 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#F1F3FF] text-[#00685F]">
-                    <span className="material-symbols-outlined text-[20px]">
-                      inventory_2
-                    </span>
-                  </div>
+          {products.map((product) => {
+            const storedPhoto = localStorage.getItem(`product_photo_${product.product_code}`);
+            return (
+              <tr
+                key={product.id}
+                className="bg-white transition-colors hover:bg-[#F9F9FF]"
+              >
+                {/* Product */}
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    {storedPhoto ? (
+                      <img
+                        src={storedPhoto}
+                        alt={product.name}
+                        className="h-10 w-10 shrink-0 rounded-lg object-cover border border-[#E2E8F0]"
+                      />
+                    ) : (
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#F1F3FF] text-[#00685F]">
+                        <span className="material-symbols-outlined text-[20px]">
+                          inventory_2
+                        </span>
+                      </div>
+                    )}
 
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-[#141B2B]">
-                      {product.name}
-                    </p>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-[#141B2B]">
+                        {product.name}
+                      </p>
 
-                    <p className="mt-0.5 text-xs text-[#94A3B8]">
-                      {product.product_code}
-                    </p>
+                      <p className="mt-0.5 text-xs text-[#94A3B8]">
+                        {product.product_code}
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </td>
+                </td>
 
               {/* Category */}
               <td className="px-5 py-4 text-sm text-[#64748B]">
@@ -96,6 +106,18 @@ export default function ProductTable({ products, onEdit, onDelete }) {
               {/* Action */}
               <td className="px-5 py-4 text-center">
                 <div className="flex items-center justify-center gap-1">
+                  {/* Add/Adjust Stock */}
+                  <button
+                    type="button"
+                    onClick={() => onAdjustStock(product)}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#64748B] transition hover:bg-[#E8F5F3] hover:text-[#00685F]"
+                    title="Add/Adjust Stock"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">
+                      add
+                    </span>
+                  </button>
+
                   {/* Edit */}
                   <button
                     type="button"
@@ -122,7 +144,8 @@ export default function ProductTable({ products, onEdit, onDelete }) {
                 </div>
               </td>
             </tr>
-          ))}
+          );
+        })}
         </tbody>
       </table>
     </div>

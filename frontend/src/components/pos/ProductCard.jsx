@@ -1,4 +1,5 @@
 export default function ProductCard({ product, onAdd }) {
+  const storedPhoto = localStorage.getItem(`product_photo_${product.product_code}`);
   const isOutOfStock = product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= 5;
 
@@ -13,6 +14,40 @@ export default function ProductCard({ product, onAdd }) {
     : isLowStock
       ? "text-[#B45309]"
       : "text-[#64748B]";
+
+  const displayCode = product.product_code && product.product_code.length > 8
+    ? `#${product.product_code.slice(0, 8)}`
+    : `#${product.product_code}`;
+
+  const formatDate = (val) => {
+    if (!val) return null;
+    const dateObj = new Date(val);
+    if (isNaN(dateObj.getTime())) return null;
+    return dateObj.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
+  const getExpiryStyle = (val) => {
+    if (!val) return null;
+    const expiry = new Date(val);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const diffTime = expiry - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 0) {
+      return { text: "Expired", color: "text-red-700 bg-red-50 border-red-200" };
+    } else if (diffDays <= 7) {
+      return { text: `Exp: ${formatDate(val)}`, color: "text-amber-800 bg-amber-50 border-amber-200" };
+    } else {
+      return { text: `Exp: ${formatDate(val)}`, color: "text-[#64748B] bg-slate-50 border-slate-200" };
+    }
+  };
+
+  const expiryInfo = getExpiryStyle(product.expiry_date);
 
   return (
     <button
@@ -29,12 +64,25 @@ export default function ProductCard({ product, onAdd }) {
     >
       {/* Product visual */}
       <div className="relative flex aspect-square items-center justify-center bg-[#F1F3FF] p-4">
-        {/* No product image field exists in backend yet */}
-        <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white text-[#00685F] shadow-sm">
-          <span className="material-symbols-outlined text-[38px]">
-            shopping_bag
+        {storedPhoto ? (
+          <img
+            src={storedPhoto}
+            alt={product.name}
+            className="h-full w-full object-cover rounded-xl"
+          />
+        ) : (
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-white text-[#00685F] shadow-sm">
+            <span className="material-symbols-outlined text-[38px]">
+              shopping_bag
+            </span>
+          </div>
+        )}
+
+        {expiryInfo && (
+          <span className={`absolute left-2 top-2 rounded-md border px-2 py-1 text-[9px] font-bold shadow-sm ${expiryInfo.color}`}>
+            {expiryInfo.text}
           </span>
-        </div>
+        )}
 
         <span className="absolute right-2 top-2 rounded-md border border-[#E2E8F0] bg-white/95 px-2 py-1 text-xs font-semibold text-[#141B2B] shadow-sm">
           {formatCurrency(product.selling_price)}
@@ -48,8 +96,8 @@ export default function ProductCard({ product, onAdd }) {
             {product.name}
           </h3>
 
-          <p className="mt-1 text-[11px] text-[#94A3B8]">
-            {product.product_code}
+          <p className="mt-1 text-[11px] text-[#94A3B8] font-mono">
+            {displayCode}
           </p>
         </div>
 

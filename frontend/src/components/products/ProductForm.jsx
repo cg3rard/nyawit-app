@@ -10,15 +10,30 @@ const EMPTY_FORM = {
   expiry_date: "",
 };
 
+const generateUUID = () => {
+  if (typeof crypto !== "undefined" && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
+
 export default function ProductForm({
   product,
   mode = "add",
   onSubmit,
   onCancel,
   submitting = false,
+  categories = [],
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
+  const [selectedCategoryOption, setSelectedCategoryOption] = useState("");
+  const [customCategory, setCustomCategory] = useState("");
+  const [photo, setPhoto] = useState(null);
 
   const isEdit = mode === "edit";
 
@@ -33,12 +48,32 @@ export default function ProductForm({
         stock: product.stock ?? 0,
         expiry_date: product.expiry_date ?? "",
       });
+
+      if (product.category && categories.includes(product.category)) {
+        setSelectedCategoryOption(product.category);
+        setCustomCategory("");
+      } else if (product.category) {
+        setSelectedCategoryOption("__NEW__");
+        setCustomCategory(product.category);
+      } else {
+        setSelectedCategoryOption("");
+        setCustomCategory("");
+      }
+
+      const storedPhoto = localStorage.getItem(`product_photo_${product.product_code}`);
+      setPhoto(storedPhoto);
     } else {
-      setForm(EMPTY_FORM);
+      setForm({
+        ...EMPTY_FORM,
+        product_code: generateUUID(),
+      });
+      setSelectedCategoryOption("");
+      setCustomCategory("");
+      setPhoto(null);
     }
 
     setErrors({});
-  }, [product]);
+  }, [product, categories]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -54,6 +89,21 @@ export default function ProductForm({
     }));
   };
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhoto(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleRemovePhoto = () => {
+    setPhoto(null);
+  };
+
   const validate = () => {
     const nextErrors = {};
 
@@ -65,7 +115,8 @@ export default function ProductForm({
       nextErrors.name = "Product name is required.";
     }
 
-    if (!form.category.trim()) {
+    const categoryVal = selectedCategoryOption === "__NEW__" ? customCategory : selectedCategoryOption;
+    if (!categoryVal || !categoryVal.trim()) {
       nextErrors.category = "Category is required.";
     }
 
@@ -73,16 +124,14 @@ export default function ProductForm({
       form.purchase_price === "" ||
       Number(form.purchase_price) < 0
     ) {
-      nextErrors.purchase_price =
-        "Purchase price must be 0 or greater.";
+      nextErrors.purchase_price = "Purchase price must be 0 or greater.";
     }
 
     if (
       form.selling_price === "" ||
       Number(form.selling_price) < 0
     ) {
-      nextErrors.selling_price =
-        "Selling price must be 0 or greater.";
+      nextErrors.selling_price = "Selling price must be 0 or greater.";
     }
 
     if (!isEdit && Number(form.stock) < 0) {
@@ -101,13 +150,16 @@ export default function ProductForm({
       return;
     }
 
+    const categoryVal = selectedCategoryOption === "__NEW__" ? customCategory : selectedCategoryOption;
+
     const payload = {
       product_code: form.product_code.trim(),
       name: form.name.trim(),
-      category: form.category.trim(),
+      category: categoryVal.trim(),
       purchase_price: Number(form.purchase_price),
       selling_price: Number(form.selling_price),
       expiry_date: form.expiry_date || null,
+      photo: photo,
     };
 
     if (!isEdit) {
@@ -120,15 +172,17 @@ export default function ProductForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <FormField
-          label="Product Code"
-          name="product_code"
-          value={form.product_code}
-          onChange={handleChange}
-          error={errors.product_code}
-          placeholder="e.g. INV-001"
-          required
-        />
+        {isEdit && (
+          <FormField
+            label="Product Code (UUID)"
+            name="product_code"
+            value={form.product_code}
+            onChange={handleChange}
+            error={errors.product_code}
+            required
+            readOnly
+          />
+        )}
 
         <FormField
           label="Product Name"
@@ -140,15 +194,46 @@ export default function ProductForm({
           required
         />
 
-        <FormField
-          label="Category"
-          name="category"
-          value={form.category}
-          onChange={handleChange}
-          error={errors.category}
-          placeholder="e.g. Beverage"
-          required
-        />
+        <div className="flex flex-col">
+          <label htmlFor="category_select" className="mb-1.5 block text-xs font-semibold text-[#334155]">
+            Category <span className="text-red-500">*</span>
+          </label>
+          <select
+            id="category_select"
+            value={selectedCategoryOption}
+            onChange={(e) => {
+              setSelectedCategoryOption(e.target.value);
+              setErrors((current) => ({ ...current, category: "" }));
+            }}
+            className={`h-10 w-full rounded-lg border bg-white px-3 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10 ${
+              errors.category ? "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/10" : "border-[#E2E8F0]"
+            }`}
+          >
+            <option value="">-- Choose Category --</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+            <option value="__NEW__">+ Add New Category...</option>
+          </select>
+          {errors.category && <p className="mt-1 text-xs text-red-500">{errors.category}</p>}
+        </div>
+
+        {selectedCategoryOption === "__NEW__" && (
+          <FormField
+            label="New Category Name"
+            name="custom_category"
+            value={customCategory}
+            onChange={(e) => {
+              setCustomCategory(e.target.value);
+              setErrors((current) => ({ ...current, category: "" }));
+            }}
+            error={errors.category}
+            placeholder="e.g. Snack, Medicine"
+            required
+          />
+        )}
 
         <FormField
           label="Expiry Date"
@@ -198,6 +283,52 @@ export default function ProductForm({
             placeholder="0"
           />
         )}
+
+        {/* Optional Photo Input */}
+        <div className="sm:col-span-2 flex flex-col gap-2 rounded-lg border border-[#E2E8F0] p-4 bg-white">
+          <label className="text-xs font-semibold text-[#334155]">
+            Product Photo (Optional)
+          </label>
+          <div className="flex items-center gap-4">
+            {photo ? (
+              <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-[#E2E8F0] bg-slate-50">
+                <img src={photo} className="h-full w-full object-cover" alt="Product preview" />
+                <button
+                  type="button"
+                  onClick={handleRemovePhoto}
+                  className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-red-500 text-white shadow hover:bg-red-600 transition"
+                  title="Remove photo"
+                >
+                  <span className="material-symbols-outlined text-[14px]">delete</span>
+                </button>
+              </div>
+            ) : (
+              <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-[#E2E8F0] bg-slate-50 text-[#94A3B8]">
+                <span className="material-symbols-outlined text-[28px]">image</span>
+              </div>
+            )}
+            <div className="flex-1">
+              <input
+                id="photo_upload"
+                type="file"
+                accept="image/*"
+                onChange={handlePhotoChange}
+                className="hidden"
+                disabled={submitting}
+              />
+              <label
+                htmlFor="photo_upload"
+                className="inline-flex h-9 cursor-pointer items-center justify-center gap-1.5 rounded-lg border border-[#E2E8F0] px-3 text-xs font-semibold text-[#64748B] transition hover:bg-[#F8FAFC]"
+              >
+                <span className="material-symbols-outlined text-[16px]">upload</span>
+                Upload Image
+              </label>
+              <p className="mt-1 text-[11px] text-[#94A3B8]">
+                PNG, JPG, or WEBP. Max 2MB recommended.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {isEdit && (
@@ -254,6 +385,7 @@ function FormField({
   required = false,
   min,
   step,
+  readOnly = false,
 }) {
   return (
     <div>
@@ -274,10 +406,13 @@ function FormField({
         placeholder={placeholder}
         min={min}
         step={step}
-        className={`h-10 w-full rounded-lg border bg-white px-3 text-sm text-[#141B2B] outline-none transition placeholder:text-[#94A3B8] ${
-          error
-            ? "border-red-400 focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
-            : "border-[#E2E8F0] focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10"
+        readOnly={readOnly}
+        className={`h-10 w-full rounded-lg border px-3 text-sm text-[#141B2B] outline-none transition placeholder:text-[#94A3B8] ${
+          readOnly
+            ? "border-[#E2E8F0] bg-[#F8FAFC] text-[#64748B] cursor-not-allowed"
+            : error
+              ? "border-red-400 bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/10"
+              : "border-[#E2E8F0] bg-white focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10"
         }`}
       />
 

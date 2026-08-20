@@ -17,6 +17,7 @@ class SalesToday(BaseModel):
     total_revenue: Decimal
     total_transactions: int
     total_items_sold: int
+    total_net_income: Decimal
 
 
 class ExpiryAlert(BaseModel):

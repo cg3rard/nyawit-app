@@ -49,4 +49,13 @@ export const getInventorySummary = () =>
 export const getMovements = (params = {}) =>
   api.get("/api/inventory/movements", { params }).then((r) => r.data);
 
+export const stockIn = (data) =>
+  api.post("/api/inventory/in", data).then((r) => r.data);
+
+export const stockOut = (data) =>
+  api.post("/api/inventory/out", data).then((r) => r.data);
+
+export const adjustStock = (data) =>
+  api.post("/api/inventory/adjustment", data).then((r) => r.data);
+
 export default api;

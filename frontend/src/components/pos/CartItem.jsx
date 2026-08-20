@@ -22,7 +22,16 @@ export default function CartItem({
           {item.name}
         </h4>
 
-        <p className="mt-0.5 text-xs text-[#64748B]">
+        <div className="flex flex-col mt-0.5 text-[10px] text-[#94A3B8] font-mono leading-tight">
+          <span>#{item.product_code?.slice(0, 8)}</span>
+          {item.expiry_date && (
+            <span className="text-amber-700 font-semibold mt-0.5">
+              Exp: {new Date(item.expiry_date).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
+            </span>
+          )}
+        </div>
+
+        <p className="mt-1 text-xs text-[#64748B]">
           {formatCurrency(item.selling_price)}
         </p>
 
