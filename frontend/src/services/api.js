@@ -13,6 +13,12 @@ export const getDashboardSummary = () =>
 export const getProducts = () =>
   api.get("/api/products/").then((r) => r.data);
 
+export const createProduct = (product) =>
+  api.post("/api/products/", product).then((r) => r.data);
+
+export const updateProduct = (productId, product) =>
+  api.put(`/api/products/${productId}`, product).then((r) => r.data);
+
 /* ── Transactions ────────────────────────────────────────────────── */
 export const getTransactions = () =>
   api.get("/api/transactions/").then((r) => r.data);

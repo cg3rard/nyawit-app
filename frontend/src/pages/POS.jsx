@@ -173,7 +173,7 @@ export default function POS() {
         onClose={() => setMobileSidebarOpen(false)}
       />
 
-      <div className="flex min-w-0 flex-1 flex-col lg:ml-64">
+      <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           onMenuOpen={() => setMobileSidebarOpen(true)}
           searchQuery={searchQuery}
