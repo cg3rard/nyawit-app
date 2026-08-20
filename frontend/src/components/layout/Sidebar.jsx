@@ -1,4 +1,4 @@
-import { NavLink, Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 const NAV_ITEMS = [
   { to: "/", icon: "dashboard", label: "Dashboard" },
@@ -20,19 +20,9 @@ function NavItem({ to, icon, label, onClick }) {
       to={to}
       end={to === "/"}
       onClick={onClick}
-      className={({ isActive }) =>
-        [
-          "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm",
-          "transition-colors duration-150",
-          isActive
-            ? "text-[#00685F] bg-[#E8F5F3] font-semibold border-r-4 border-[#00685F]"
-            : "text-[#64748B] hover:text-[#00685F] hover:bg-[#F8FAFC]",
-        ].join(" ")
-      }
+      className={({ isActive }) => ["flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm", "transition-colors duration-150", isActive ? "text-[#00685F] bg-[#E8F5F3] font-semibold border-r-4 border-[#00685F]" : "text-[#64748B] hover:text-[#00685F] hover:bg-[#F8FAFC]"].join(" ")}
     >
-      <span className="material-symbols-outlined text-[21px]">
-        {icon}
-      </span>
+      <span className="material-symbols-outlined text-[21px]">{icon}</span>
       <span>{label}</span>
     </NavLink>
   );
@@ -44,39 +34,23 @@ export default function Sidebar({ onNavigate }) {
       {/* Brand */}
       <div className="px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E8F5F3]">
-            <span
-              className="material-symbols-outlined text-[#00685F]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              storefront
-            </span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E8F5F3] p-1.5">
+            <img src="/icons.png" alt="Logo" className="h-full w-full object-contain" />
           </div>
 
           <div>
-            <h1
-              className="text-xl font-bold tracking-tight text-[#00685F]"
-              style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
-            >
-              CoStore Pro
+            <h1 className="text-xl font-bold tracking-tight text-[#00685F]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+              CoStore
             </h1>
-            <p className="text-xs text-[#64748B]">
-              Nyawit Store
-            </p>
+            <p className="text-xs text-[#64748B]">Nyawit Store</p>
           </div>
         </div>
       </div>
 
       {/* New Sale */}
       <div className="px-4 mb-5">
-        <Link
-          to="/pos"
-          onClick={onNavigate}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#00685F] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#00574F] active:scale-[0.98]"
-        >
-          <span className="material-symbols-outlined text-[18px]">
-            add
-          </span>
+        <Link to="/pos" onClick={onNavigate} className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#00685F] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#00574F] active:scale-[0.98]">
+          <span className="material-symbols-outlined text-[18px]">add</span>
           New Sale
         </Link>
       </div>
@@ -84,22 +58,14 @@ export default function Sidebar({ onNavigate }) {
       {/* Navigation */}
       <nav className="flex-1 px-3 space-y-1">
         {NAV_ITEMS.map((item) => (
-          <NavItem
-            key={item.to}
-            {...item}
-            onClick={onNavigate}
-          />
+          <NavItem key={item.to} {...item} onClick={onNavigate} />
         ))}
       </nav>
 
       {/* Footer */}
       <div className="px-3 pt-4 pb-6 border-t border-[#E2E8F0] space-y-1">
         {FOOTER_ITEMS.map((item) => (
-          <NavItem
-            key={item.to}
-            {...item}
-            onClick={onNavigate}
-          />
+          <NavItem key={item.to} {...item} onClick={onNavigate} />
         ))}
       </div>
     </aside>
