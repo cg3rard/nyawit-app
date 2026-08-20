@@ -1,24 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
-import {
-  createProduct,
-  getProducts,
-  updateProduct,
-  deleteProduct,
-} from "../services/api";
+import { createProduct, deleteProduct, getProducts, updateProduct } from "../services/api";
 
-import TopBar from "../components/layout/TopBar";
 import MobileSidebar from "../components/layout/MobileSidebar";
+import TopBar from "../components/layout/TopBar";
 
-import ProductFilters from "../components/products/ProductFilters";
-import ProductTable from "../components/products/ProductTable";
-import ProductModal from "../components/products/ProductModal";
 import DeleteProductModal from "../components/products/DeleteProductModal";
+import ProductFilters from "../components/products/ProductFilters";
+import ProductModal from "../components/products/ProductModal";
+import ProductTable from "../components/products/ProductTable";
 
 export default function Products() {
   const [products, setProducts] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -46,11 +42,7 @@ export default function Products() {
       const data = await getProducts();
       setProducts(data);
     } catch (err) {
-      setError(
-        err?.response?.data?.detail ||
-          err?.message ||
-          "Failed to load products."
-      );
+      setError(err?.response?.data?.detail || err?.message || "Failed to load products.");
     } finally {
       setLoading(false);
     }
@@ -62,13 +54,7 @@ export default function Products() {
 
   // ── Categories ─────────────────────────────────────────────────
   const categories = useMemo(() => {
-    return [
-      ...new Set(
-        products
-          .map((product) => product.category)
-          .filter(Boolean)
-      ),
-    ];
+    return [...new Set(products.map((product) => product.category).filter(Boolean))];
   }, [products]);
 
   // ── Filter Products ────────────────────────────────────────────
@@ -76,18 +62,27 @@ export default function Products() {
     const query = searchQuery.trim().toLowerCase();
 
     return products.filter((product) => {
-      const matchesSearch =
-        !query ||
-        product.name.toLowerCase().includes(query) ||
-        product.product_code.toLowerCase().includes(query);
+      const matchesSearch = !query || product.name.toLowerCase().includes(query) || product.product_code.toLowerCase().includes(query);
 
-      const matchesCategory =
-        !selectedCategory ||
-        product.category === selectedCategory;
+      const matchesCategory = !selectedCategory || product.category === selectedCategory;
 
-      return matchesSearch && matchesCategory;
+      let matchesStatus = true;
+
+      if (selectedStatus === "out_of_stock") {
+        matchesStatus = product.stock <= 0;
+      }
+
+      if (selectedStatus === "low_stock") {
+        matchesStatus = product.stock > 0 && product.stock <= 5;
+      }
+
+      if (selectedStatus === "in_stock") {
+        matchesStatus = product.stock > 5;
+      }
+
+      return matchesSearch && matchesCategory && matchesStatus;
     });
-  }, [products, searchQuery, selectedCategory]);
+  }, [products, searchQuery, selectedCategory, selectedStatus]);
 
   // ── Add Product ────────────────────────────────────────────────
   const handleAddProduct = () => {
@@ -134,11 +129,7 @@ export default function Products() {
     } catch (err) {
       const detail = err?.response?.data?.detail;
 
-      setError(
-        typeof detail === "string"
-          ? detail
-          : err?.message || "Failed to save product."
-      );
+      setError(typeof detail === "string" ? detail : err?.message || "Failed to save product.");
     } finally {
       setSubmitting(false);
     }
@@ -181,11 +172,7 @@ export default function Products() {
     } catch (err) {
       const detail = err?.response?.data?.detail;
 
-      setDeleteError(
-        typeof detail === "string"
-          ? detail
-          : err?.message || "Failed to delete product."
-      );
+      setDeleteError(typeof detail === "string" ? detail : err?.message || "Failed to delete product.");
     } finally {
       setDeleting(false);
     }
@@ -193,19 +180,10 @@ export default function Products() {
 
   return (
     <div className="flex min-h-screen bg-[#F9F9FF]">
-      <MobileSidebar
-        open={mobileSidebarOpen}
-        onClose={() => setMobileSidebarOpen(false)}
-      />
+      <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar
-          onMenuOpen={() => setMobileSidebarOpen(true)}
-          searchQuery=""
-          onSearchChange={() => {}}
-          lowStockProducts={[]}
-          expiryAlerts={[]}
-        />
+        <TopBar onMenuOpen={() => setMobileSidebarOpen(true)} searchQuery="" onSearchChange={() => {}} lowStockProducts={[]} expiryAlerts={[]} />
 
         <main className="flex-1 p-4 lg:p-6">
           <div className="mx-auto max-w-[1600px]">
@@ -221,19 +199,11 @@ export default function Products() {
                   Products
                 </h1>
 
-                <p className="mt-1 text-sm text-[#64748B]">
-                  Manage your products, stock, and expiry information.
-                </p>
+                <p className="mt-1 text-sm text-[#64748B]">Manage your products, stock, and expiry information.</p>
               </div>
 
-              <button
-                type="button"
-                onClick={handleAddProduct}
-                className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#00685F] px-4 text-sm font-semibold text-white transition hover:bg-[#00574F]"
-              >
-                <span className="material-symbols-outlined text-[19px]">
-                  add
-                </span>
+              <button type="button" onClick={handleAddProduct} className="flex h-10 items-center justify-center gap-2 rounded-lg bg-[#00685F] px-4 text-sm font-semibold text-white transition hover:bg-[#00574F]">
+                <span className="material-symbols-outlined text-[19px]">add</span>
                 Add Product
               </button>
             </div>
@@ -241,107 +211,53 @@ export default function Products() {
             {/* Global Error */}
             {error && (
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
-                <span className="material-symbols-outlined mt-0.5 text-[20px] text-red-500">
-                  error
-                </span>
+                <span className="material-symbols-outlined mt-0.5 text-[20px] text-red-500">error</span>
 
                 <div className="flex-1">
-                  <p className="text-sm font-semibold text-red-700">
-                    Something went wrong
-                  </p>
+                  <p className="text-sm font-semibold text-red-700">Something went wrong</p>
 
-                  <p className="mt-0.5 text-xs text-red-600">
-                    {error}
-                  </p>
+                  <p className="mt-0.5 text-xs text-red-600">{error}</p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setError(null)}
-                  className="text-red-400 transition hover:text-red-600"
-                >
-                  <span className="material-symbols-outlined text-[18px]">
-                    close
-                  </span>
+                <button type="button" onClick={() => setError(null)} className="text-red-400 transition hover:text-red-600">
+                  <span className="material-symbols-outlined text-[18px]">close</span>
                 </button>
               </div>
             )}
 
             {/* Filters */}
             <div className="mb-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
-              <ProductFilters
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                selectedCategory={selectedCategory}
-                onCategoryChange={setSelectedCategory}
-                categories={categories}
-              />
+              <ProductFilters searchQuery={searchQuery} onSearchChange={setSearchQuery} selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} selectedStatus={selectedStatus} onStatusChange={setSelectedStatus} categories={categories} />
             </div>
 
             {/* Product Table */}
             <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
               <div className="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
                 <div>
-                  <h2 className="text-sm font-semibold text-[#141B2B]">
-                    Product List
-                  </h2>
+                  <h2 className="text-sm font-semibold text-[#141B2B]">Product List</h2>
 
                   <p className="mt-0.5 text-xs text-[#64748B]">
                     {filteredProducts.length} of {products.length} products
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={loadProducts}
-                  disabled={loading}
-                  className="flex h-9 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-3 text-xs font-semibold text-[#64748B] transition hover:border-[#00685F] hover:text-[#00685F] disabled:opacity-50"
-                >
-                  <span
-                    className={`material-symbols-outlined text-[17px] ${
-                      loading ? "animate-spin" : ""
-                    }`}
-                  >
-                    refresh
-                  </span>
-
+                <button type="button" onClick={loadProducts} disabled={loading} className="flex h-9 items-center gap-1.5 rounded-lg border border-[#E2E8F0] px-3 text-xs font-semibold text-[#64748B] transition hover:border-[#00685F] hover:text-[#00685F] disabled:opacity-50">
+                  <span className={`material-symbols-outlined text-[17px] ${loading ? "animate-spin" : ""}`}>refresh</span>
                   Refresh
                 </button>
               </div>
 
-              {loading ? (
-                <ProductTableLoading />
-              ) : (
-                <ProductTable
-                  products={filteredProducts}
-                  onEdit={handleEditProduct}
-                  onDelete={handleDeleteProduct}
-                />
-              )}
+              {loading ? <ProductTableLoading /> : <ProductTable products={filteredProducts} onEdit={handleEditProduct} onDelete={handleDeleteProduct} />}
             </div>
           </div>
         </main>
       </div>
 
       {/* Add / Edit Product Modal */}
-      <ProductModal
-        open={modalOpen}
-        mode={modalMode}
-        product={editingProduct}
-        onClose={handleCloseModal}
-        onSubmit={handleSubmitProduct}
-        submitting={submitting}
-      />
+      <ProductModal open={modalOpen} mode={modalMode} product={editingProduct} onClose={handleCloseModal} onSubmit={handleSubmitProduct} submitting={submitting} />
 
       {/* Delete Product Modal */}
-      <DeleteProductModal
-        open={deleteModalOpen}
-        product={deletingProduct}
-        onClose={handleCloseDeleteModal}
-        onConfirm={handleConfirmDelete}
-        deleting={deleting}
-        error={deleteError}
-      />
+      <DeleteProductModal open={deleteModalOpen} product={deletingProduct} onClose={handleCloseDeleteModal} onConfirm={handleConfirmDelete} deleting={deleting} error={deleteError} />
     </div>
   );
 }
@@ -350,10 +266,7 @@ function ProductTableLoading() {
   return (
     <div className="divide-y divide-[#E2E8F0]">
       {Array.from({ length: 5 }).map((_, index) => (
-        <div
-          key={index}
-          className="flex items-center gap-6 px-5 py-5"
-        >
+        <div key={index} className="flex items-center gap-6 px-5 py-5">
           <div className="h-10 w-10 animate-pulse rounded-lg bg-[#E2E8F0]" />
 
           <div className="h-4 w-40 animate-pulse rounded bg-[#E2E8F0]" />

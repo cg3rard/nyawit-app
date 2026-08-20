@@ -38,19 +38,21 @@ export default function DeleteProductModal({
 
         {/* Backend Error */}
         {error && (
-          <div className="mt-5 flex items-start gap-3 rounded-lg border border-red-200 bg-red-50 px-3 py-3">
-            <span className="material-symbols-outlined mt-0.5 text-[19px] text-red-500">
-              error
-            </span>
+          <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3">
+            <div className="flex items-start gap-2">
+              <span className="material-symbols-outlined mt-0.5 text-[18px] text-red-500">
+                error
+              </span>
 
-            <div>
-              <p className="text-xs font-semibold text-red-700">
-                Cannot delete product
-              </p>
+              <div>
+                <p className="text-xs font-semibold text-red-700">
+                  Cannot delete product
+                </p>
 
-              <p className="mt-1 text-xs leading-5 text-red-600">
-                {error}
-              </p>
+                <p className="mt-1 text-xs leading-5 text-red-600">
+                  {error}
+                </p>
+              </div>
             </div>
           </div>
         )}
