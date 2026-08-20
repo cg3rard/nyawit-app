@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Sidebar from "./components/layout/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import PlaceholderPage from "./pages/PlaceholderPage";
+import POS from "./pages/POS";
 
 function AppLayout({ children }) {
   return (
@@ -35,7 +36,7 @@ export default function App() {
           element={
             <AppLayout>
               <div className="flex flex-1 flex-col min-h-screen">
-                <PlaceholderPage title="POS / Cashier" />
+                <POS />
               </div>
             </AppLayout>
           }

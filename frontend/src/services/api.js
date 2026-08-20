@@ -20,6 +20,9 @@ export const getTransactions = () =>
 export const getTransactionSummary = () =>
   api.get("/api/transactions/summary").then((r) => r.data);
 
+export const createTransaction = (items) =>
+  api.post("/api/transactions/", { items }).then((r) => r.data);
+
 /* ── Analytics ───────────────────────────────────────────────────── */
 export const getTopProducts = (limit = 5) =>
   api.get(`/api/analytics/top-products?limit=${limit}`).then((r) => r.data);
