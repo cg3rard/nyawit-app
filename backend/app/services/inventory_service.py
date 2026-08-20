@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.product import Product
 from app.models.stock_movement import MovementType, StockMovement
@@ -34,23 +34,37 @@ def _record_movement(
         stock_after=stock_after,
         reason=reason,
     )
+
     db.add(movement)
     db.commit()
     db.refresh(movement)
+
     return movement
 
 
 def stock_in(db: Session, data: StockInRequest) -> StockMovement:
     """Add stock to a product. Returns the movement record."""
-    product = db.query(Product).filter(Product.id == data.product_id).first()
+
+    product = (
+        db.query(Product)
+        .filter(Product.id == data.product_id)
+        .first()
+    )
+
     if product is None:
-        return None  # caller raises 404
+        return None
 
     stock_before = product.stock
     stock_after = stock_before + data.quantity
 
     return _record_movement(
-        db, product, MovementType.IN, data.quantity, stock_before, stock_after, data.reason
+        db,
+        product,
+        MovementType.IN,
+        data.quantity,
+        stock_before,
+        stock_after,
+        data.reason,
     )
 
 
@@ -59,43 +73,69 @@ def stock_out(db: Session, data: StockOutRequest):
     Remove stock from a product.
 
     Returns the movement record, or raises ValueError if stock is insufficient.
-    Returns None if product is not found (caller raises 404).
+    Returns None if product is not found.
     """
-    product = db.query(Product).filter(Product.id == data.product_id).first()
+
+    product = (
+        db.query(Product)
+        .filter(Product.id == data.product_id)
+        .first()
+    )
+
     if product is None:
-        return None  # caller raises 404
+        return None
 
     if product.stock < data.quantity:
         raise ValueError(
-            f"Insufficient stock. Current: {product.stock}, requested: {data.quantity}."
+            f"Insufficient stock. Current: {product.stock}, "
+            f"requested: {data.quantity}."
         )
 
     stock_before = product.stock
     stock_after = stock_before - data.quantity
 
     return _record_movement(
-        db, product, MovementType.OUT, data.quantity, stock_before, stock_after, data.reason
+        db,
+        product,
+        MovementType.OUT,
+        data.quantity,
+        stock_before,
+        stock_after,
+        data.reason,
     )
 
 
-def stock_adjustment(db: Session, data: StockAdjustmentRequest) -> StockMovement:
+def stock_adjustment(
+    db: Session,
+    data: StockAdjustmentRequest,
+) -> StockMovement:
     """
     Set product stock to an absolute target value.
 
     quantity recorded = abs(new_stock - current_stock).
-    Returns None if product not found (caller raises 404).
     """
-    product = db.query(Product).filter(Product.id == data.product_id).first()
+
+    product = (
+        db.query(Product)
+        .filter(Product.id == data.product_id)
+        .first()
+    )
+
     if product is None:
-        return None  # caller raises 404
+        return None
 
     stock_before = product.stock
     stock_after = data.new_stock
     quantity = abs(stock_after - stock_before)
 
-    # quantity == 0 is valid for adjustment (no-op correction): still record it.
     return _record_movement(
-        db, product, MovementType.ADJUSTMENT, quantity, stock_before, stock_after, data.reason
+        db,
+        product,
+        MovementType.ADJUSTMENT,
+        quantity,
+        stock_before,
+        stock_after,
+        data.reason,
     )
 
 
@@ -104,10 +144,23 @@ def get_movements(
     product_id: Optional[int] = None,
     movement_type: Optional[MovementType] = None,
 ) -> List[StockMovement]:
-    """Return movement history, newest first. Optionally filtered by product_id and/or type."""
-    q = db.query(StockMovement)
+    """
+    Return movement history, newest first.
+
+    Product information is loaded together with each movement so the API
+    can return product name and product code without additional frontend
+    requests.
+    """
+
+    q = (
+        db.query(StockMovement)
+        .options(joinedload(StockMovement.product))
+    )
+
     if product_id is not None:
         q = q.filter(StockMovement.product_id == product_id)
+
     if movement_type is not None:
         q = q.filter(StockMovement.movement_type == movement_type)
+
     return q.order_by(StockMovement.id.desc()).all()

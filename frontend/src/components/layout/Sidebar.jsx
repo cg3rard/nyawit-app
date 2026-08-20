@@ -5,7 +5,7 @@ const NAV_ITEMS = [
   { to: "/pos", icon: "point_of_sale", label: "POS" },
   { to: "/transactions", icon: "receipt_long", label: "Transactions" },
   { to: "/products", icon: "inventory_2", label: "Products" },
-  { to: "/stock", icon: "inventory", label: "Stock" },
+  { to: "/inventory", icon: "inventory", label: "Inventory" },
   { to: "/ai-insights", icon: "auto_awesome", label: "AI Insights" },
 ];
 

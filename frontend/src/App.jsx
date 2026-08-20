@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import PlaceholderPage from "./pages/PlaceholderPage";
 import POS from "./pages/POS";
 import Products from "./pages/Products";
+import Inventory from "./pages/Inventory";
 
 function AppLayout({ children }) {
   return (
@@ -63,11 +64,11 @@ export default function App() {
           }
         />
         <Route
-          path="/stock"
+          path="/inventory"
           element={
             <AppLayout>
               <div className="flex flex-1 flex-col min-h-screen">
-                <PlaceholderPage title="Stock Management" />
+                <Inventory />
               </div>
             </AppLayout>
           }
