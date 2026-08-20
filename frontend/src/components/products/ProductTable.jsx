@@ -1,5 +1,6 @@
 import ProductEmptyState from "./ProductEmptyState";
 import ProductStatus from "./ProductStatus";
+import { getProductImage } from "../../utils/productImages";
 
 export default function ProductTable({ products, onEdit, onDelete, onAdjustStock }) {
   if (products.length === 0) {
@@ -43,7 +44,7 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
 
         <tbody className="divide-y divide-[#E2E8F0]">
           {products.map((product) => {
-            const storedPhoto = localStorage.getItem(`product_photo_${product.product_code}`);
+            const storedPhoto = getProductImage(product);
             return (
               <tr
                 key={product.id}

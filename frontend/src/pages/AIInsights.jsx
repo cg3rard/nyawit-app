@@ -16,7 +16,7 @@ export default function AIInsights() {
 
   // Custom states
   const [customInput, setCustomInput] = useState({
-    product_name: "Kopi Arabika Toraja 250g",
+    product_name: "Toraja Arabica Coffee 250g",
     current_stock: 4,
     sales_recent_7d: ["10", "12", "8", "11", "9", "10", "10"],
     sales_prior_7d: ["5", "6", "4", "5", "5", "6", "5"],
@@ -38,7 +38,7 @@ export default function AIInsights() {
         }
       } catch (err) {
         console.error("Failed to fetch preset scenarios", err);
-        setPresetError("Gagal memuat skenario dari backend AI. Pastikan backend sudah menyala.");
+        setPresetError("Failed to load scenarios from AI backend. Please ensure the backend is running.");
       }
     };
     fetchScenarios();
@@ -55,7 +55,7 @@ export default function AIInsights() {
     } catch (err) {
       console.error(err);
       setPresetError(
-        err?.response?.data?.detail || err.message || "Simulasi gagal. Silakan coba kembali."
+        err?.response?.data?.detail || err.message || "Simulation failed. Please try again."
       );
     } finally {
       setLoadingSimulation(false);
@@ -74,7 +74,7 @@ export default function AIInsights() {
     const priorSales = customInput.sales_prior_7d.map((val) => parseInt(val, 10));
 
     if (isNaN(stock) || stock < 0) {
-      setCustomError("Stok saat ini harus berupa angka positif.");
+      setCustomError("Current stock must be a non-negative number.");
       setLoadingCustom(false);
       return;
     }
@@ -83,7 +83,7 @@ export default function AIInsights() {
       recentSales.some((n) => isNaN(n) || n < 0) ||
       priorSales.some((n) => isNaN(n) || n < 0)
     ) {
-      setCustomError("Riwayat penjualan harus berupa angka positif.");
+      setCustomError("Sales history values must be non-negative numbers.");
       setLoadingCustom(false);
       return;
     }
@@ -100,7 +100,7 @@ export default function AIInsights() {
     } catch (err) {
       console.error(err);
       setCustomError(
-        err?.response?.data?.detail || err.message || "Gagal melakukan evaluasi kustom."
+        err?.response?.data?.detail || err.message || "Failed to perform custom evaluation."
       );
     } finally {
       setLoadingCustom(false);
@@ -142,7 +142,7 @@ export default function AIInsights() {
                   AI Inventory Insights
                 </h1>
                 <p className="mt-1 text-sm text-[#64748B]">
-                  Inferensi AI otomatis untuk memprediksi restock dan mendeteksi dead stock produk Anda.
+                  Automated AI inference to predict restocking and detect dead stock in your store.
                 </p>
               </div>
 
@@ -158,7 +158,7 @@ export default function AIInsights() {
                   }`}
                 >
                   <span className="material-symbols-outlined text-[16px]">psychology</span>
-                  Skenario Preset (Judge Panel)
+                  Preset Scenarios (Judge Panel)
                 </button>
                 <button
                   type="button"
@@ -170,7 +170,7 @@ export default function AIInsights() {
                   }`}
                 >
                   <span className="material-symbols-outlined text-[16px]">tune</span>
-                  Evaluator Kustom
+                  Custom Evaluator
                 </button>
               </div>
             </div>
@@ -181,7 +181,7 @@ export default function AIInsights() {
                 {/* Left: Input Selection */}
                 <div className="lg:col-span-5 flex flex-col gap-5">
                   <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
-                    <h2 className="text-sm font-bold text-[#141B2B] mb-4">Pilih Skenario Demo</h2>
+                    <h2 className="text-sm font-bold text-[#141B2B] mb-4">Select Demo Scenario</h2>
                     
                     {presetError && (
                       <div className="mb-4 rounded-xl bg-red-50 border border-red-200 p-3 text-xs text-red-700">
@@ -191,13 +191,13 @@ export default function AIInsights() {
 
                     {scenarios.length === 0 && !presetError ? (
                       <div className="py-6 text-center text-xs text-slate-400">
-                        Memuat skenario dari backend...
+                        Loading scenarios from AI backend...
                       </div>
                     ) : (
                       <div className="flex flex-col gap-4">
                         <div>
                           <label className="block text-xs font-semibold text-slate-500 mb-2">
-                            Preset Skenario
+                            Preset Scenario
                           </label>
                           <select
                             value={selectedScenarioKey}
@@ -218,7 +218,7 @@ export default function AIInsights() {
                         {selectedScenario && (
                           <div className="rounded-xl bg-[#4F46E5]/5 border border-[#4F46E5]/10 p-4">
                             <h3 className="text-xs font-bold text-[#4F46E5] uppercase tracking-wide">
-                              Detail Skenario
+                              Scenario Details
                             </h3>
                             <p className="mt-1 text-sm font-semibold text-slate-800">
                               ID: {selectedScenario.id}
@@ -227,7 +227,7 @@ export default function AIInsights() {
                               {selectedScenario.description}
                             </p>
                             <div className="mt-2.5 inline-flex items-center gap-1 rounded bg-slate-200/50 px-2 py-0.5 text-[10px] font-bold text-slate-700">
-                              Ekspektasi: {selectedScenario.expected_status}
+                              Expectation: {selectedScenario.expected_status}
                             </div>
                           </div>
                         )}
@@ -243,14 +243,14 @@ export default function AIInsights() {
                               <span className="material-symbols-outlined animate-spin text-[20px]">
                                 progress_activity
                               </span>
-                              Mengevaluasi AI...
+                              Evaluating AI...
                             </>
                           ) : (
                             <>
                               <span className="material-symbols-outlined text-[20px]">
                                 auto_awesome
                               </span>
-                              Jalankan Simulasi AI
+                              Run AI Simulation
                             </>
                           )}
                         </button>
@@ -266,7 +266,7 @@ export default function AIInsights() {
                   ) : simulationResult ? (
                     <ResultCard result={simulationResult} />
                   ) : (
-                    <EmptyResultCard text="Silakan pilih skenario preset di panel kiri lalu klik tombol 'Jalankan Simulasi AI' untuk melihat hasil rekomendasi." />
+                    <EmptyResultCard text="Please select a preset scenario on the left panel and click 'Run AI Simulation' to view the recommendation." />
                   )}
                 </div>
               </div>
@@ -282,12 +282,12 @@ export default function AIInsights() {
                     className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm flex flex-col gap-4"
                   >
                     <div className="flex items-center justify-between">
-                      <h2 className="text-sm font-bold text-[#141B2B]">Input Transaksi Kustom</h2>
+                      <h2 className="text-sm font-bold text-[#141B2B]">Custom Inventory Input</h2>
                       <button
                         type="button"
                         onClick={() => {
                           setCustomInput({
-                            product_name: "Kopi Arabika Toraja 250g",
+                            product_name: "Toraja Arabica Coffee 250g",
                             current_stock: 4,
                             sales_recent_7d: ["10", "12", "8", "11", "9", "10", "10"],
                             sales_prior_7d: ["5", "6", "4", "5", "5", "6", "5"],
@@ -309,7 +309,7 @@ export default function AIInsights() {
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                       <div className="sm:col-span-2">
                         <label className="block text-xs font-semibold text-slate-500 mb-1">
-                          Nama Produk / SKU
+                          Product Name / SKU
                         </label>
                         <input
                           type="text"
@@ -319,13 +319,13 @@ export default function AIInsights() {
                             setCustomInput({ ...customInput, product_name: e.target.value })
                           }
                           className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm text-[#141B2B] outline-none focus:border-[#4F46E5] focus:ring-1 focus:ring-[#4F46E5]/20"
-                          placeholder="Contoh: Sabun Cair Refill 450ml"
+                          placeholder="e.g. Liquid Soap Refill 450ml"
                         />
                       </div>
 
                       <div>
                         <label className="block text-xs font-semibold text-slate-500 mb-1">
-                          Sisa Stok Saat Ini
+                          Current Stock Quantity
                         </label>
                         <input
                           type="number"
@@ -343,13 +343,13 @@ export default function AIInsights() {
                     {/* Sales History Inputs */}
                     <div className="border-t border-slate-100 pt-4">
                       <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-3">
-                        Riwayat Penjualan Unit Harian (14 Hari Terakhir)
+                        Daily Sales Units History (Last 14 Days)
                       </h3>
 
                       {/* Recent 7 days */}
                       <div className="mb-4">
                         <label className="block text-xs font-semibold text-slate-500 mb-2">
-                          7 Hari Terakhir (Index 0 = Paling Lama, Index 6 = Hari Ini)
+                          Recent 7 Days (Index 0 = Oldest, Index 6 = Today)
                         </label>
                         <div className="grid grid-cols-7 gap-1.5">
                           {customInput.sales_recent_7d.map((val, idx) => (
@@ -363,9 +363,9 @@ export default function AIInsights() {
                                   handleCustomSalesChange(idx, "sales_recent_7d", e.target.value)
                                 }
                                 className="h-9 w-full text-center rounded-lg border border-[#E2E8F0] bg-white text-xs text-[#141B2B] outline-none focus:border-[#4F46E5]"
-                                placeholder={`H-${7 - idx}`}
+                                placeholder={`D-${7 - idx}`}
                               />
-                              <span className="text-[9px] text-slate-400 mt-1 block">H-{7 - idx}</span>
+                              <span className="text-[9px] text-slate-400 mt-1 block">D-{7 - idx}</span>
                             </div>
                           ))}
                         </div>
@@ -374,7 +374,7 @@ export default function AIInsights() {
                       {/* Prior 7 days */}
                       <div>
                         <label className="block text-xs font-semibold text-slate-500 mb-2">
-                          7 Hari Sebelumnya (Baseline Pembanding)
+                          Prior 7 Days (Baseline Comparison)
                         </label>
                         <div className="grid grid-cols-7 gap-1.5">
                           {customInput.sales_prior_7d.map((val, idx) => (
@@ -388,9 +388,9 @@ export default function AIInsights() {
                                   handleCustomSalesChange(idx, "sales_prior_7d", e.target.value)
                                 }
                                 className="h-9 w-full text-center rounded-lg border border-[#E2E8F0] bg-white text-xs text-[#141B2B] outline-none focus:border-[#4F46E5]"
-                                placeholder={`H-${14 - idx}`}
+                                placeholder={`D-${14 - idx}`}
                               />
-                              <span className="text-[9px] text-slate-400 mt-1 block">H-{14 - idx}</span>
+                              <span className="text-[9px] text-slate-400 mt-1 block">D-{14 - idx}</span>
                             </div>
                           ))}
                         </div>
@@ -407,12 +407,12 @@ export default function AIInsights() {
                           <span className="material-symbols-outlined animate-spin text-[20px]">
                             progress_activity
                           </span>
-                          Mengevaluasi...
+                          Evaluating...
                         </>
                       ) : (
                         <>
                           <span className="material-symbols-outlined text-[20px]">analytics</span>
-                          Analisis Stok dengan AI
+                          Analyze Stock with AI
                         </>
                       )}
                     </button>
@@ -426,7 +426,7 @@ export default function AIInsights() {
                   ) : customResult ? (
                     <ResultCard result={customResult} />
                   ) : (
-                    <EmptyResultCard text="Silakan isi form input penjualan di panel kiri lalu klik tombol 'Analisis Stok dengan AI' untuk melakukan inferensi kustom." />
+                    <EmptyResultCard text="Please fill out the sales input form on the left panel and click 'Analyze Stock with AI' to run custom inference." />
                   )}
                 </div>
               </div>
@@ -450,9 +450,9 @@ function ResultCard({ result }) {
   let actionColorClass = "";
   let gradientBg = "";
 
-  if (status === "Merah") {
+  if (status === "Merah" || status === "Red") {
     statusBadgeColor = "bg-red-50 text-red-600 border border-red-200";
-  } else if (status === "Kuning") {
+  } else if (status === "Kuning" || status === "Yellow") {
     statusBadgeColor = "bg-amber-50 text-amber-600 border border-amber-200";
   } else {
     statusBadgeColor = "bg-emerald-50 text-emerald-600 border border-emerald-200";
@@ -462,7 +462,7 @@ function ResultCard({ result }) {
     actionIcon = "emergency_home";
     actionColorClass = "text-red-600 bg-red-50 border-red-100";
     gradientBg = "from-red-50/50 via-white to-white";
-  } else if (action === "PROMO_DISKON") {
+  } else if (action === "PROMO_DISKON" || action === "DISCOUNT_PROMO") {
     actionIcon = "percent";
     actionColorClass = "text-amber-600 bg-amber-50 border-amber-100";
     gradientBg = "from-amber-50/50 via-white to-white";
@@ -472,40 +472,47 @@ function ResultCard({ result }) {
     gradientBg = "from-emerald-50/50 via-white to-white";
   }
 
+  const formatStatus = (st) => {
+    if (st === "Merah") return "Red (Critical)";
+    if (st === "Kuning") return "Yellow (Warning)";
+    if (st === "Hijau") return "Green (Optimal)";
+    return st;
+  };
+
   return (
     <div className={`rounded-2xl border border-slate-100 bg-gradient-to-b ${gradientBg} p-5 shadow-sm`}>
-      <h2 className="text-sm font-bold text-[#141B2B] mb-4">Hasil Analisis & Rekomendasi</h2>
+      <h2 className="text-sm font-bold text-[#141B2B] mb-4">Analysis Results & Recommendations</h2>
 
       {/* Main product summary info */}
       <div className="flex items-center justify-between mb-5 border-b border-slate-100 pb-4">
         <div>
           <h3 className="text-base font-bold text-slate-800">{product_name}</h3>
-          <p className="text-xs text-slate-500 mt-0.5">Klasifikasi Status Produk</p>
+          <p className="text-xs text-slate-500 mt-0.5">Product Status Classification</p>
         </div>
         <span className={`rounded-full px-3 py-1 text-xs font-semibold ${statusBadgeColor}`}>
-          Status: {status}
+          Status: {formatStatus(status)}
         </span>
       </div>
 
       {/* Grid calculated metrics */}
       <div className="grid grid-cols-2 gap-4 mb-6 sm:grid-cols-4">
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Stok Saat Ini</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Current Stock</p>
           <p className="text-base font-extrabold text-slate-800 mt-1">{metrics.current_stock} pcs</p>
         </div>
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">SMA 7 Hari</p>
-          <p className="text-base font-extrabold text-slate-800 mt-1">{metrics.sma_7_daily} pcs/h</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">7-Day SMA</p>
+          <p className="text-base font-extrabold text-slate-800 mt-1">{metrics.sma_7_daily} pcs/day</p>
         </div>
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Tren Penjualan</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Sales Trend</p>
           <p className={`text-base font-extrabold mt-1 ${metrics.sales_trend_pct.startsWith('-') ? 'text-red-500' : 'text-emerald-600'}`}>
             {metrics.sales_trend_pct}
           </p>
         </div>
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">Days of Inventory</p>
-          <p className="text-base font-extrabold text-slate-800 mt-1">{metrics.days_of_inventory} hari</p>
+          <p className="text-base font-extrabold text-slate-800 mt-1">{metrics.days_of_inventory} days</p>
         </div>
       </div>
 
@@ -517,7 +524,7 @@ function ResultCard({ result }) {
           </div>
           <div>
             <span className="text-[10px] font-extrabold uppercase tracking-wide text-inherit">
-              Rekomendasi Tindakan AI
+              AI Action Recommendation
             </span>
             <h4 className="text-sm font-bold mt-0.5 leading-snug">{action}</h4>
             <p className="text-sm mt-2 text-slate-800 font-semibold">
@@ -526,7 +533,7 @@ function ResultCard({ result }) {
             {ai_recommendation.rationale && (
               <div className="mt-3 border-t border-dashed border-inherit pt-2.5">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                  Justifikasi / Rationale
+                  Justification / Rationale
                 </span>
                 <p className="text-xs text-slate-600 mt-1 leading-relaxed">
                   {ai_recommendation.rationale}
@@ -548,7 +555,7 @@ function EmptyResultCard({ text }) {
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#4F46E5]/5 text-[#4F46E5]">
         <span className="material-symbols-outlined text-[30px]">psychology</span>
       </div>
-      <h3 className="text-sm font-bold text-slate-800">Menunggu Input Analisis</h3>
+      <h3 className="text-sm font-bold text-slate-800">Awaiting Analysis Input</h3>
       <p className="mt-2 max-w-sm text-xs leading-relaxed text-[#64748B]">{text}</p>
     </div>
   );

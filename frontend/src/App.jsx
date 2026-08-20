@@ -2,11 +2,12 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Sidebar from "./components/layout/Sidebar";
 import Dashboard from "./pages/Dashboard";
 import AIInsights from "./pages/AIInsights";
-import PlaceholderPage from "./pages/PlaceholderPage";
 import POS from "./pages/POS";
 import Products from "./pages/Products";
 import Inventory from "./pages/Inventory";
 import Transactions from "./pages/Transactions";
+import Settings from "./pages/Settings";
+import Support from "./pages/Support";
 
 function AppLayout({ children }) {
   return (
@@ -88,7 +89,7 @@ export default function App() {
           element={
             <AppLayout>
               <div className="flex flex-1 flex-col min-h-screen">
-                <PlaceholderPage title="Settings" />
+                <Settings />
               </div>
             </AppLayout>
           }
@@ -98,7 +99,7 @@ export default function App() {
           element={
             <AppLayout>
               <div className="flex flex-1 flex-col min-h-screen">
-                <PlaceholderPage title="Support" />
+                <Support />
               </div>
             </AppLayout>
           }

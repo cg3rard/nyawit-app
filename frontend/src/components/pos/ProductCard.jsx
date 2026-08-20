@@ -1,5 +1,7 @@
+import { getProductImage } from "../../utils/productImages";
+
 export default function ProductCard({ product, onAdd }) {
-  const storedPhoto = localStorage.getItem(`product_photo_${product.product_code}`);
+  const storedPhoto = getProductImage(product);
   const isOutOfStock = product.stock <= 0;
   const isLowStock = product.stock > 0 && product.stock <= 5;
 
@@ -78,13 +80,15 @@ export default function ProductCard({ product, onAdd }) {
           </div>
         )}
 
+        {/* Expiry Badge - Bottom Left on image */}
         {expiryInfo && (
-          <span className={`absolute left-2 top-2 rounded-md border px-2 py-1 text-[9px] font-bold shadow-sm ${expiryInfo.color}`}>
+          <span className={`absolute left-2.5 bottom-2.5 rounded-md border px-2 py-0.5 text-[9px] font-bold shadow-xs backdrop-blur-xs ${expiryInfo.color}`}>
             {expiryInfo.text}
           </span>
         )}
 
-        <span className="absolute right-2 top-2 rounded-md border border-[#E2E8F0] bg-white/95 px-2 py-1 text-xs font-semibold text-[#141B2B] shadow-sm">
+        {/* Price Badge - Top Right on image */}
+        <span className="absolute right-2.5 top-2.5 rounded-lg border border-[#E2E8F0] bg-white/95 backdrop-blur-xs px-2.5 py-1 text-xs font-bold text-[#141B2B] shadow-xs">
           {formatCurrency(product.selling_price)}
         </span>
       </div>

@@ -443,7 +443,7 @@ export default function POS() {
       {receiptToPrint && (
         <div id="thermal-receipt" className="hidden print:block font-mono">
           <div className="text-center">
-            <h2 className="text-sm font-bold uppercase">CoStore Pro</h2>
+            <h2 className="text-sm font-bold uppercase">CoStore</h2>
             <p className="text-[10px]">Nyawit Store</p>
             <p className="text-[10px]">Jakarta, Indonesia</p>
             <p className="my-1">================================</p>

@@ -77,7 +77,7 @@ def delete_product(product_id: int, db: Session = Depends(get_db)):
     if not deleted:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail="Product cannot be deleted because it has inventory movement history.",
+            detail="Product cannot be deleted because it is recorded in sales transactions.",
         )
 
     return Response(status_code=status.HTTP_204_NO_CONTENT)

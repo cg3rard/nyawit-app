@@ -29,32 +29,40 @@ def _get_sales_today(db: Session) -> SalesToday:
     start_dt = datetime.combine(today, time.min)
     end_dt = datetime.combine(today, time.max)
 
-    row = (
+    # 1. Total revenue and total transaction count directly from Transaction table
+    trx_row = (
         db.query(
             func.coalesce(func.sum(Transaction.total_amount), 0).label("total_revenue"),
-            func.count(func.distinct(Transaction.id)).label("total_transactions"),
-            func.coalesce(
-                func.sum(TransactionItem.quantity), 0
-            ).label("total_items_sold"),
-            func.coalesce(
-                func.sum(TransactionItem.quantity * Product.purchase_price), 0
-            ).label("total_cogs"),
+            func.count(Transaction.id).label("total_transactions"),
         )
-        .outerjoin(TransactionItem, TransactionItem.transaction_id == Transaction.id)
-        .outerjoin(Product, Product.id == TransactionItem.product_id)
         .filter(Transaction.created_at >= start_dt)
         .filter(Transaction.created_at <= end_dt)
         .one()
     )
 
-    revenue = Decimal(str(row.total_revenue))
-    cogs = Decimal(str(row.total_cogs))
+    # 2. Total items sold and COGS from TransactionItem
+    items_row = (
+        db.query(
+            func.coalesce(func.sum(TransactionItem.quantity), 0).label("total_items_sold"),
+            func.coalesce(
+                func.sum(TransactionItem.quantity * Product.purchase_price), 0
+            ).label("total_cogs"),
+        )
+        .join(Transaction, Transaction.id == TransactionItem.transaction_id)
+        .join(Product, Product.id == TransactionItem.product_id)
+        .filter(Transaction.created_at >= start_dt)
+        .filter(Transaction.created_at <= end_dt)
+        .one()
+    )
+
+    revenue = Decimal(str(trx_row.total_revenue))
+    cogs = Decimal(str(items_row.total_cogs))
     net_income = revenue - cogs
 
     return SalesToday(
         total_revenue=revenue,
-        total_transactions=int(row.total_transactions),
-        total_items_sold=int(row.total_items_sold),
+        total_transactions=int(trx_row.total_transactions),
+        total_items_sold=int(items_row.total_items_sold),
         total_net_income=net_income,
     )
 

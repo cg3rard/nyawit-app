@@ -153,7 +153,7 @@ export default function PaymentModal({
             <div className="space-y-4">
               <div>
                 <label htmlFor="cash_received" className="mb-1.5 block text-xs font-semibold text-[#334155]">
-                  Cash Received (Uang Masuk) <span className="text-red-500">*</span>
+                  Cash Received <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-[#64748B]">Rp</span>
@@ -195,7 +195,7 @@ export default function PaymentModal({
 
               {/* Change Output */}
               <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 flex justify-between items-center">
-                <span className="text-sm font-semibold text-[#64748B]">Change (Kembalian)</span>
+                <span className="text-sm font-semibold text-[#64748B]">Change</span>
                 <span
                   className={`text-xl font-extrabold ${
                     change >= 0 ? "text-emerald-600" : "text-[#94A3B8]"

@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from app.models.product import Product
 from app.models.stock_movement import MovementType, StockMovement
+from app.models.transaction import TransactionItem
 from app.schemas.product import ProductCreate, ProductUpdate
 
 def get_products(db: Session) -> List[Product]:
@@ -67,17 +68,22 @@ def update_product(db: Session, product: Product, data: ProductUpdate) -> Produc
 
 
 def delete_product(db: Session, product: Product) -> bool:
-    """Delete a product only if it has no inventory movement history."""
-    has_movements = (
-        db.query(StockMovement)
-        .filter(StockMovement.product_id == product.id)
+    """
+    Delete a product and its inventory movement history.
+    Prevents deletion if the product is linked to sales transactions.
+    """
+    has_transactions = (
+        db.query(TransactionItem)
+        .filter(TransactionItem.product_id == product.id)
         .first()
         is not None
     )
 
-    if has_movements:
+    if has_transactions:
         return False
 
+    # Remove stock movements associated with this product before deletion
+    db.query(StockMovement).filter(StockMovement.product_id == product.id).delete()
     db.delete(product)
     db.commit()
     return True

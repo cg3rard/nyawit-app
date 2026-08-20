@@ -7,12 +7,19 @@ export default function AIInsightCard({ insight }) {
   let actionIcon = "psychology";
 
   if (hasInsight) {
-    const isRed = insight.status === "Merah";
+    const isRed = insight.status === "Merah" || insight.status === "Red";
     badgeClass = isRed ? "bg-red-50 text-red-600 border border-red-200" : "bg-amber-50 text-amber-600 border border-amber-200";
     borderClass = isRed ? "border-red-100" : "border-amber-100";
     actionColor = isRed ? "text-red-700" : "text-amber-700";
     actionIcon = insight.ai_recommendation.action === "RESTOCK_URGENT" ? "emergency_home" : "percent";
   }
+
+  const formatStatus = (st) => {
+    if (st === "Merah") return "Red (Critical)";
+    if (st === "Kuning") return "Yellow (Warning)";
+    if (st === "Hijau") return "Green (Optimal)";
+    return st;
+  };
 
   return (
     <div
@@ -45,14 +52,14 @@ export default function AIInsightCard({ insight }) {
                 AI Insights
               </h2>
               <p className="text-xs" style={{ color: "var(--color-muted)" }}>
-                {hasInsight ? "Rekomendasi Tindakan Otomatis" : "Status Stok Inventori"}
+                {hasInsight ? "Automated Action Recommendation" : "Inventory Stock Status"}
               </p>
             </div>
           </div>
 
           {hasInsight && (
             <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${badgeClass}`}>
-              {insight.status}
+              {formatStatus(insight.status)}
             </span>
           )}
         </div>
@@ -63,7 +70,7 @@ export default function AIInsightCard({ insight }) {
             <div className="border-b border-slate-100 pb-2">
               <h3 className="text-sm font-bold text-slate-800">{insight.product_name}</h3>
               <p className="text-[10px] text-slate-400 mt-0.5">
-                Stok: {insight.metrics.current_stock} pcs • DOI: {insight.metrics.days_of_inventory} hari • Tren: {insight.metrics.sales_trend_pct}
+                Stock: {insight.metrics.current_stock} pcs • DOI: {insight.metrics.days_of_inventory} days • Trend: {insight.metrics.sales_trend_pct}
               </p>
             </div>
 
@@ -90,10 +97,10 @@ export default function AIInsightCard({ insight }) {
               check_circle
             </span>
             <p className="text-sm font-semibold mb-1 text-emerald-700">
-              Semua Stok Aman
+              All Stock Healthy
             </p>
             <p className="text-xs leading-relaxed" style={{ color: "var(--color-muted)" }}>
-              Tidak terdeteksi adanya risiko kehabisan stok (*restock*) maupun penumpukan barang (*dead stock*) saat ini.
+              No restock urgency or dead stock risk detected at this time.
             </p>
           </div>
         )}
@@ -102,7 +109,7 @@ export default function AIInsightCard({ insight }) {
       {/* Footer / Status Indicator */}
       <div className="mt-4 flex items-center justify-between border-t border-slate-50 pt-3">
         <span className="text-[10px] text-slate-400">
-          {hasInsight ? "AI mendeteksi barang kritis" : "Kondisi operasional optimal"}
+          {hasInsight ? "AI detected critical items" : "Optimal operational condition"}
         </span>
         <div className="flex gap-1">
           {[...Array(3)].map((_, i) => (
