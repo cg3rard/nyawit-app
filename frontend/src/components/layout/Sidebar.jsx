@@ -12,6 +12,7 @@ const NAV_ITEMS = [
 const FOOTER_ITEMS = [
   { to: "/settings", icon: "settings", label: "Settings" },
   { to: "/support", icon: "help", label: "Support" },
+  { to: "/login", icon: "logout", label: "Sign Out" },
 ];
 
 function NavItem({ to, icon, label, onClick }) {

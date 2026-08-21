@@ -8,6 +8,8 @@ import Inventory from "./pages/Inventory";
 import Transactions from "./pages/Transactions";
 import Settings from "./pages/Settings";
 import Support from "./pages/Support";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 function AppLayout({ children }) {
   return (
@@ -28,6 +30,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
         <Route
           path="/"
           element={

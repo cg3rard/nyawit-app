@@ -20,6 +20,7 @@ export default function Settings() {
     return {
       storeName: "CoStore",
       ownerName: "Nyawit",
+      storeEmail: "nyawit@costore.app",
       storeAddress: "Jl. Sudirman No. 88, Jakarta Selatan",
       storePhone: "+62 812-3456-7890",
       receiptHeader: "CoStore Retail & Convenience",
@@ -148,6 +149,19 @@ export default function Settings() {
                         value={storeSettings.storePhone}
                         onChange={(e) => setStoreSettings({ ...storeSettings, storePhone: e.target.value })}
                         className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:bg-white focus:ring-2 focus:ring-[#00685F]/10"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-[#334155] mb-1.5">
+                        Email Address
+                      </label>
+                      <input
+                        type="email"
+                        value={storeSettings.storeEmail || ""}
+                        onChange={(e) => setStoreSettings({ ...storeSettings, storeEmail: e.target.value })}
+                        className="h-10 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] px-3.5 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:bg-white focus:ring-2 focus:ring-[#00685F]/10"
+                        placeholder="e.g. manager@costore.app"
                       />
                     </div>
 
