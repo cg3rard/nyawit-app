@@ -185,3 +185,53 @@ def get_sales_summary(db: Session) -> SalesSummary:
         total_revenue=Decimal(str(total_revenue)),
         total_items_sold=int(total_items_sold),
     )
+
+def get_product_sales_14d(
+    db: Session, 
+    product_id: int, 
+    target_date: date = None
+) -> Tuple[List[int], List[int]]:
+    """
+    Mengambil dan mengagregasikan quantity penjualan 14 hari terakhir (H-13 s/d H-0),
+    lalu membaginya menjadi sales_recent_7d dan sales_prior_7d dengan zero-filling.
+    """
+    if target_date is None:
+        target_date = date.today()
+
+    start_date = target_date - timedelta(days=13)
+
+    # 1. Query agregasi harian via SQLAlchemy
+    # Menggabungkan transactions dan transaction_items
+    stmt = (
+        select(
+            func.date(Transaction.created_at).label("sale_date"),
+            func.sum(TransactionItem.quantity).label("total_qty")
+        )
+        .join(TransactionItem, Transaction.id == TransactionItem.transaction_id)
+        .where(
+            TransactionItem.product_id == product_id,
+            func.date(Transaction.created_at) >= start_date,
+            func.date(Transaction.created_at) <= target_date
+        )
+        .group_by(func.date(Transaction.created_at))
+    )
+
+    results = db.execute(stmt).all()
+
+    # Ubah hasil query menjadi mapping: {date: total_qty}
+    sales_map: Dict[date, int] = {
+        (row.sale_date if isinstance(row.sale_date, date) else date.fromisoformat(str(row.sale_date))): int(row.total_qty)
+        for row in results
+    }
+
+    # 2. Zero-filling 14 hari penuh (H-13 s/d H-0)
+    full_14_days: List[int] = []
+    for i in range(13, -1, -1):
+        current_day = target_date - timedelta(days=i)
+        full_14_days.append(sales_map.get(current_day, 0))
+
+    # 3. Pisahkan ke dua jendela 7 harian
+    sales_prior_7d = full_14_days[0:7]    # Index 0..6 (H-13 s/d H-7)
+    sales_recent_7d = full_14_days[7:14]  # Index 7..13 (H-6 s/d H-0)
+
+    return sales_recent_7d, sales_prior_7d
