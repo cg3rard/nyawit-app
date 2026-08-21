@@ -1,9 +1,10 @@
 import uuid
 from datetime import date
 from decimal import Decimal
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict
+from datetime import date, timedelta
 
-from sqlalchemy import func
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from app.models.product import Product
