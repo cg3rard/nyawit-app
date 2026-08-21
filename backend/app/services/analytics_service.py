@@ -3,7 +3,7 @@ from decimal import Decimal
 from typing import List, Optional
 
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.product import Product
 from app.models.transaction import Transaction, TransactionItem
@@ -117,6 +117,7 @@ def get_low_stock(db: Session, threshold: int = 5) -> List[LowStockProduct]:
     """
     rows = (
         db.query(Product)
+        .options(joinedload(Product.supplier))
         .filter(Product.stock <= threshold)
         .order_by(Product.stock.asc())
         .all()
@@ -129,6 +130,8 @@ def get_low_stock(db: Session, threshold: int = 5) -> List[LowStockProduct]:
             product_name=p.name,
             stock=p.stock,
             threshold=threshold,
+            supplier_id=p.supplier_id,
+            supplier_name=p.supplier.name if p.supplier else None,
         )
         for p in rows
     ]

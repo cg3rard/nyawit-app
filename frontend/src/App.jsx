@@ -10,6 +10,9 @@ import Settings from "./pages/Settings";
 import Support from "./pages/Support";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Suppliers from "./pages/Suppliers";
+import WAConnection from "./pages/WAConnection";
+import ConfirmRestock from "./pages/ConfirmRestock";
 
 function AppLayout({ children }) {
   return (
@@ -69,6 +72,16 @@ export default function App() {
           }
         />
         <Route
+          path="/suppliers"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <Suppliers />
+              </div>
+            </AppLayout>
+          }
+        />
+        <Route
           path="/inventory"
           element={
             <AppLayout>
@@ -84,6 +97,16 @@ export default function App() {
             <AppLayout>
               <div className="flex flex-1 flex-col min-h-screen">
                 <AIInsights />
+              </div>
+            </AppLayout>
+          }
+        />
+        <Route
+          path="/wa-connection"
+          element={
+            <AppLayout>
+              <div className="flex flex-1 flex-col min-h-screen">
+                <WAConnection />
               </div>
             </AppLayout>
           }
@@ -106,6 +129,15 @@ export default function App() {
                 <Support />
               </div>
             </AppLayout>
+          }
+        />
+        {/* Public landing page (no Sidebar layout) */}
+        <Route
+          path="/confirm_restock/:id"
+          element={
+            <div className="flex flex-1 flex-col min-h-screen">
+              <ConfirmRestock />
+            </div>
           }
         />
       </Routes>

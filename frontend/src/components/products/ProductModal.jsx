@@ -9,6 +9,7 @@ export default function ProductModal({
   onSubmit,
   submitting = false,
   categories = [],
+  suppliers = [],
 }) {
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -67,6 +68,7 @@ export default function ProductModal({
             onCancel={onClose}
             submitting={submitting}
             categories={categories}
+            suppliers={suppliers}
           />
         </div>
       </div>

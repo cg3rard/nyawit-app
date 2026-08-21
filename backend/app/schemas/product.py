@@ -4,6 +4,8 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from app.schemas.supplier import SupplierReadSimple
+
 
 class ProductCreate(BaseModel):
     """Schema for creating a new product. All business-required fields are mandatory."""
@@ -21,6 +23,7 @@ class ProductCreate(BaseModel):
     )
     stock: int = Field(default=0, ge=0, description="Current stock quantity")
     expiry_date: Optional[date] = Field(default=None, description="Expiry date (optional)")
+    supplier_id: Optional[int] = Field(default=None, description="Supplier ID (optional)")
 
 
 class ProductUpdate(BaseModel):
@@ -32,6 +35,7 @@ class ProductUpdate(BaseModel):
     purchase_price: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
     selling_price: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
     expiry_date: Optional[date] = Field(default=None)
+    supplier_id: Optional[int] = Field(default=None, description="Supplier ID (optional)")
 
 
 class ProductRead(BaseModel):
@@ -45,5 +49,8 @@ class ProductRead(BaseModel):
     selling_price: Decimal
     stock: int
     expiry_date: Optional[date]
+    supplier_id: Optional[int] = None
+    supplier: Optional[SupplierReadSimple] = None
 
     model_config = ConfigDict(from_attributes=True)
+

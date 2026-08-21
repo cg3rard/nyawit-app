@@ -20,6 +20,10 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
               Category
             </th>
 
+            <th className="px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">
+              Supplier
+            </th>
+
             <th className="px-5 py-3 text-right text-[11px] font-semibold uppercase tracking-wide text-[#64748B]">
               Selling Price
             </th>
@@ -82,6 +86,17 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
               {/* Category */}
               <td className="px-5 py-4 text-sm text-[#64748B]">
                 {product.category || "—"}
+              </td>
+
+              {/* Supplier */}
+              <td className="px-5 py-4 text-sm">
+                {product.supplier ? (
+                  <span className="font-semibold text-[#00685F] bg-[#E8F5F3] px-2.5 py-1 rounded-full text-xs">
+                    {product.supplier.name}
+                  </span>
+                ) : (
+                  <span className="text-[#94A3B8]">—</span>
+                )}
               </td>
 
               {/* Selling Price */}

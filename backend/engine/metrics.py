@@ -55,12 +55,12 @@ class InventoryEngine:
         Returns:
             InventoryMetrics dataclass containing calculated numbers, status, and LLM-ready prompt.
         """
-        if len(sales_recent_7d) != 7 or len(sales_prior_7d) != 7:
-            raise ValueError("Both sales_recent_7d and sales_prior_7d must contain exactly 7 daily records.")
+        if len(sales_recent_7d) == 0 or len(sales_prior_7d) == 0:
+            raise ValueError("Both sales_recent_7d and sales_prior_7d must contain at least 1 record.")
 
         # 1. Simple Moving Averages
-        sma_7 = sum(sales_recent_7d) / 7.0
-        sma_prior = sum(sales_prior_7d) / 7.0
+        sma_7 = sum(sales_recent_7d) / float(len(sales_recent_7d))
+        sma_prior = sum(sales_prior_7d) / float(len(sales_prior_7d))
 
         # 2. Sales Trend (Percentage Change)
         if sma_prior == 0.0:

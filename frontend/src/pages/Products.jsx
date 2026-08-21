@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { createProduct, deleteProduct, getProducts, updateProduct } from "../services/api";
+import { createProduct, deleteProduct, getProducts, updateProduct, getSuppliers } from "../services/api";
 
 import MobileSidebar from "../components/layout/MobileSidebar";
 import TopBar from "../components/layout/TopBar";
@@ -61,6 +61,7 @@ const parseCSV = (text) => {
 
 export default function Products() {
   const [products, setProducts] = useState([]);
+  const [suppliers, setSuppliers] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -203,8 +204,18 @@ export default function Products() {
     }
   };
 
+  const loadSuppliers = async () => {
+    try {
+      const data = await getSuppliers();
+      setSuppliers(data);
+    } catch (err) {
+      console.error("Failed to load suppliers:", err);
+    }
+  };
+
   useEffect(() => {
     loadProducts();
+    loadSuppliers();
   }, []);
 
   // ── Categories ─────────────────────────────────────────────────
@@ -453,7 +464,7 @@ export default function Products() {
       </div>
 
       {/* Add / Edit Product Modal */}
-      <ProductModal open={modalOpen} mode={modalMode} product={editingProduct} onClose={handleCloseModal} onSubmit={handleSubmitProduct} submitting={submitting} categories={categories} />
+      <ProductModal open={modalOpen} mode={modalMode} product={editingProduct} onClose={handleCloseModal} onSubmit={handleSubmitProduct} submitting={submitting} categories={categories} suppliers={suppliers} />
 
       {/* Delete Product Modal */}
       <DeleteProductModal open={deleteModalOpen} product={deletingProduct} onClose={handleCloseDeleteModal} onConfirm={handleConfirmDelete} deleting={deleting} error={deleteError} />

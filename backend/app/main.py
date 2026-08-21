@@ -5,7 +5,7 @@ from sqlalchemy import text
 import app.models  # noqa: F401 — registers all models with Base.metadata at startup
 from app.core.config import settings
 from app.database import engine
-from app.routes import ai, analytics, dashboard, inventory, products, transactions
+from app.routes import ai, analytics, dashboard, inventory, products, transactions, suppliers, whatsapp
 
 app = FastAPI(title="CoStore API")
 
@@ -27,6 +27,8 @@ app.include_router(transactions.router)
 app.include_router(analytics.router)
 app.include_router(dashboard.router)
 app.include_router(ai.router)
+app.include_router(suppliers.router)
+app.include_router(whatsapp.router)
 
 
 @app.get("/")

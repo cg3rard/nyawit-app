@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Date, Integer, Numeric, String
+from sqlalchemy import Column, Date, Integer, Numeric, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.models.base import Base
@@ -47,8 +47,21 @@ class Product(Base):
         nullable=True,
     )
 
+    supplier_id = Column(
+        Integer,
+        ForeignKey("suppliers.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
+    # Relationship to supplier
+    supplier = relationship(
+        "Supplier",
+        back_populates="products",
+    )
+
     # Relationship to inventory movements
     stock_movements = relationship(
         "StockMovement",
         back_populates="product",
     )
+

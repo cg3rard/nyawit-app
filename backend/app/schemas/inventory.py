@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -18,6 +18,10 @@ class StockInRequest(BaseModel):
     reason: Optional[str] = Field(
         default=None,
         max_length=255,
+    )
+    expiry_date: Optional[date] = Field(
+        default=None,
+        description="Expiry date of the received goods (updates product expiry_date)",
     )
 
 

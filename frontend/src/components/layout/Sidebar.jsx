@@ -5,11 +5,13 @@ const NAV_ITEMS = [
   { to: "/pos", icon: "point_of_sale", label: "POS" },
   { to: "/transactions", icon: "receipt_long", label: "Transactions" },
   { to: "/products", icon: "inventory_2", label: "Products" },
+  { to: "/suppliers", icon: "local_shipping", label: "Suppliers" },
   { to: "/inventory", icon: "inventory", label: "Inventory" },
   { to: "/ai-insights", icon: "auto_awesome", label: "AI Insights" },
 ];
 
 const FOOTER_ITEMS = [
+  { to: "/wa-connection", icon: "inventory", label: "Stock Mgmt Response" },
   { to: "/settings", icon: "settings", label: "Settings" },
   { to: "/support", icon: "help", label: "Support" },
   { to: "/login", icon: "logout", label: "Sign Out" },

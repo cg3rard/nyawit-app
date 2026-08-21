@@ -43,7 +43,9 @@ def _record_movement(
 
 
 def stock_in(db: Session, data: StockInRequest) -> StockMovement:
-    """Add stock to a product. Returns the movement record."""
+    """Add stock to a product. Returns the movement record.
+    If expiry_date is provided, updates the product's expiry_date field.
+    """
 
     product = (
         db.query(Product)
@@ -53,6 +55,10 @@ def stock_in(db: Session, data: StockInRequest) -> StockMovement:
 
     if product is None:
         return None
+
+    # Update expiry date if provided (from the received goods)
+    if data.expiry_date is not None:
+        product.expiry_date = data.expiry_date
 
     stock_before = product.stock
     stock_after = stock_before + data.quantity

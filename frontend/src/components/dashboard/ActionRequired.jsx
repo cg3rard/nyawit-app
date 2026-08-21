@@ -1,5 +1,6 @@
 import { useState } from "react";
 import EmptyState from "../common/EmptyState";
+import { sendRestockRequest } from "../../services/api";
 
 function AlertRow({ icon, iconColor, title, subtitle, children, defaultOpen = false }) {
   const [open, setOpen] = useState(defaultOpen);
@@ -37,6 +38,25 @@ function AlertRow({ icon, iconColor, title, subtitle, children, defaultOpen = fa
 
 export default function ActionRequired({ lowStockProducts = [], expiryAlerts = [], searchQuery = "" }) {
   const totalAlerts = lowStockProducts.length + expiryAlerts.length;
+
+  const handleNotifySupplier = async (productId, productName, supplierName) => {
+    const qtyStr = prompt(
+      `Send WhatsApp restock notification to "${supplierName}" for "${productName}"?\n\nEnter restock quantity (units):`,
+      "50"
+    );
+    if (qtyStr === null) return;
+    const qty = parseInt(qtyStr, 10);
+    if (isNaN(qty) || qty <= 0) {
+      alert("Please enter a valid quantity.");
+      return;
+    }
+    try {
+      await sendRestockRequest(productId, qty);
+      alert(`Success! Restock request link has been generated and logged in WhatsApp Connection dashboard.`);
+    } catch (err) {
+      alert(err?.response?.data?.detail || "Failed to notify supplier.");
+    }
+  };
 
   const filteredLow = lowStockProducts.filter((p) =>
     p.product_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -82,13 +102,25 @@ export default function ActionRequired({ lowStockProducts = [], expiryAlerts = [
             subtitle="Stock below threshold"
             defaultOpen={filteredLow.length <= 3}
           >
-            <ul className="space-y-1.5">
+            <ul className="space-y-2">
               {filteredLow.map((p) => (
-                <li key={p.product_id} className="flex items-center justify-between text-sm">
-                  <span style={{ color: "var(--color-text)" }}>{p.product_name}</span>
-                  <span className="font-semibold" style={{ color: "var(--color-warning)" }}>
-                    {p.stock} units remaining
-                  </span>
+                <li key={p.product_id} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-200/50 last:border-0">
+                  <div className="min-w-0 pr-2">
+                    <p className="font-semibold text-slate-800 truncate">{p.product_name}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">
+                      Stock: <span className="text-amber-600 font-bold">{p.stock} units</span> remaining
+                    </p>
+                  </div>
+                  {p.supplier_name ? (
+                    <button
+                      onClick={() => handleNotifySupplier(p.product_id, p.product_name, p.supplier_name)}
+                      className="text-[11px] font-bold text-[#00685F] hover:text-[#00574F] bg-[#E8F5F3] hover:bg-[#D2EBE7] px-2 py-1 rounded transition shrink-0"
+                    >
+                      Notify WA
+                    </button>
+                  ) : (
+                    <span className="text-[10px] text-slate-400 italic shrink-0">No supplier</span>
+                  )}
                 </li>
               ))}
             </ul>

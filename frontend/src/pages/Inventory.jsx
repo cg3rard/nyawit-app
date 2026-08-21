@@ -62,6 +62,20 @@ export default function Inventory() {
     });
   }, [movements, searchQuery, selectedType]);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedType]);
+
+  const paginatedMovements = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredMovements.slice(startIndex, startIndex + pageSize);
+  }, [filteredMovements, currentPage, pageSize]);
+
   return (
     <div className="flex min-h-screen bg-[#F9F9FF]">
       <MobileSidebar
@@ -201,7 +215,103 @@ export default function Inventory() {
               ) : filteredMovements.length === 0 ? (
                 <MovementEmpty />
               ) : (
-                <MovementTable movements={filteredMovements} />
+                <>
+                  <MovementTable movements={paginatedMovements} />
+                  
+                  {/* Pagination Controls */}
+                  {(() => {
+                    const totalEntries = filteredMovements.length;
+                    const totalPages = Math.ceil(totalEntries / pageSize);
+                    const startIndex = (currentPage - 1) * pageSize;
+
+                    return (
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#E2E8F0] px-5 py-4 bg-white">
+                        {/* Page Size Selector */}
+                        <div className="flex items-center gap-2 text-xs text-[#64748B]">
+                          <span>Show</span>
+                          <select
+                            value={pageSize}
+                            onChange={(e) => {
+                              setPageSize(Number(e.target.value));
+                              setCurrentPage(1);
+                            }}
+                            className="h-8 rounded-lg border border-[#E2E8F0] bg-white px-2 text-xs text-[#141B2B] outline-none focus:border-[#00685F]"
+                          >
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                          </select>
+                          <span>entries</span>
+                        </div>
+
+                        {/* Showing X to Y of Z */}
+                        <div className="text-xs text-[#64748B]">
+                          Showing <span className="font-semibold text-[#141B2B]">{totalEntries === 0 ? 0 : startIndex + 1}</span> to{" "}
+                          <span className="font-semibold text-[#141B2B]">
+                            {Math.min(startIndex + pageSize, totalEntries)}
+                          </span>{" "}
+                          of <span className="font-semibold text-[#141B2B]">{totalEntries}</span> entries
+                        </div>
+
+                        {/* Navigation buttons */}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                          </button>
+
+                          {Array.from({ length: totalPages }).map((_, idx) => {
+                            const pageNum = idx + 1;
+                            if (
+                              pageNum === 1 ||
+                              pageNum === totalPages ||
+                              Math.abs(pageNum - currentPage) <= 1
+                            ) {
+                              return (
+                                <button
+                                  key={pageNum}
+                                  type="button"
+                                  onClick={() => setCurrentPage(pageNum)}
+                                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold transition ${
+                                    currentPage === pageNum
+                                      ? "bg-[#00685F] text-white font-bold"
+                                      : "border border-[#E2E8F0] text-[#64748B] hover:bg-slate-50"
+                                  }`}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            } else if (
+                              (pageNum === 2 && currentPage > 3) ||
+                              (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                            ) {
+                              return (
+                                <span key={pageNum} className="px-1 text-slate-400 text-xs select-none">
+                                  ...
+                                </span>
+                              );
+                            }
+                            return null;
+                          })}
+
+                          <button
+                            type="button"
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </>
               )}
             </div>
           </div>

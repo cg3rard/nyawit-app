@@ -60,6 +60,10 @@ export default function Transactions() {
     return new Map(products.map((p) => [p.id, p]));
   }, [products]);
 
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
   // Filter on frontend for search query
   const filteredTransactions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -78,6 +82,16 @@ export default function Transactions() {
       return codeMatches || productMatches;
     });
   }, [transactions, searchQuery, productMap]);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, startDate, endDate]);
+
+  const paginatedTransactions = useMemo(() => {
+    const startIndex = (currentPage - 1) * pageSize;
+    return filteredTransactions.slice(startIndex, startIndex + pageSize);
+  }, [filteredTransactions, currentPage, pageSize]);
 
   // Summary Metrics based on currently filtered/listed transactions
   const summary = useMemo(() => {
@@ -299,69 +313,165 @@ export default function Transactions() {
               ) : filteredTransactions.length === 0 ? (
                 <EmptyState onReset={handleResetFilters} />
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full min-w-[800px]">
-                    <thead>
-                      <tr className="border-b border-[#E2E8F0] bg-[#F9F9FF] text-left">
-                        <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
-                          Date & Time
-                        </th>
-                        <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
-                          Transaction Code
-                        </th>
-                        <th className="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
-                          Items Count
-                        </th>
-                        <th className="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
-                          Total Amount
-                        </th>
-                        <th className="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
-                          Action
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-[#E2E8F0]">
-                      {filteredTransactions.map((tx) => {
-                        const itemsCount =
-                          tx.items?.reduce(
-                            (sum, item) => sum + item.quantity,
-                            0,
-                          ) || 0;
-                        return (
-                          <tr
-                            key={tx.id}
-                            className="bg-white hover:bg-[#F9F9FF] transition-colors"
+                <>
+                  <div className="overflow-x-auto">
+                    <table className="w-full min-w-[800px]">
+                      <thead>
+                        <tr className="border-b border-[#E2E8F0] bg-[#F9F9FF] text-left">
+                          <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                            Date & Time
+                          </th>
+                          <th className="px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                            Transaction Code
+                          </th>
+                          <th className="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                            Items Count
+                          </th>
+                          <th className="px-5 py-3 text-right text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                            Total Amount
+                          </th>
+                          <th className="px-5 py-3 text-center text-[11px] font-bold uppercase tracking-wider text-[#64748B]">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-[#E2E8F0]">
+                        {paginatedTransactions.map((tx) => {
+                          const itemsCount =
+                            tx.items?.reduce(
+                              (sum, item) => sum + item.quantity,
+                              0,
+                            ) || 0;
+                          return (
+                            <tr
+                              key={tx.id}
+                              className="bg-white hover:bg-[#F9F9FF] transition-colors"
+                            >
+                              <td className="px-5 py-4 text-sm text-[#141B2B]">
+                                {formatDate(tx.created_at)}
+                              </td>
+                              <td className="px-5 py-4 text-sm font-semibold text-[#00685F] font-mono">
+                                {tx.transaction_code}
+                              </td>
+                              <td className="px-5 py-4 text-center text-sm text-[#141B2B]">
+                                {itemsCount} units
+                              </td>
+                              <td className="px-5 py-4 text-right text-sm font-bold text-[#141B2B]">
+                                {formatIdr(tx.total_amount)}
+                              </td>
+                              <td className="px-5 py-4 text-center">
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenDetails(tx)}
+                                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#64748B] hover:bg-[#E8F5F3] hover:text-[#00685F] transition"
+                                  title="View details"
+                                >
+                                  <span className="material-symbols-outlined text-[20px]">
+                                    visibility
+                                  </span>
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Pagination Controls */}
+                  {(() => {
+                    const totalEntries = filteredTransactions.length;
+                    const totalPages = Math.ceil(totalEntries / pageSize);
+                    const startIndex = (currentPage - 1) * pageSize;
+
+                    return (
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#E2E8F0] px-5 py-4 bg-white">
+                        {/* Page Size Selector */}
+                        <div className="flex items-center gap-2 text-xs text-[#64748B]">
+                          <span>Show</span>
+                          <select
+                            value={pageSize}
+                            onChange={(e) => {
+                              setPageSize(Number(e.target.value));
+                              setCurrentPage(1);
+                            }}
+                            className="h-8 rounded-lg border border-[#E2E8F0] bg-white px-2 text-xs text-[#141B2B] outline-none focus:border-[#00685F]"
                           >
-                            <td className="px-5 py-4 text-sm text-[#141B2B]">
-                              {formatDate(tx.created_at)}
-                            </td>
-                            <td className="px-5 py-4 text-sm font-semibold text-[#00685F] font-mono">
-                              {tx.transaction_code}
-                            </td>
-                            <td className="px-5 py-4 text-center text-sm text-[#141B2B]">
-                              {itemsCount} units
-                            </td>
-                            <td className="px-5 py-4 text-right text-sm font-bold text-[#141B2B]">
-                              {formatIdr(tx.total_amount)}
-                            </td>
-                            <td className="px-5 py-4 text-center">
-                              <button
-                                type="button"
-                                onClick={() => handleOpenDetails(tx)}
-                                className="inline-flex h-9 w-9 items-center justify-center rounded-lg text-[#64748B] hover:bg-[#E8F5F3] hover:text-[#00685F] transition"
-                                title="View details"
-                              >
-                                <span className="material-symbols-outlined text-[20px]">
-                                  visibility
+                            <option value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="50">50</option>
+                          </select>
+                          <span>entries</span>
+                        </div>
+
+                        {/* Showing X to Y of Z */}
+                        <div className="text-xs text-[#64748B]">
+                          Showing <span className="font-semibold text-[#141B2B]">{totalEntries === 0 ? 0 : startIndex + 1}</span> to{" "}
+                          <span className="font-semibold text-[#141B2B]">
+                            {Math.min(startIndex + pageSize, totalEntries)}
+                          </span>{" "}
+                          of <span className="font-semibold text-[#141B2B]">{totalEntries}</span> entries
+                        </div>
+
+                        {/* Navigation buttons */}
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            disabled={currentPage === 1}
+                            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+                          </button>
+
+                          {Array.from({ length: totalPages }).map((_, idx) => {
+                            const pageNum = idx + 1;
+                            if (
+                              pageNum === 1 ||
+                              pageNum === totalPages ||
+                              Math.abs(pageNum - currentPage) <= 1
+                            ) {
+                              return (
+                                <button
+                                  key={pageNum}
+                                  type="button"
+                                  onClick={() => setCurrentPage(pageNum)}
+                                  className={`flex h-8 w-8 items-center justify-center rounded-lg text-xs font-semibold transition ${
+                                    currentPage === pageNum
+                                      ? "bg-[#00685F] text-white font-bold"
+                                      : "border border-[#E2E8F0] text-[#64748B] hover:bg-slate-50"
+                                  }`}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            } else if (
+                              (pageNum === 2 && currentPage > 3) ||
+                              (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+                            ) {
+                              return (
+                                <span key={pageNum} className="px-1 text-slate-400 text-xs select-none">
+                                  ...
                                 </span>
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                              );
+                            }
+                            return null;
+                          })}
+
+                          <button
+                            type="button"
+                            disabled={currentPage === totalPages || totalPages === 0}
+                            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#E2E8F0] text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </>
               )}
             </div>
           </div>

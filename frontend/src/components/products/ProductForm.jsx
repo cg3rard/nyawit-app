@@ -8,6 +8,7 @@ const EMPTY_FORM = {
   selling_price: "",
   stock: 0,
   expiry_date: "",
+  supplier_id: "",
 };
 
 const generateUUID = () => {
@@ -28,6 +29,7 @@ export default function ProductForm({
   onCancel,
   submitting = false,
   categories = [],
+  suppliers = [],
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [errors, setErrors] = useState({});
@@ -47,6 +49,7 @@ export default function ProductForm({
         selling_price: product.selling_price ?? "",
         stock: product.stock ?? 0,
         expiry_date: product.expiry_date ?? "",
+        supplier_id: product.supplier_id ?? "",
       });
 
       if (product.category && categories.includes(product.category)) {
@@ -159,6 +162,7 @@ export default function ProductForm({
       purchase_price: Number(form.purchase_price),
       selling_price: Number(form.selling_price),
       expiry_date: form.expiry_date || null,
+      supplier_id: form.supplier_id ? Number(form.supplier_id) : null,
       photo: photo,
     };
 
@@ -234,6 +238,26 @@ export default function ProductForm({
             required
           />
         )}
+
+        <div className="flex flex-col">
+          <label htmlFor="supplier_select" className="mb-1.5 block text-xs font-semibold text-[#334155]">
+            Supplier
+          </label>
+          <select
+            id="supplier_select"
+            name="supplier_id"
+            value={form.supplier_id}
+            onChange={handleChange}
+            className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10"
+          >
+            <option value="">-- Choose Supplier (Optional) --</option>
+            {suppliers.map((sup) => (
+              <option key={sup.id} value={sup.id}>
+                {sup.name} ({sup.whatsapp})
+              </option>
+            ))}
+          </select>
+        </div>
 
         <FormField
           label="Expiry Date"

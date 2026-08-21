@@ -1,21 +1,32 @@
 from typing import List, Optional
 
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from app.models.product import Product
 from app.models.stock_movement import MovementType, StockMovement
 from app.models.transaction import TransactionItem
 from app.schemas.product import ProductCreate, ProductUpdate
 
+
 def get_products(db: Session) -> List[Product]:
     """Return all products ordered by id ascending."""
-    return db.query(Product).order_by(Product.id.asc()).all()
+    return (
+        db.query(Product)
+        .options(joinedload(Product.supplier))
+        .order_by(Product.id.asc())
+        .all()
+    )
 
 
 def get_product_by_id(db: Session, product_id: int) -> Optional[Product]:
     """Return a single product by primary key, or None if not found."""
-    return db.query(Product).filter(Product.id == product_id).first()
+    return (
+        db.query(Product)
+        .options(joinedload(Product.supplier))
+        .filter(Product.id == product_id)
+        .first()
+    )
 
 
 def create_product(db: Session, data: ProductCreate) -> Product:
@@ -32,6 +43,7 @@ def create_product(db: Session, data: ProductCreate) -> Product:
         selling_price=data.selling_price,
         stock=data.stock,
         expiry_date=data.expiry_date,
+        supplier_id=data.supplier_id,
     )
 
     db.add(product)
@@ -87,3 +99,4 @@ def delete_product(db: Session, product: Product) -> bool:
     db.delete(product)
     db.commit()
     return True
+

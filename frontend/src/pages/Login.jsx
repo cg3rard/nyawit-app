@@ -111,7 +111,11 @@ export default function Login() {
         <div className="relative z-10">
           <div className="flex items-center gap-3.5">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 p-2.5 backdrop-blur-md border border-white/20 shadow-lg">
-              <img src="/icons.png" alt="Logo" className="h-full w-full object-contain brightness-0 invert" />
+              <img
+                src="/icons.png"
+                alt="Logo"
+                className="h-full w-full object-contain brightness-0 invert"
+              />
             </div>
             <div>
               <h1
@@ -120,17 +124,15 @@ export default function Login() {
               >
                 CoStore
               </h1>
-              <p className="text-xs text-white/70">Point of Sale & Inventory Intelligence</p>
+              <p className="text-xs text-white/70">
+                Point of Sale & Inventory Intelligence
+              </p>
             </div>
           </div>
         </div>
 
         {/* Center Tagline */}
         <div className="relative z-10 max-w-lg my-auto py-12">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-[#00685F]/80 px-3.5 py-1 text-xs font-bold text-white backdrop-blur-md mb-4 border border-white/10">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            Next-Gen Retail POS
-          </span>
           <h2
             className="text-4xl font-extrabold text-white leading-tight tracking-tight"
             style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
@@ -138,7 +140,8 @@ export default function Login() {
             Streamline checkout, track inventory, and grow your store smarter.
           </h2>
           <p className="mt-4 text-sm text-slate-200/90 leading-relaxed max-w-md">
-            Seamless multi-payment checkout, real-time stock movements, and AI-driven restock forecasting in one single workspace.
+            Seamless multi-payment checkout, real-time stock movements, and
+            AI-driven restock forecasting in one single workspace.
           </p>
         </div>
 
@@ -155,7 +158,11 @@ export default function Login() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 lg:hidden">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8F5F3] p-2">
-              <img src="/icons.png" alt="Logo" className="h-full w-full object-contain" />
+              <img
+                src="/icons.png"
+                alt="Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
             <span
               className="text-xl font-bold tracking-tight text-[#00685F]"
@@ -167,7 +174,10 @@ export default function Login() {
 
           <div className="ml-auto text-xs sm:text-sm text-[#64748B]">
             Need a new store?{" "}
-            <Link to="/signup" className="font-bold text-[#00685F] hover:underline">
+            <Link
+              to="/signup"
+              className="font-bold text-[#00685F] hover:underline"
+            >
               Register Store
             </Link>
           </div>
@@ -190,7 +200,9 @@ export default function Login() {
           {/* Error Alert */}
           {error && (
             <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700 animate-in fade-in">
-              <span className="material-symbols-outlined text-lg shrink-0">error</span>
+              <span className="material-symbols-outlined text-lg shrink-0">
+                error
+              </span>
               <p>{error}</p>
             </div>
           )}
@@ -198,7 +210,9 @@ export default function Login() {
           {/* Success Alert */}
           {success && (
             <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-semibold text-emerald-700 animate-in fade-in">
-              <span className="material-symbols-outlined text-lg shrink-0">check_circle</span>
+              <span className="material-symbols-outlined text-lg shrink-0">
+                check_circle
+              </span>
               <p>Login successful! Entering dashboard...</p>
             </div>
           )}
@@ -234,7 +248,11 @@ export default function Login() {
                 </label>
                 <button
                   type="button"
-                  onClick={() => alert("For this demo, your default password is 'password123'")}
+                  onClick={() =>
+                    alert(
+                      "For this demo, your default password is 'password123'",
+                    )
+                  }
                   className="text-[11px] font-semibold text-[#00685F] hover:underline"
                 >
                   Forgot password?
@@ -275,7 +293,9 @@ export default function Login() {
                   onChange={handleChange}
                   className="h-4 w-4 rounded border-slate-300 text-[#00685F] focus:ring-[#00685F] cursor-pointer"
                 />
-                <span className="text-xs text-[#64748B]">Remember this device</span>
+                <span className="text-xs text-[#64748B]">
+                  Remember this device
+                </span>
               </label>
             </div>
 
@@ -287,17 +307,23 @@ export default function Login() {
             >
               {isSubmitting ? (
                 <>
-                  <span className="material-symbols-outlined animate-spin text-lg">progress_activity</span>
+                  <span className="material-symbols-outlined animate-spin text-lg">
+                    progress_activity
+                  </span>
                   Signing In...
                 </>
               ) : success ? (
                 <>
-                  <span className="material-symbols-outlined text-lg">check_circle</span>
+                  <span className="material-symbols-outlined text-lg">
+                    check_circle
+                  </span>
                   Authenticated!
                 </>
               ) : (
                 <>
-                  <span className="material-symbols-outlined text-lg">login</span>
+                  <span className="material-symbols-outlined text-lg">
+                    login
+                  </span>
                   Sign In
                 </>
               )}
@@ -310,7 +336,9 @@ export default function Login() {
                 onClick={handleQuickDemo}
                 className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-700 transition hover:bg-slate-100 active:scale-[0.99] cursor-pointer"
               >
-                <span className="material-symbols-outlined text-base text-[#00685F]">auto_fix_high</span>
+                <span className="material-symbols-outlined text-base text-[#00685F]">
+                  auto_fix_high
+                </span>
                 Use Demo Account Credentials
               </button>
             </div>

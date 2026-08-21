@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -21,6 +22,8 @@ class LowStockProduct(BaseModel):
     product_name: str
     stock: int
     threshold: int
+    supplier_id: Optional[int] = None
+    supplier_name: Optional[str] = None
 
 
 class InventorySummary(BaseModel):
