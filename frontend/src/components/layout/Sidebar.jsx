@@ -20,19 +20,16 @@ const FOOTER_ITEMS = [
 ];
 
 function NavItem({ to, icon, label, onClick }) {
-  const isPos = to === "/pos";
   return (
     <NavLink
       to={to}
       end={to === "/"}
       onClick={onClick}
-      target={isPos ? "_blank" : undefined}
-      rel={isPos ? "noopener noreferrer" : undefined}
       className={({ isActive }) =>
         [
           "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm",
           "transition-colors duration-150",
-          isActive && !isPos
+          isActive
             ? "text-[#00685F] bg-[#E8F5F3] font-semibold border-r-4 border-[#00685F]"
             : "text-[#64748B] hover:text-[#00685F] hover:bg-[#F8FAFC]",
         ].join(" ")
@@ -89,8 +86,6 @@ export default function Sidebar({ onNavigate }) {
         <Link
           to="/pos"
           onClick={onNavigate}
-          target="_blank"
-          rel="noopener noreferrer"
           className="flex w-full items-center justify-center gap-2 rounded-lg bg-[#00685F] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:bg-[#00574F] active:scale-[0.98]"
         >
           <span className="material-symbols-outlined text-[18px]">

@@ -184,6 +184,10 @@ export default function POS() {
     );
   };
 
+  const increaseQuantity = (productId) => {
+    updateQuantity(productId, 1);
+  };
+
   const decreaseQuantity = (productId) => {
     updateQuantity(productId, -1);
   };
@@ -342,7 +346,7 @@ export default function POS() {
               <ProductError message={error} onRetry={loadProducts} />
             ) : (
               <ProductGrid
-                products={groupedProducts}
+                products={products}
                 searchQuery={searchQuery}
                 selectedCategory={selectedCategory}
                 onAddToCart={addToCart}
