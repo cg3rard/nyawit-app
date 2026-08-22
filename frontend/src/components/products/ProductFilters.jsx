@@ -69,12 +69,14 @@ export default function ProductFilters({
         <select
           value={selectedStatus}
           onChange={(event) => onStatusChange(event.target.value)}
-          className="h-10 min-w-0 flex-1 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm text-[#141B2B] outline-none focus:border-[#00685F] sm:min-w-[150px] sm:flex-none cursor-pointer"
+          className="h-10 min-w-0 flex-1 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm text-[#141B2B] outline-none focus:border-[#00685F] sm:min-w-[160px] sm:flex-none cursor-pointer"
         >
           <option value="">All Status</option>
-          <option value="in_stock">In Stock</option>
           <option value="low_stock">Low Stock</option>
+          <option value="expiring_soon">Expiring Soon</option>
+          <option value="expired">Expired</option>
           <option value="out_of_stock">Out of Stock</option>
+          <option value="in_stock">In Stock</option>
         </select>
       </div>
     </div>

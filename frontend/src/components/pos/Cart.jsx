@@ -4,6 +4,7 @@ export default function Cart({
   items,
   onIncrease,
   onDecrease,
+  onSetQuantity,
   onRemove,
 }) {
   if (items.length === 0) {
@@ -34,6 +35,7 @@ export default function Cart({
           item={item}
           onIncrease={onIncrease}
           onDecrease={onDecrease}
+          onSetQuantity={onSetQuantity}
           onRemove={onRemove}
         />
       ))}

@@ -8,6 +8,7 @@ import Cart from "../components/pos/Cart";
 import CartSummary from "../components/pos/CartSummary";
 import PaymentModal from "../components/pos/PaymentModal";
 import AddToCartModal from "../components/pos/AddToCartModal";
+import CheckoutSuccessModal from "../components/pos/CheckoutSuccessModal";
 
 export default function POS() {
   const navigate = useNavigate();
@@ -103,20 +104,27 @@ export default function POS() {
   }, [products, searchQuery, selectedCategory]);
 
   const addToCart = (product) => {
+    if (!product || product.stock <= 0) return;
+
     setCart((currentCart) => {
       const existingIndex = currentCart.findIndex(
         (item) => item.id === product.id,
       );
 
       if (existingIndex > -1) {
-        return currentCart.map((item, index) =>
-          index === existingIndex
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
-            : item,
-        );
+        return currentCart.map((item, index) => {
+          if (index === existingIndex) {
+            const maxStock = item.stock ?? item.maxStock ?? product.stock ?? 0;
+            if (item.quantity >= maxStock) {
+              return item; // Cannot exceed stock
+            }
+            return {
+              ...item,
+              quantity: item.quantity + 1,
+            };
+          }
+          return item;
+        });
       }
 
       return [
@@ -128,29 +136,37 @@ export default function POS() {
           product_code: product.product_code,
           selling_price: product.selling_price,
           quantity: 1,
+          stock: product.stock,
           maxStock: product.stock,
+          expiry_date: product.expiry_date,
         },
       ];
     });
   };
 
   const handleProductCardClick = (product) => {
+    if (!product || product.stock <= 0) return;
     setSelectedProductForCart(product);
     setAddToCartModalOpen(true);
   };
 
   const handleConfirmAddToCart = (product, quantity) => {
+    if (!product || product.stock <= 0) return;
+    const maxStock = product.stock || 0;
+
     setCart((currentCart) => {
       const existingIndex = currentCart.findIndex((item) => item.id === product.id);
       if (existingIndex > -1) {
-        return currentCart.map((item, index) =>
-          index === existingIndex
-            ? {
-                ...item,
-                quantity: item.quantity + quantity,
-              }
-            : item,
-        );
+        return currentCart.map((item, index) => {
+          if (index === existingIndex) {
+            const targetQty = Math.min(item.quantity + quantity, maxStock);
+            return {
+              ...item,
+              quantity: targetQty,
+            };
+          }
+          return item;
+        });
       }
       return [
         ...currentCart,
@@ -160,8 +176,10 @@ export default function POS() {
           name: product.name,
           product_code: product.product_code,
           selling_price: product.selling_price,
-          quantity: quantity,
+          quantity: Math.min(quantity, maxStock),
+          stock: product.stock,
           maxStock: product.stock,
+          expiry_date: product.expiry_date,
         },
       ];
     });
@@ -172,14 +190,20 @@ export default function POS() {
   const updateQuantity = (productId, delta) => {
     setCart((currentCart) =>
       currentCart
-        .map((item) =>
-          item.id === productId
-            ? {
-                ...item,
-                quantity: item.quantity + delta,
-              }
-            : item,
-        )
+        .map((item) => {
+          if (item.id === productId) {
+            const maxStock = item.stock ?? item.maxStock ?? 999999;
+            const nextQty = item.quantity + delta;
+            if (delta > 0 && nextQty > maxStock) {
+              return item; // Cap at max available stock
+            }
+            return {
+              ...item,
+              quantity: nextQty,
+            };
+          }
+          return item;
+        })
         .filter((item) => item.quantity > 0),
     );
   };
@@ -190,6 +214,25 @@ export default function POS() {
 
   const decreaseQuantity = (productId) => {
     updateQuantity(productId, -1);
+  };
+
+  const setItemQuantity = (productId, newQuantity) => {
+    const qty = parseInt(newQuantity, 10);
+    if (isNaN(qty) || qty <= 0) return;
+
+    setCart((currentCart) =>
+      currentCart.map((item) => {
+        if (item.id === productId) {
+          const maxStock = item.stock ?? item.maxStock ?? 999999;
+          const safeQty = Math.min(qty, maxStock);
+          return {
+            ...item,
+            quantity: safeQty,
+          };
+        }
+        return item;
+      }),
+    );
   };
 
   const removeFromCart = (productId) => {
@@ -373,39 +416,26 @@ export default function POS() {
                 </h2>
               </div>
 
-              <span className="rounded-full bg-[#F1F3FF] px-2.5 py-1 text-xs font-semibold text-[#64748B]">
-                {cart.length} items
-              </span>
-            </div>
+              <div className="flex items-center gap-2">
+                {cart.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setCart([])}
+                    className="flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600 transition hover:bg-red-100 hover:border-red-300 active:scale-95 cursor-pointer"
+                    title="Kosongkan seluruh item di keranjang"
+                  >
+                    <span className="material-symbols-outlined text-[15px]">
+                      delete_sweep
+                    </span>
+                    Kosongkan
+                  </button>
+                )}
 
-            {checkoutSuccess && (
-              <div className="mx-6 mt-4 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
-                <div className="flex items-start gap-3">
-                  <span className="material-symbols-outlined text-emerald-600 text-[22px]">
-                    check_circle
-                  </span>
-
-                  <div>
-                    <p className="text-sm font-semibold text-emerald-800">
-                      Sale completed successfully
-                    </p>
-
-                    <p className="mt-0.5 text-xs text-emerald-700 font-mono">
-                      {checkoutSuccess.transaction_code}
-                    </p>
-
-                    <button
-                      type="button"
-                      onClick={() => handlePrintReceipt(checkoutSuccess)}
-                      className="mt-2.5 flex h-8 items-center gap-1.5 rounded-lg border border-emerald-300 bg-white px-3 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-50"
-                    >
-                      <span className="material-symbols-outlined text-[15px]">print</span>
-                      Print Receipt
-                    </button>
-                  </div>
-                </div>
+                <span className="rounded-full bg-[#F1F3FF] px-2.5 py-1 text-xs font-semibold text-[#64748B]">
+                  {cart.length} items
+                </span>
               </div>
-            )}
+            </div>
 
             {error && products.length > 0 && (
               <div className="mx-6 mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
@@ -430,6 +460,7 @@ export default function POS() {
                 items={cart}
                 onIncrease={increaseQuantity}
                 onDecrease={decreaseQuantity}
+                onSetQuantity={setItemQuantity}
                 onRemove={removeFromCart}
               />
             </div>
@@ -460,6 +491,13 @@ export default function POS() {
           setSelectedProductForCart(null);
         }}
         onConfirm={handleConfirmAddToCart}
+      />
+
+      <CheckoutSuccessModal
+        transaction={checkoutSuccess}
+        onClose={() => setCheckoutSuccess(null)}
+        onPrintReceipt={handlePrintReceipt}
+        autoCloseSeconds={5}
       />
 
       {receiptToPrint && (

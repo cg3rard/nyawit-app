@@ -22,13 +22,59 @@ const generateUUID = () => {
   });
 };
 
+const parsePrice = (val) => {
+  if (typeof val === "number") return val;
+  if (!val) return 0;
+  let s = val.toString().trim();
+  s = s.replace(/^(rp\.?|idr|\$)\s*/i, "").trim();
+  s = s.replace(/[,.]/g, "");
+  const num = parseFloat(s);
+  return isNaN(num) ? 0 : num;
+};
+
+const parseExpiryDate = (val) => {
+  if (!val) return null;
+  const s = val.toString().trim();
+  if (!s) return null;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+  const parts = s.split(/[\/\-.]/);
+  if (parts.length === 3) {
+    let [d, m, y] = parts;
+    d = d.padStart(2, "0");
+    m = m.padStart(2, "0");
+    if (y.length === 2) {
+      y = parseInt(y, 10) < 50 ? `20${y}` : `19${y}`;
+    }
+    if (d.length === 4) {
+      return `${d}-${m}-${y.padStart(2, "0")}`;
+    }
+    return `${y}-${m}-${d}`;
+  }
+  const dateObj = new Date(s);
+  if (!isNaN(dateObj.getTime())) {
+    return dateObj.toISOString().split("T")[0];
+  }
+  return null;
+};
+
 const parseCSV = (text) => {
-  const lines = text.split(/\r?\n/);
+  if (!text) return [];
+  const cleanText = text.replace(/^\ufeff/, "");
+  const lines = cleanText.split(/\r?\n/).filter((l) => l.trim().length > 0);
   if (lines.length === 0) return [];
 
+  const firstLine = lines[0];
+  let delimiter = ",";
+  if (firstLine.includes(";") && (firstLine.split(";").length > firstLine.split(",").length)) {
+    delimiter = ";";
+  } else if (firstLine.includes("\t") && (firstLine.split("\t").length > firstLine.split(",").length)) {
+    delimiter = "\t";
+  }
+
   const headers = lines[0]
-    .split(",")
-    .map((h) => h.trim().replace(/^["']|["']$/g, "").toLowerCase());
+    .split(delimiter)
+    .map((h) => h.trim().replace(/^["']|["']$/g, "").toLowerCase().replace(/[\s_-]+/g, "_"));
 
   const results = [];
   for (let i = 1; i < lines.length; i++) {
@@ -42,7 +88,7 @@ const parseCSV = (text) => {
       const char = line[j];
       if (char === '"' || char === "'") {
         inQuotes = !inQuotes;
-      } else if (char === "," && !inQuotes) {
+      } else if (char === delimiter && !inQuotes) {
         values.push(current.trim().replace(/^["']|["']$/g, ""));
         current = "";
       } else {
@@ -112,30 +158,51 @@ export default function Products() {
           return;
         }
 
+        // Consolidate rows with the same product name
+        const consolidatedMap = new Map();
+
+        for (let i = 0; i < rows.length; i++) {
+          const row = rows[i];
+          const name = (row.name || row.product_name || row.nama || row.produk || `Product ${i + 1}`).trim();
+          const category = (row.category || row.kategori || "General").trim();
+          const purchasePrice = parsePrice(row.purchase_price || row.purchase || row.harga_beli || row.cost || 0);
+          const sellingPrice = parsePrice(row.selling_price || row.selling || row.harga_jual || row.harga || row.price || 0);
+          const stock = parseInt(row.stock || row.initial_stock || row.stok || row.qty || 0, 10) || 0;
+          const expiryDate = parseExpiryDate(row.expiry_date || row.expiry || row.expired || row.tgl_kedaluwarsa || row.tgl_kadaluarsa || null);
+
+          const key = name.toLowerCase();
+          if (!consolidatedMap.has(key)) {
+            const catPrefix = "".concat(category.split(" ").map((w) => w.slice(0, 3).toUpperCase()).join("")).slice(0, 3) || "PRD";
+            const code = row.product_code || row.code || row.kode || `${catPrefix}-${String(consolidatedMap.size + 1).padStart(3, "0")}`;
+            consolidatedMap.set(key, {
+              product_code: code,
+              name,
+              category,
+              purchase_price: purchasePrice,
+              selling_price: sellingPrice,
+              stock,
+              expiry_date: expiryDate,
+            });
+          } else {
+            const existing = consolidatedMap.get(key);
+            existing.stock += stock;
+            if (purchasePrice > 0) existing.purchase_price = purchasePrice;
+            if (sellingPrice > 0) existing.selling_price = sellingPrice;
+            if (expiryDate) {
+              if (!existing.expiry_date || new Date(expiryDate) < new Date(existing.expiry_date)) {
+                existing.expiry_date = expiryDate;
+              }
+            }
+          }
+        }
+
+        const consolidatedList = Array.from(consolidatedMap.values());
         let successCount = 0;
         let failCount = 0;
         const errorsList = [];
 
-        for (let i = 0; i < rows.length; i++) {
-          const row = rows[i];
-          const code = row.product_code || row.code || generateUUID();
-          const name = row.name || row.product_name || `Product ${i + 1}`;
-          const category = row.category || "General";
-          const purchasePrice = parseFloat(row.purchase_price || row.purchase || 0);
-          const sellingPrice = parseFloat(row.selling_price || row.selling || 0);
-          const stock = parseInt(row.stock || row.initial_stock || 0);
-          const expiryDate = row.expiry_date || row.expiry || null;
-
-          const payload = {
-            product_code: code,
-            name: name,
-            category: category,
-            purchase_price: purchasePrice,
-            selling_price: sellingPrice,
-            stock: stock,
-            expiry_date: expiryDate,
-          };
-
+        for (let i = 0; i < consolidatedList.length; i++) {
+          const payload = consolidatedList[i];
           try {
             await createProduct(payload);
             successCount++;
@@ -143,7 +210,7 @@ export default function Products() {
             failCount++;
             const errMsg = err?.response?.data?.detail;
             errorsList.push(
-              `${name} (${code}): ${
+              `${payload.name} (${payload.product_code}): ${
                 typeof errMsg === "string" ? errMsg : err?.message || "Conflict/error"
               }`
             );
@@ -151,7 +218,7 @@ export default function Products() {
         }
 
         setCsvImportSummary({
-          total: rows.length,
+          total: consolidatedList.length,
           success: successCount,
           failed: failCount,
           errors: errorsList,
@@ -217,8 +284,62 @@ export default function Products() {
     return [...new Set(products.map((product) => product.category).filter(Boolean))];
   }, [products]);
 
+  const urgencyStats = useMemo(() => {
+    const threshold = getStoreSettings().lowStockThreshold || 5;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let urgentCount = 0;
+    let lowStockCount = 0;
+    let outOfStockCount = 0;
+    let expiringSoonCount = 0;
+    let expiredCount = 0;
+    let optimalCount = 0;
+
+    products.forEach((p) => {
+      const isOutOfStock = p.stock <= 0;
+      const isLowStock = p.stock > 0 && p.stock <= threshold;
+
+      let isExpired = false;
+      let isExpiringSoon = false;
+
+      if (p.expiry_date) {
+        const exp = new Date(`${p.expiry_date}T00:00:00`);
+        if (!isNaN(exp.getTime())) {
+          const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffDays < 0) isExpired = true;
+          else if (diffDays <= 30) isExpiringSoon = true;
+        }
+      }
+
+      if (isOutOfStock) outOfStockCount++;
+      if (isLowStock) lowStockCount++;
+      if (isExpired) expiredCount++;
+      if (isExpiringSoon) expiringSoonCount++;
+
+      if (isOutOfStock || isLowStock || isExpired || isExpiringSoon) {
+        urgentCount++;
+      } else {
+        optimalCount++;
+      }
+    });
+
+    return {
+      total: products.length,
+      urgent: urgentCount,
+      lowStock: lowStockCount,
+      outOfStock: outOfStockCount,
+      expiringSoon: expiringSoonCount,
+      expired: expiredCount,
+      optimal: optimalCount,
+    };
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
+    const threshold = getStoreSettings().lowStockThreshold || 5;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
     return products.filter((product) => {
       const matchesSearch = !query || product.name.toLowerCase().includes(query) || product.product_code.toLowerCase().includes(query);
@@ -227,18 +348,33 @@ export default function Products() {
 
       let matchesStatus = true;
 
-      const threshold = getStoreSettings().lowStockThreshold || 5;
+      const isOutOfStock = product.stock <= 0;
+      const isLowStock = product.stock > 0 && product.stock <= threshold;
 
-      if (selectedStatus === "out_of_stock") {
-        matchesStatus = product.stock <= 0;
+      let isExpired = false;
+      let isExpiringSoon = false;
+
+      if (product.expiry_date) {
+        const exp = new Date(`${product.expiry_date}T00:00:00`);
+        if (!isNaN(exp.getTime())) {
+          const diffDays = Math.ceil((exp.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+          if (diffDays < 0) isExpired = true;
+          else if (diffDays <= 30) isExpiringSoon = true;
+        }
       }
 
-      if (selectedStatus === "low_stock") {
-        matchesStatus = product.stock > 0 && product.stock <= threshold;
-      }
-
-      if (selectedStatus === "in_stock") {
-        matchesStatus = product.stock > threshold;
+      if (selectedStatus === "urgent") {
+        matchesStatus = isOutOfStock || isLowStock || isExpired || isExpiringSoon;
+      } else if (selectedStatus === "low_stock") {
+        matchesStatus = isLowStock;
+      } else if (selectedStatus === "out_of_stock") {
+        matchesStatus = isOutOfStock;
+      } else if (selectedStatus === "expiring_soon") {
+        matchesStatus = isExpiringSoon;
+      } else if (selectedStatus === "expired") {
+        matchesStatus = isExpired;
+      } else if (selectedStatus === "optimal" || selectedStatus === "in_stock") {
+        matchesStatus = !isOutOfStock && !isLowStock && !isExpired && !isExpiringSoon;
       }
 
       return matchesSearch && matchesCategory && matchesStatus;
@@ -415,8 +551,17 @@ export default function Products() {
               </div>
             )}
 
-            <div className="mb-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
-              <ProductFilters searchQuery={searchQuery} onSearchChange={setSearchQuery} selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} selectedStatus={selectedStatus} onStatusChange={setSelectedStatus} categories={categories} />
+            <div className="mb-4 rounded-xl border border-[#E2E8F0] bg-white p-4 shadow-2xs">
+              <ProductFilters
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                selectedCategory={selectedCategory}
+                onCategoryChange={setSelectedCategory}
+                selectedStatus={selectedStatus}
+                onStatusChange={setSelectedStatus}
+                categories={categories}
+                urgencyStats={urgencyStats}
+              />
             </div>
 
             <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
