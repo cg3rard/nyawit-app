@@ -5,14 +5,11 @@ import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from peft import PeftModel
 
-# Import rule engine lokal
 from engine.metrics import InventoryEngine
 
-# 1. Konfigurasi Path & Model
 MOCK_DATA_PATH = "mock_data.json"
 BASE_MODEL_ID = "Qwen/Qwen2.5-1.5B-Instruct"
 ADAPTER_PATH = "./lora_inventory_adapter"
-
 
 def load_model_and_tokenizer():
     """Memuat tokenizer, base model, dan adapter LoRA hasil fine-tuning."""
@@ -37,7 +34,6 @@ def load_model_and_tokenizer():
 
     return tokenizer, model
 
-
 def run_llm_inference(tokenizer, model, prompt_payload: str) -> dict:
     """Menjalankan inferensi statis pada fine-tuned LLM untuk menghasilkan rekomendasi JSON."""
     messages = [
@@ -60,11 +56,10 @@ def run_llm_inference(tokenizer, model, prompt_payload: str) -> dict:
         outputs = model.generate(
             **inputs,
             max_new_tokens=150,
-            temperature=0.1,  # Statis untuk determinisme demo
+            temperature=0.1,
             do_sample=False,
         )
 
-    # Ambil token respon asisten saja
     generated_ids = outputs[0][len(inputs.input_ids[0]) :]
     response_text = tokenizer.decode(generated_ids, skip_special_tokens=True).strip()
 
@@ -73,9 +68,7 @@ def run_llm_inference(tokenizer, model, prompt_payload: str) -> dict:
     except json.JSONDecodeError:
         return {"raw_output": response_text, "error": "Invalid JSON format"}
 
-
 def run_mock_verification():
-    # 1. Validasi Keberadaan File
     if not os.path.exists(MOCK_DATA_PATH):
         print(f"Error: File '{MOCK_DATA_PATH}' tidak ditemukan!")
         sys.exit(1)
@@ -92,7 +85,6 @@ def run_mock_verification():
         print("Error: Tidak ada skenario di dalam mock_data.json.")
         sys.exit(1)
 
-    # 2. Inisialisasi Model
     tokenizer, model = load_model_and_tokenizer()
 
     print("\n" + "=" * 65)
@@ -101,7 +93,6 @@ def run_mock_verification():
 
     all_passed = True
 
-    # 3. Iterasi Skenario
     for key, scenario in scenarios.items():
         sc_id = scenario.get("scenario_id")
         sc_name = scenario.get("scenario_name")
@@ -112,7 +103,6 @@ def run_mock_verification():
         print(f"  Deskripsi       : {scenario.get('description')}")
         print(f"  Produk Diuji    : {payload['product_name']} (Stok: {payload['current_stock']} pcs)")
 
-        # Stage 1: Hitung metrik secara deterministik
         metrics = InventoryEngine.calculate_metrics(
             product_name=payload["product_name"],
             current_stock=payload["current_stock"],
@@ -130,7 +120,6 @@ def run_mock_verification():
         print(f"  Days of Inv(DOI): {metrics.days_of_inventory:.1f} hari")
         print(f"  Status Terdeteksi: {metrics.status} [Ekspektasi: {expected_status}] -> {status_flag}")
 
-        # Stage 2: Inferensi AI
         print("  Mengirim payload ke Fine-Tuned LLM...")
         ai_recommendation = run_llm_inference(tokenizer, model, metrics.prompt_payload)
 
@@ -146,7 +135,6 @@ def run_mock_verification():
     else:
         print(" HASIL: TERDAPAT STATUS YANG TIDAK SESUAI DENGAN EKSPEKTASI ")
     print("=" * 65)
-
 
 if __name__ == "__main__":
     run_mock_verification()

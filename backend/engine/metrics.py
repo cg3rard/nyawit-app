@@ -6,7 +6,6 @@ Module for calculating statistical inventory metrics and deterministic status cl
 from dataclasses import dataclass, asdict
 from typing import List, Dict, Any, Optional
 
-
 @dataclass(frozen=True)
 class InventoryMetrics:
     product_name: str
@@ -21,19 +20,17 @@ class InventoryMetrics:
     def to_dict(self) -> Dict[str, Any]:
         return asdict(self)
 
-
 class InventoryEngine:
     """
     Deterministic rule engine calculating moving averages, sales trend,
     days of inventory (DOI), and threshold-based risk classification.
     """
 
-    # Threshold constants
-    RED_DOI_CRITICAL = 3.0        # <= 3 days of stock remaining
-    RED_DOI_ELEVATED = 7.0        # <= 7 days of stock if demand is steady/increasing
-    YELLOW_TREND_DROP = -25.0     # Sales drop >= 25%
-    YELLOW_DOI_MIN = 21.0         # >= 21 days of excess stock remaining
-    EPSILON = 0.01                # Zero-division guard
+    RED_DOI_CRITICAL = 3.0
+    RED_DOI_ELEVATED = 7.0
+    YELLOW_TREND_DROP = -25.0
+    YELLOW_DOI_MIN = 21.0
+    EPSILON = 0.01
 
     @classmethod
     def calculate_metrics(
@@ -58,23 +55,19 @@ class InventoryEngine:
         if len(sales_recent_7d) == 0 or len(sales_prior_7d) == 0:
             raise ValueError("Both sales_recent_7d and sales_prior_7d must contain at least 1 record.")
 
-        # 1. Simple Moving Averages
         sma_7 = sum(sales_recent_7d) / float(len(sales_recent_7d))
         sma_prior = sum(sales_prior_7d) / float(len(sales_prior_7d))
 
-        # 2. Sales Trend (Percentage Change)
         if sma_prior == 0.0:
             trend_pct = 100.0 if sma_7 > 0 else 0.0
         else:
             trend_pct = ((sma_7 - sma_prior) / sma_prior) * 100.0
 
-        # 3. Days of Inventory (DOI)
         if sma_7 == 0.0:
             doi = 999.0 if current_stock > 0 else 0.0
         else:
             doi = current_stock / max(sma_7, cls.EPSILON)
 
-        # 4. Deterministic Classification
         status = cls._classify_status(
             stock=current_stock,
             sma_7=sma_7,
@@ -82,7 +75,6 @@ class InventoryEngine:
             doi=doi
         )
 
-        # 5. Build standardized prompt string for fine-tuned LLM inference
         prompt_payload = (
             f"Produk: {product_name} | Status: {status} | Stok: {current_stock} pcs | "
             f"SMA_7: {sma_7:.1f} pcs/hari | Trend: {trend_pct:+.1f}% | DOI: {doi:.1f} hari"
@@ -108,21 +100,16 @@ class InventoryEngine:
         doi: float
     ) -> str:
         """Evaluates boundary rules and assigns Green, Yellow, or Red status."""
-        # Red Risk: Stockout imminent
         if stock == 0 or doi <= cls.RED_DOI_CRITICAL:
             return "Merah"
         if doi <= cls.RED_DOI_ELEVATED and trend_pct >= 0.0:
             return "Merah"
 
-        # Yellow Risk: Dead stock accumulation (demand dropping while stock is high)
         if (trend_pct <= cls.YELLOW_TREND_DROP and doi >= cls.YELLOW_DOI_MIN) or (sma_7 == 0.0 and stock > 0):
             return "Kuning"
 
-        # Green: Normal operational range
         return "Hijau"
 
-
-# Self-test block to verify rules against all 3 scenarios
 if __name__ == "__main__":
     test_cases = [
         {

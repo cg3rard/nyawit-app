@@ -12,27 +12,22 @@ export default function Transactions() {
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Filters
   const [searchQuery, setSearchQuery] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // Details Modal
   const [selectedTx, setSelectedTx] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
 
-  // Fetch Data
   const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
-      // Pass date filters to API if present
       const params = {};
       if (startDate) params.start_date = startDate;
       if (endDate) params.end_date = endDate;
 
-      // We fetch both transactions and products to map names/codes
       const [txData, prodData] = await Promise.all([
         getTransactions(params),
         getProducts(),
@@ -55,16 +50,13 @@ export default function Transactions() {
     fetchData();
   }, [fetchData]);
 
-  // Product Map for fast lookup
   const productMap = useMemo(() => {
     return new Map(products.map((p) => [p.id, p]));
   }, [products]);
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Filter on frontend for search query
   const filteredTransactions = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     if (!query) return transactions;
@@ -83,7 +75,6 @@ export default function Transactions() {
     });
   }, [transactions, searchQuery, productMap]);
 
-  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, startDate, endDate]);
@@ -93,7 +84,6 @@ export default function Transactions() {
     return filteredTransactions.slice(startIndex, startIndex + pageSize);
   }, [filteredTransactions, currentPage, pageSize]);
 
-  // Summary Metrics based on currently filtered/listed transactions
   const summary = useMemo(() => {
     return filteredTransactions.reduce(
       (acc, tx) => {
@@ -166,7 +156,6 @@ export default function Transactions() {
 
         <main className="flex-1 p-4 lg:p-6">
           <div className="mx-auto max-w-[1600px]">
-            {/* Header */}
             <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1
@@ -195,7 +184,6 @@ export default function Transactions() {
               </button>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
                 <span className="material-symbols-outlined mt-0.5 text-[20px] text-red-500">
@@ -219,7 +207,6 @@ export default function Transactions() {
               </div>
             )}
 
-            {/* Row 1: Summary Stats */}
             <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
               <SummaryCard
                 icon="receipt_long"
@@ -244,10 +231,8 @@ export default function Transactions() {
               />
             </div>
 
-            {/* Row 2: Filtering Section */}
             <div className="mb-6 rounded-xl border border-[#E2E8F0] bg-white p-4">
               <div className="grid grid-cols-1 gap-4 md:grid-cols-4 items-end">
-                {/* Search query */}
                 <div className="relative">
                   <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[19px] text-[#94A3B8]">
                     search
@@ -261,7 +246,6 @@ export default function Transactions() {
                   />
                 </div>
 
-                {/* Start Date */}
                 <div>
                   <label
                     htmlFor="start_date"
@@ -278,7 +262,6 @@ export default function Transactions() {
                   />
                 </div>
 
-                {/* End Date */}
                 <div>
                   <label
                     htmlFor="end_date"
@@ -295,7 +278,6 @@ export default function Transactions() {
                   />
                 </div>
 
-                {/* Reset filters */}
                 <button
                   type="button"
                   onClick={handleResetFilters}
@@ -306,7 +288,6 @@ export default function Transactions() {
               </div>
             </div>
 
-            {/* Row 3: Table Section */}
             <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
               {loading ? (
                 <TableLoader />
@@ -378,7 +359,6 @@ export default function Transactions() {
                     </table>
                   </div>
 
-                  {/* Pagination Controls */}
                   {(() => {
                     const totalEntries = filteredTransactions.length;
                     const totalPages = Math.ceil(totalEntries / pageSize);
@@ -386,7 +366,6 @@ export default function Transactions() {
 
                     return (
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#E2E8F0] px-5 py-4 bg-white">
-                        {/* Page Size Selector */}
                         <div className="flex items-center gap-2 text-xs text-[#64748B]">
                           <span>Show</span>
                           <select
@@ -405,7 +384,6 @@ export default function Transactions() {
                           <span>entries</span>
                         </div>
 
-                        {/* Showing X to Y of Z */}
                         <div className="text-xs text-[#64748B]">
                           Showing <span className="font-semibold text-[#141B2B]">{totalEntries === 0 ? 0 : startIndex + 1}</span> to{" "}
                           <span className="font-semibold text-[#141B2B]">
@@ -414,7 +392,6 @@ export default function Transactions() {
                           of <span className="font-semibold text-[#141B2B]">{totalEntries}</span> entries
                         </div>
 
-                        {/* Navigation buttons */}
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
@@ -478,7 +455,6 @@ export default function Transactions() {
         </main>
       </div>
 
-      {/* Details Modal */}
       <DetailsModal
         isOpen={detailsModalOpen}
         tx={selectedTx}
@@ -581,15 +557,12 @@ function DetailsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 print:p-0">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-[2px] print:hidden"
         onClick={onClose}
       />
 
-      {/* Modal Box */}
       <div className="relative z-10 w-full max-w-lg rounded-2xl bg-white shadow-2xl print:shadow-none print:rounded-none">
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E2E8F0] px-6 py-5 print:hidden">
           <h2 className="text-base font-bold text-[#141B2B]">
             Transaction Detail
@@ -603,7 +576,6 @@ function DetailsModal({
           </button>
         </div>
 
-        {/* Invoice Info */}
         <div className="p-6 space-y-5">
           <div className="flex justify-between items-start border-b border-dashed border-[#E2E8F0] pb-4">
             <div>
@@ -620,7 +592,6 @@ function DetailsModal({
             </div>
           </div>
 
-          {/* Purchased Items List */}
           <div>
             <span className="block text-xs font-bold text-[#64748B] mb-3 uppercase tracking-wide">
               Purchased Items
@@ -651,10 +622,8 @@ function DetailsModal({
             </div>
           </div>
 
-          {/* Divider */}
           <div className="border-t border-dashed border-[#E2E8F0]" />
 
-          {/* Pricing Calculation summary */}
           <div className="flex justify-between items-center text-base">
             <span className="font-bold text-[#64748B]">Total Paid</span>
             <span className="text-lg font-extrabold text-[#00685F]">
@@ -663,7 +632,6 @@ function DetailsModal({
           </div>
         </div>
 
-        {/* Footer Actions */}
         <div className="flex justify-end gap-3 border-t border-[#E2E8F0] px-6 py-4 bg-[#F8FAFC] rounded-b-2xl print:hidden">
           <button
             type="button"
@@ -683,7 +651,6 @@ function DetailsModal({
         </div>
       </div>
 
-      {/* Thermal Receipt for printing */}
       <div id="thermal-receipt" className="hidden print:block font-mono">
         <div className="text-center">
           <h2 className="text-sm font-bold uppercase">CoStore</h2>

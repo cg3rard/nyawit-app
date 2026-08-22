@@ -11,7 +11,6 @@ from app.schemas.analytics import (
     TopProduct,
 )
 
-
 class SalesToday(BaseModel):
     """Today's sales totals — transactions created on the current calendar date."""
     total_revenue: Decimal
@@ -19,14 +18,12 @@ class SalesToday(BaseModel):
     total_items_sold: int
     total_net_income: Decimal
 
-
 class ExpiryAlert(BaseModel):
     """Product whose expiry_date is today or in the past, or within an upcoming window."""
     product_id: int
     product_code: str
     product_name: str
     expiry_date: date
-
 
 from typing import Dict, Any, Optional
 
@@ -36,7 +33,6 @@ class AIInsightDetail(BaseModel):
     status: str
     metrics: Dict[str, Any]
     ai_recommendation: Dict[str, str]
-
 
 class DashboardSummary(BaseModel):
     """

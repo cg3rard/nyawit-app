@@ -17,11 +17,9 @@ import ConfirmRestock from "./pages/ConfirmRestock";
 function AppLayout({ children }) {
   return (
     <div className="flex min-h-screen">
-      {/* Fixed sidebar — desktop only */}
       <div className="hidden lg:flex lg:flex-col lg:w-64 lg:fixed lg:inset-y-0">
         <Sidebar />
       </div>
-      {/* Main area offset by sidebar width on desktop */}
       <div className="flex flex-1 flex-col min-w-0 lg:ml-64">
         {children}
       </div>
@@ -131,7 +129,6 @@ export default function App() {
             </AppLayout>
           }
         />
-        {/* Public landing page (no Sidebar layout) */}
         <Route
           path="/confirm_restock/:id"
           element={

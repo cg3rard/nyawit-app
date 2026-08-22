@@ -15,7 +15,6 @@ from app.services import analytics_service
 
 router = APIRouter(prefix="/api/analytics", tags=["analytics"])
 
-
 @router.get("/top-products", response_model=List[TopProduct])
 def top_products(
     limit: int = Query(default=5, ge=1, le=100, description="Max products to return"),
@@ -31,7 +30,6 @@ def top_products(
         db, limit=limit, start_date=start_date, end_date=end_date
     )
 
-
 @router.get("/revenue-by-product", response_model=List[RevenueByProduct])
 def revenue_by_product(
     start_date: Optional[date] = Query(default=None),
@@ -46,7 +44,6 @@ def revenue_by_product(
         db, start_date=start_date, end_date=end_date
     )
 
-
 @router.get("/low-stock", response_model=List[LowStockProduct])
 def low_stock(
     threshold: int = Query(default=5, ge=0, description="Stock level considered low"),
@@ -57,7 +54,6 @@ def low_stock(
     READ-ONLY — does not modify Product.stock or create StockMovement records.
     """
     return analytics_service.get_low_stock(db, threshold=threshold)
-
 
 @router.get("/inventory-summary", response_model=InventorySummary)
 def inventory_summary(

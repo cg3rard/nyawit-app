@@ -229,22 +229,15 @@ export default function POS() {
 
   return (
     <div className="flex h-screen flex-col bg-[#F9F9FF]">
-      {/* Standalone POS Header */}
       <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-[#E2E8F0] bg-white px-4 lg:px-6">
-        {/* Brand / logo back button */}
         <button
           type="button"
           onClick={() => navigate("/")}
           className="flex items-center gap-3 transition hover:opacity-85 text-left"
           title="Back to dashboard"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E8F5F3]">
-            <span
-              className="material-symbols-outlined text-[#00685F]"
-              style={{ fontVariationSettings: "'FILL' 1" }}
-            >
-              storefront
-            </span>
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E8F5F3] p-1.5">
+            <img src="/icons.png" alt="CoStore Logo" className="h-full w-full object-contain" />
           </div>
 
           <div>
@@ -260,7 +253,6 @@ export default function POS() {
           </div>
         </button>
 
-        {/* Search */}
         <div className="relative w-full max-w-lg mx-4">
           <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[19px] text-[#64748B]">
             search
@@ -275,7 +267,6 @@ export default function POS() {
           />
         </div>
 
-        {/* Exit Button */}
         <div>
           <button
             type="button"
@@ -290,11 +281,8 @@ export default function POS() {
         </div>
       </header>
 
-      {/* POS Content Body */}
       <div className="flex flex-1 min-h-0 overflow-hidden">
-        {/* LEFT: PRODUCT AREA (Larger size) */}
         <main className="flex flex-1 flex-col min-w-0 bg-[#F9F9FF] border-r border-[#E2E8F0]">
-          {/* Categories bar */}
           <div className="border-b border-[#E2E8F0] bg-white px-6 py-4 flex gap-2 overflow-x-auto shrink-0 scrollbar-none">
             <CategoryButton
               active={!selectedCategory}
@@ -312,7 +300,6 @@ export default function POS() {
             ))}
           </div>
 
-          {/* Product Grid Content */}
           <div className="flex-1 overflow-y-auto p-6">
             {loading ? (
               <ProductLoading />
@@ -329,7 +316,6 @@ export default function POS() {
           </div>
         </main>
 
-        {/* RIGHT: CART (Wider layout) */}
         <aside className="flex w-full shrink-0 flex-col bg-white border-l border-[#E2E8F0] md:w-[440px] h-full justify-between">
           <div className="flex flex-col min-h-0 flex-1">
             <div className="flex items-center justify-between border-b border-[#E2E8F0] px-6 py-5">
@@ -418,7 +404,6 @@ export default function POS() {
         </aside>
       </div>
 
-      {/* Standalone Payment Modal */}
       <PaymentModal
         isOpen={paymentModalOpen}
         totalAmount={subtotal}
@@ -427,7 +412,6 @@ export default function POS() {
         isCheckingOut={isCheckingOut}
       />
 
-      {/* Add to Cart Quantity Modal */}
       <AddToCartModal
         isOpen={addToCartModalOpen}
         product={selectedProductForCart}
@@ -439,7 +423,6 @@ export default function POS() {
         onConfirm={handleConfirmAddToCart}
       />
 
-      {/* Thermal Receipt for printing */}
       {receiptToPrint && (
         <div id="thermal-receipt" className="hidden print:block font-mono">
           <div className="text-center">
@@ -448,14 +431,14 @@ export default function POS() {
             <p className="text-[10px]">Jakarta, Indonesia</p>
             <p className="my-1">================================</p>
           </div>
-          
+
           <div className="text-[10px] space-y-0.5 text-left">
             <p>TXID: <span className="font-bold">{receiptToPrint.transaction_code}</span></p>
             <p>DATE: {new Date(receiptToPrint.created_at).toLocaleString("id-ID")}</p>
           </div>
-          
+
           <p className="my-1">--------------------------------</p>
-          
+
           <div className="space-y-1 text-[10px] text-left">
             {receiptToPrint.items?.map((item) => {
               const prod = products.find((p) => p.id === item.product_id);
@@ -470,15 +453,15 @@ export default function POS() {
               );
             })}
           </div>
-          
+
           <p className="my-1">--------------------------------</p>
-          
+
           <div className="text-[10px] space-y-1 text-left">
             <div className="flex justify-between font-bold">
               <span>TOTAL</span>
               <span>{formatIdr(receiptToPrint.total_amount)}</span>
             </div>
-            
+
             {receiptToPrint.payment_method === "cash" && (
               <>
                 <div className="flex justify-between">
@@ -499,9 +482,9 @@ export default function POS() {
               </div>
             )}
           </div>
-          
+
           <p className="my-1">================================</p>
-          
+
           <div className="text-center text-[10px] mt-2">
             <p className="font-bold">THANK YOU</p>
             <p>TERIMAKASIH BANYAK</p>

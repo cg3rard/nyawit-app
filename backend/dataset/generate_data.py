@@ -9,7 +9,6 @@ import os
 import random
 from typing import List, Dict, Any
 
-# Ensure reproducible generation
 random.seed(42)
 
 OUTPUT_DIR = "backend/dataset"
@@ -20,19 +19,14 @@ SYSTEM_PROMPT = (
     "action, recommendation, dan rationale."
 )
 
-# Realistic Indonesian retail FMCG products
 PRODUCTS = [
-    # Minuman
     "Susu UHT Cokelat 1L", "Teh Botol Kotak 250ml", "Kopi Hitam Sachet 10x20g",
     "Air Mineral 600ml", "Soda Lemon Kaleng 330ml", "Jus Jeruk 1L", "Kopi Susu Gula Aren 200ml",
-    # Makanan Pokok & Instan
     "Mie Instan Goreng 85g", "Mie Kuah Kari Spesial 75g", "Beras Pandan Wangi 5kg",
     "Minyak Goreng Pouch 2L", "Telur Ayam Negeri 1kg", "Tepung Terigu Serbaguna 1kg",
     "Gula Pasir Kristal 1kg", "Kecap Manis 550ml", "Saus Sambal Botol 335ml",
-    # Snack & Biskuit
     "Biskuit Kaleng Aneka Rasa 300g", "Kripik Singkong Balado 150g", "Cokelat Batang 50g",
     "Kacang Kulit Gurih 200g", "Wafer Cokelat Renyah 120g", "Snack Rumput Laut 20g",
-    # Perlengkapan Rumah & Personal Care
     "Sabun Mandi Batang 100g", "Sabun Cair Pouch 450ml", "Shampoo Anti-Dandruff 180ml",
     "Pasta Gigi Fresh 120g", "Deterjen Bubuk 800g", "Pembersih Lantai Citrus 750ml",
     "Tisu Kering 250 sheets", "Cairan Cuci Piring Jeruk Nipis 700ml"
@@ -50,7 +44,6 @@ def calculate_metrics(stock: int, recent_7d: List[int], prior_7d: List[int]):
 
     doi = 999.0 if sma_7 == 0.0 else stock / max(sma_7, 0.01)
 
-    # Classification
     if stock == 0 or doi <= 3.0:
         status = "Merah"
     elif doi <= 7.0 and trend_pct >= 0.0:
@@ -68,13 +61,12 @@ def generate_red_scenario(product: str) -> Dict[str, Any]:
     recent_7d = [max(1, daily_sales + random.randint(-2, 3)) for _ in range(7)]
     prior_7d = [max(1, daily_sales + random.randint(-4, 1)) for _ in range(7)]
 
-    # Force low stock (DOI <= 3 days)
     sma_estimate = sum(recent_7d) / 7.0
     stock = max(1, int(sma_estimate * random.uniform(0.3, 2.5)))
 
     sma_7, trend, doi, status = calculate_metrics(stock, recent_7d, prior_7d)
 
-    reorder_qty = max(20, int(sma_7 * 14)) # 14-day supply
+    reorder_qty = max(20, int(sma_7 * 14))
     actions = ["RESTOCK_URGENT", "REORDER_SEGERA", "ORDER_SUPPLIER", "RESTOCK_PRIORITAS"]
     action = random.choice(actions)
 
@@ -100,11 +92,9 @@ def generate_yellow_scenario(product: str) -> Dict[str, Any]:
     prior_sales = random.randint(6, 12)
     prior_7d = [max(3, prior_sales + random.randint(-2, 2)) for _ in range(7)]
 
-    # Sharp drop in recent sales (>= 30% drop)
     drop_factor = random.uniform(0.1, 0.4)
     recent_7d = [max(0, int(prior_sales * drop_factor + random.randint(-1, 1))) for _ in range(7)]
 
-    # Force high stock (DOI >= 25 days)
     stock = random.randint(70, 200)
 
     sma_7, trend, doi, status = calculate_metrics(stock, recent_7d, prior_7d)
@@ -138,7 +128,6 @@ def generate_green_scenario(product: str) -> Dict[str, Any]:
     prior_7d = [max(2, base_sales + random.randint(-2, 1)) for _ in range(7)]
 
     sma_estimate = sum(recent_7d) / 7.0
-    # Healthy DOI (8 - 18 days)
     stock = int(sma_estimate * random.uniform(8.0, 16.0))
 
     sma_7, trend, doi, status = calculate_metrics(stock, recent_7d, prior_7d)
@@ -190,32 +179,25 @@ def create_training_entry(
 def main():
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    # 80 Balanced samples: 28 Red (35%), 28 Yellow (35%), 24 Green (30%)
     dataset = []
 
-    # Red Samples
     shuffled_prods = random.sample(PRODUCTS * 2, 28)
     for prod in shuffled_prods:
         dataset.append(generate_red_scenario(prod))
 
-    # Yellow Samples
     shuffled_prods = random.sample(PRODUCTS * 2, 28)
     for prod in shuffled_prods:
         dataset.append(generate_yellow_scenario(prod))
 
-    # Green Samples
     shuffled_prods = random.sample(PRODUCTS * 2, 24)
     for prod in shuffled_prods:
         dataset.append(generate_green_scenario(prod))
 
-    # Shuffle overall dataset
     random.shuffle(dataset)
 
-    # Write output
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(dataset, f, ensure_ascii=False, indent=2)
 
-    # Print summary statistics
     red_cnt = sum(1 for d in dataset if "Status: Merah" in d["messages"][1]["content"])
     yellow_cnt = sum(1 for d in dataset if "Status: Kuning" in d["messages"][1]["content"])
     green_cnt = sum(1 for d in dataset if "Status: Hijau" in d["messages"][1]["content"])

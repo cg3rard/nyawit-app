@@ -7,7 +7,6 @@ import TopBar from "../components/layout/TopBar";
 const formatPhoneForWA = (phone) =>
   phone ? phone.replace(/[^0-9]/g, "") : "";
 
-/* ── Result badge shown in the right column ─────────────────────── */
 function ResultBadge({ order, onReceive }) {
   if (!order) return <span className="text-slate-300 text-xs">—</span>;
 
@@ -55,7 +54,6 @@ function ResultBadge({ order, onReceive }) {
             Siap kirim: {order.received_quantity} pcs
           </p>
         )}
-        {/* Owner action button */}
         <button
           onClick={() => onReceive(order)}
           className="mt-1 inline-flex items-center gap-1 text-[11px] font-bold text-white bg-[#00685F] hover:bg-[#00574F] px-2.5 py-1.5 rounded transition"
@@ -94,7 +92,6 @@ function ResultBadge({ order, onReceive }) {
   return <span className="text-slate-400 text-xs">{order.status}</span>;
 }
 
-/* ── Receive Modal ───────────────────────────────────────────────── */
 function ReceiveModal({ order, onClose, onSuccess }) {
   const [qty, setQty] = useState(order?.received_quantity || order?.quantity || 1);
   const [expiryDate, setExpiryDate] = useState("");
@@ -134,7 +131,6 @@ function ReceiveModal({ order, onClose, onSuccess }) {
           </button>
         </div>
 
-        {/* Info card */}
         <div className="rounded-xl bg-blue-50 border border-blue-100 p-3 mb-5 text-xs space-y-1">
           <p><span className="font-semibold text-blue-700">Produk: </span>{order?.product?.name}</p>
           <p><span className="font-semibold text-blue-700">Supplier: </span>{order?.supplier?.name}</p>
@@ -201,14 +197,12 @@ function ReceiveModal({ order, onClose, onSuccess }) {
   );
 }
 
-/* ── Main Page ───────────────────────────────────────────────────── */
 export default function WAConnection() {
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Receive modal state
   const [receiveOrder, setReceiveOrder] = useState(null);
 
   const loadData = async () => {
@@ -239,7 +233,6 @@ export default function WAConnection() {
       <TopBar onMenuClick={() => setMobileSidebarOpen(true)} />
       <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
-      {/* Receive modal */}
       {receiveOrder && (
         <ReceiveModal
           order={receiveOrder}
@@ -249,7 +242,6 @@ export default function WAConnection() {
       )}
 
       <main className="flex-1 p-6 lg:p-8">
-        {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-[#141B2B]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>

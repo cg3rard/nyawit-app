@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 
 from app.models.base import Base
 
-
 class Supplier(Base):
     __tablename__ = "suppliers"
 
@@ -11,7 +10,6 @@ class Supplier(Base):
     name = Column(String(100), nullable=False)
     whatsapp = Column(String(20), nullable=False)
 
-    # One-to-many relationship: a supplier can have multiple products assigned
     products = relationship(
         "Product",
         back_populates="supplier",

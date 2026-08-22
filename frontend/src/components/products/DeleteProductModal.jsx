@@ -25,7 +25,6 @@ export default function DeleteProductModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-xl">
-        {/* Header */}
         <div className="flex items-start gap-4">
           <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-50">
             <span className="material-symbols-outlined text-[22px] text-red-500">
@@ -48,7 +47,6 @@ export default function DeleteProductModal({
           </div>
         </div>
 
-        {/* Backend Error */}
         {error && (
           <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3">
             <div className="flex items-start gap-2">
@@ -75,7 +73,6 @@ export default function DeleteProductModal({
           </p>
         )}
 
-        {/* Actions */}
         <div className="mt-6 flex justify-end gap-3">
           <button
             type="button"

@@ -10,7 +10,6 @@ from app.services import transaction_service
 
 router = APIRouter(prefix="/api/transactions", tags=["transactions"])
 
-
 @router.post("/", response_model=TransactionRead, status_code=status.HTTP_201_CREATED)
 def create_transaction(data: TransactionCreate, db: Session = Depends(get_db)):
     """
@@ -31,7 +30,6 @@ def create_transaction(data: TransactionCreate, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc))
 
-
 @router.get("/summary", response_model=SalesSummary)
 def get_sales_summary(db: Session = Depends(get_db)):
     """
@@ -39,7 +37,6 @@ def get_sales_summary(db: Session = Depends(get_db)):
     READ-ONLY — does not modify stock or any records.
     """
     return transaction_service.get_sales_summary(db)
-
 
 @router.get("/", response_model=List[TransactionRead])
 def list_transactions(
@@ -53,7 +50,6 @@ def list_transactions(
     READ-ONLY — does not modify any records.
     """
     return transaction_service.get_transactions(db, start_date=start_date, end_date=end_date)
-
 
 @router.get("/{transaction_id}", response_model=TransactionRead)
 def get_transaction(transaction_id: int, db: Session = Depends(get_db)):

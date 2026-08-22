@@ -15,7 +15,6 @@ from app.services import inventory_service
 
 router = APIRouter(prefix="/api/inventory", tags=["inventory"])
 
-
 @router.post("/in", response_model=StockMovementRead, status_code=status.HTTP_201_CREATED)
 def receive_stock(data: StockInRequest, db: Session = Depends(get_db)):
     """Add stock to a product (Stock IN)."""
@@ -23,7 +22,6 @@ def receive_stock(data: StockInRequest, db: Session = Depends(get_db)):
     if movement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return movement
-
 
 @router.post("/out", response_model=StockMovementRead, status_code=status.HTTP_201_CREATED)
 def dispense_stock(data: StockOutRequest, db: Session = Depends(get_db)):
@@ -36,7 +34,6 @@ def dispense_stock(data: StockOutRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return movement
 
-
 @router.post("/adjustment", response_model=StockMovementRead, status_code=status.HTTP_201_CREATED)
 def adjust_stock(data: StockAdjustmentRequest, db: Session = Depends(get_db)):
     """
@@ -48,7 +45,6 @@ def adjust_stock(data: StockAdjustmentRequest, db: Session = Depends(get_db)):
     if movement is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
     return movement
-
 
 @router.get("/movements", response_model=List[StockMovementRead])
 def list_movements(

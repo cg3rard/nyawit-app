@@ -5,33 +5,20 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-# ---------------------------------------------------------------------------
-# Ensure the backend/app package is importable from alembic/
-# ---------------------------------------------------------------------------
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-# ---------------------------------------------------------------------------
-# Import all models so Alembic autogenerate can see every table.
-# ---------------------------------------------------------------------------
-import app.models  # noqa: F401, E402
-from app.models.base import Base  # noqa: E402
-from app.core.config import settings  # noqa: E402
+import app.models
+from app.models.base import Base
+from app.core.config import settings
 
-# ---------------------------------------------------------------------------
-# Alembic Config object
-# ---------------------------------------------------------------------------
 config = context.config
 
-# Override sqlalchemy.url from our environment-driven Settings object
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
-# Interpret the config file for Python logging.
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Target metadata for autogenerate support.
 target_metadata = Base.metadata
-
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode."""
@@ -45,7 +32,6 @@ def run_migrations_offline() -> None:
 
     with context.begin_transaction():
         context.run_migrations()
-
 
 def run_migrations_online() -> None:
     """Run migrations in 'online' mode."""
@@ -63,7 +49,6 @@ def run_migrations_online() -> None:
 
         with context.begin_transaction():
             context.run_migrations()
-
 
 if context.is_offline_mode():
     run_migrations_offline()

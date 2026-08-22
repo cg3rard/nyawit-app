@@ -14,10 +14,6 @@ from app.schemas.analytics import (
     TopProduct,
 )
 
-# ---------------------------------------------------------------------------
-# Internal helpers
-# ---------------------------------------------------------------------------
-
 def _apply_date_filter(q, start_date: Optional[date], end_date: Optional[date]):
     """
     Filter a query on Transaction.created_at.
@@ -28,11 +24,6 @@ def _apply_date_filter(q, start_date: Optional[date], end_date: Optional[date]):
     if end_date is not None:
         q = q.filter(Transaction.created_at <= datetime.combine(end_date, time.max))
     return q
-
-
-# ---------------------------------------------------------------------------
-# Analytics queries — all SELECT, zero writes
-# ---------------------------------------------------------------------------
 
 def get_top_products(
     db: Session,
@@ -72,7 +63,6 @@ def get_top_products(
         for row in rows
     ]
 
-
 def get_revenue_by_product(
     db: Session,
     start_date: Optional[date] = None,
@@ -109,7 +99,6 @@ def get_revenue_by_product(
         for row in rows
     ]
 
-
 def get_low_stock(db: Session, threshold: int = 5) -> List[LowStockProduct]:
     """
     Return products whose current stock is <= threshold, ordered by stock ascending.
@@ -135,7 +124,6 @@ def get_low_stock(db: Session, threshold: int = 5) -> List[LowStockProduct]:
         )
         for p in rows
     ]
-
 
 def get_inventory_summary(db: Session, low_stock_threshold: int = 5) -> InventorySummary:
     """

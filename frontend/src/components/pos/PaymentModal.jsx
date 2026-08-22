@@ -7,7 +7,7 @@ export default function PaymentModal({
   onConfirm,
   isCheckingOut,
 }) {
-  const [paymentMethod, setPaymentMethod] = useState("cash"); // 'cash' | 'qris'
+  const [paymentMethod, setPaymentMethod] = useState("cash");
   const [cashReceived, setCashReceived] = useState("");
   const [error, setError] = useState("");
 
@@ -21,7 +21,6 @@ export default function PaymentModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Reset inputs when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setPaymentMethod("cash");
@@ -64,12 +63,10 @@ export default function PaymentModal({
       .replace("IDR", "Rp");
   };
 
-  // Generate quick cash buttons based on total amount
   const getQuickCashOptions = () => {
     const options = new Set([total]);
     const billDenominations = [1000, 2000, 5000, 10000, 20000, 50000, 100000];
 
-    // Find next multiples of bills
     billDenominations.forEach((denom) => {
       if (denom > total) {
         options.add(denom);
@@ -85,15 +82,12 @@ export default function PaymentModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-[2px]"
         onClick={isCheckingOut ? undefined : onClose}
       />
 
-      {/* Modal Card */}
       <div className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl bg-white shadow-2xl transition-all">
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E2E8F0] px-6 py-5">
           <div>
             <h2 className="text-lg font-bold text-[#141B2B]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -111,15 +105,12 @@ export default function PaymentModal({
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6">
-          {/* Total display */}
           <div className="mb-6 flex justify-between items-center rounded-xl bg-[#E8F5F3] px-5 py-4 border border-[#00685F]/10">
             <span className="text-sm font-semibold text-[#00685F]">Total Payable</span>
             <span className="text-2xl font-extrabold text-[#00685F]">{formatIdr(total)}</span>
           </div>
 
-          {/* Payment Method Selector */}
           <div className="mb-6 grid grid-cols-2 gap-3">
             <button
               type="button"
@@ -148,7 +139,6 @@ export default function PaymentModal({
             </button>
           </div>
 
-          {/* Payment Fields */}
           {paymentMethod === "cash" ? (
             <div className="space-y-4">
               <div>
@@ -176,7 +166,6 @@ export default function PaymentModal({
                 </div>
               </div>
 
-              {/* Quick Cash Buttons */}
               <div>
                 <span className="block text-xs font-semibold text-[#64748B] mb-2">Quick Cash Suggestion</span>
                 <div className="flex flex-wrap gap-2">
@@ -193,7 +182,6 @@ export default function PaymentModal({
                 </div>
               </div>
 
-              {/* Change Output */}
               <div className="rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] p-4 flex justify-between items-center">
                 <span className="text-sm font-semibold text-[#64748B]">Change</span>
                 <span
@@ -204,7 +192,7 @@ export default function PaymentModal({
                   {change >= 0 ? formatIdr(change) : "Rp0"}
                 </span>
               </div>
-              
+
               {isInsufficient && cashReceived !== "" && (
                 <p className="text-xs font-semibold text-amber-600">
                   * Amount is less than total payable ({formatIdr(total)}).
@@ -214,8 +202,7 @@ export default function PaymentModal({
           ) : (
             <div className="flex flex-col items-center justify-center p-4 border border-[#E2E8F0] rounded-2xl bg-[#F8FAFC]">
               <span className="text-xs font-bold text-[#00685F] mb-3 tracking-wide uppercase">Scan to Pay via QRIS</span>
-              
-              {/* SVG Mock QR Code */}
+
               <svg className="w-44 h-44 bg-white p-2.5 rounded-2xl border border-slate-200 shadow-sm" viewBox="0 0 100 100">
                 <rect x="5" y="5" width="25" height="25" fill="#1E293B" />
                 <rect x="10" y="10" width="15" height="15" fill="#FFFFFF" />
@@ -234,12 +221,12 @@ export default function PaymentModal({
                 <rect x="60" y="5" width="5" height="5" fill="#1E293B" />
                 <rect x="35" y="20" width="15" height="5" fill="#1E293B" />
                 <rect x="55" y="15" width="10" height="10" fill="#1E293B" />
-                
+
                 <rect x="5" y="35" width="10" height="5" fill="#1E293B" />
                 <rect x="20" y="35" width="5" height="15" fill="#1E293B" />
                 <rect x="30" y="30" width="10" height="10" fill="#1E293B" />
                 <rect x="45" y="30" width="20" height="5" fill="#1E293B" />
-                
+
                 <rect x="5" y="55" width="5" height="10" fill="#1E293B" />
                 <rect x="15" y="50" width="15" height="5" fill="#1E293B" />
                 <rect x="35" y="45" width="5" height="25" fill="#1E293B" />
@@ -251,7 +238,7 @@ export default function PaymentModal({
                 <rect x="75" y="35" width="5" height="25" fill="#1E293B" />
                 <rect x="85" y="35" width="10" height="5" fill="#1E293B" />
                 <rect x="80" y="45" width="15" height="10" fill="#1E293B" />
-                
+
                 <rect x="35" y="75" width="15" height="5" fill="#1E293B" />
                 <rect x="55" y="70" width="5" height="15" fill="#1E293B" />
                 <rect x="70" y="70" width="10" height="5" fill="#1E293B" />
@@ -260,11 +247,11 @@ export default function PaymentModal({
                 <rect x="60" y="85" width="20" height="5" fill="#1E293B" />
                 <rect x="85" y="85" width="10" height="10" fill="#1E293B" />
                 <rect x="70" y="90" width="10" height="5" fill="#1E293B" />
-                
+
                 <rect x="42" y="42" width="16" height="16" rx="4" fill="#00685F" />
                 <text x="50" y="52" fill="#FFFFFF" fontSize="6" fontWeight="bold" textAnchor="middle">QRIS</text>
               </svg>
-              
+
               <p className="mt-3 text-[11px] text-[#64748B] text-center max-w-[280px]">
                 Please scan the QR code using any compatible e-wallet or banking app (GoPay, OVO, Dana, LinkAja, BCA, etc.).
               </p>
@@ -274,7 +261,6 @@ export default function PaymentModal({
           {error && <p className="mt-3 text-xs font-semibold text-red-500">{error}</p>}
         </div>
 
-        {/* Footer Actions */}
         <div className="flex justify-end gap-3 border-t border-[#E2E8F0] px-6 py-5 bg-[#F8FAFC]">
           <button
             type="button"

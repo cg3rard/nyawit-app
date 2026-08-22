@@ -66,7 +66,7 @@ PRODUCTS = [
         "purchase_price": 14000,
         "selling_price": 18500,
         "stock": 710,
-        "expiry_date": "2026-08-27"  # Expiring soon for alert demo
+        "expiry_date": "2026-08-27"
     },
     {
         "product_code": "PC-BIO-01",
@@ -141,65 +141,53 @@ def seed():
 
     print("\n--- 2. Creating Realistic Sales Transactions ---")
     transactions = [
-        # TRX 1 (~Rp 69.500)
         [
             {"code": "BEV-COF-01", "qty": 1},
             {"code": "DAI-MLK-01", "qty": 1},
         ],
-        # TRX 2 (~Rp 24.000)
         [
             {"code": "GRO-NDL-01", "qty": 2},
             {"code": "BEV-AQU-01", "qty": 1},
             {"code": "SNK-CHT-01", "qty": 1},
         ],
-        # TRX 3 (~Rp 74.500)
         [
             {"code": "GRO-NUT-01", "qty": 1},
             {"code": "BAK-ROT-01", "qty": 1},
         ],
-        # TRX 4 (~Rp 45.000)
         [
             {"code": "SNK-SLV-01", "qty": 1},
             {"code": "BEV-POC-01", "qty": 1},
             {"code": "SNK-ORE-01", "qty": 1},
         ],
-        # TRX 5 (~Rp 66.000)
         [
             {"code": "PC-BIO-01", "qty": 1},
             {"code": "PC-SEN-01", "qty": 1},
         ],
-        # TRX 6 (~Rp 68.000)
         [
             {"code": "DAI-MLK-01", "qty": 2},
             {"code": "SNK-CHT-01", "qty": 2},
         ],
-        # TRX 7 (~Rp 69.000)
         [
             {"code": "BEV-COF-01", "qty": 1},
             {"code": "SNK-ORE-01", "qty": 2},
         ],
-        # TRX 8 (~Rp 44.000)
         [
             {"code": "GRO-NDL-01", "qty": 10},
             {"code": "BEV-AQU-01", "qty": 2},
         ],
-        # TRX 9 (~Rp 86.000)
         [
             {"code": "GRO-NUT-01", "qty": 1},
             {"code": "DAI-MLK-01", "qty": 1},
             {"code": "BEV-POC-01", "qty": 1},
         ],
-        # TRX 10 (~Rp 61.000)
         [
             {"code": "SNK-SLV-01", "qty": 2},
             {"code": "BEV-AQU-01", "qty": 2},
         ],
-        # TRX 11 (~Rp 66.000)
         [
             {"code": "PC-SEN-01", "qty": 1},
             {"code": "PC-BIO-01", "qty": 1},
         ],
-        # TRX 12 (~Rp 104.000)
         [
             {"code": "BEV-COF-01", "qty": 1},
             {"code": "GRO-NUT-01", "qty": 1},

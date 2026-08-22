@@ -5,7 +5,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.models.stock_movement import MovementType
 
-
 class StockInRequest(BaseModel):
     """Request body for receiving stock."""
 
@@ -24,7 +23,6 @@ class StockInRequest(BaseModel):
         description="Expiry date of the received goods (updates product expiry_date)",
     )
 
-
 class StockOutRequest(BaseModel):
     """Request body for dispensing stock."""
 
@@ -38,7 +36,6 @@ class StockOutRequest(BaseModel):
         default=None,
         max_length=255,
     )
-
 
 class StockAdjustmentRequest(BaseModel):
     """Request body for stock correction."""
@@ -56,7 +53,6 @@ class StockAdjustmentRequest(BaseModel):
         max_length=255,
     )
 
-
 class ProductMovementInfo(BaseModel):
     """Minimal product information returned with a movement."""
 
@@ -65,7 +61,6 @@ class ProductMovementInfo(BaseModel):
     name: str
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class StockMovementRead(BaseModel):
     """Response schema for a stock movement record."""

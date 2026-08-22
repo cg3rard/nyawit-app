@@ -8,7 +8,6 @@ from app.models.stock_movement import MovementType, StockMovement
 from app.models.transaction import TransactionItem
 from app.schemas.product import ProductCreate, ProductUpdate
 
-
 def get_products(db: Session) -> List[Product]:
     """Return all products ordered by id ascending."""
     return (
@@ -18,7 +17,6 @@ def get_products(db: Session) -> List[Product]:
         .all()
     )
 
-
 def get_product_by_id(db: Session, product_id: int) -> Optional[Product]:
     """Return a single product by primary key, or None if not found."""
     return (
@@ -27,7 +25,6 @@ def get_product_by_id(db: Session, product_id: int) -> Optional[Product]:
         .filter(Product.id == product_id)
         .first()
     )
-
 
 def create_product(db: Session, data: ProductCreate) -> Product:
     """
@@ -64,7 +61,6 @@ def create_product(db: Session, data: ProductCreate) -> Product:
     db.refresh(product)
     return product
 
-
 def update_product(db: Session, product: Product, data: ProductUpdate) -> Product:
     """
     Apply partial updates to an existing product.
@@ -77,7 +73,6 @@ def update_product(db: Session, product: Product, data: ProductUpdate) -> Produc
     db.commit()
     db.refresh(product)
     return product
-
 
 def delete_product(db: Session, product: Product) -> bool:
     """
@@ -94,7 +89,6 @@ def delete_product(db: Session, product: Product) -> bool:
     if has_transactions:
         return False
 
-    # Remove stock movements associated with this product before deletion
     db.query(StockMovement).filter(StockMovement.product_id == product.id).delete()
     db.delete(product)
     db.commit()

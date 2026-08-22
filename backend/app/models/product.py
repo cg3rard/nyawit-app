@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship
 
 from app.models.base import Base
 
-
 class Product(Base):
     __tablename__ = "products"
 
@@ -53,13 +52,11 @@ class Product(Base):
         nullable=True,
     )
 
-    # Relationship to supplier
     supplier = relationship(
         "Supplier",
         back_populates="products",
     )
 
-    # Relationship to inventory movements
     stock_movements = relationship(
         "StockMovement",
         back_populates="product",

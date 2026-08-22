@@ -9,7 +9,6 @@ export default function ProductFilters({
 }) {
   return (
     <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-      {/* Search */}
       <div className="relative w-full lg:max-w-md">
         <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-[#94A3B8]">
           search
@@ -24,9 +23,7 @@ export default function ProductFilters({
         />
       </div>
 
-      {/* Filters */}
       <div className="flex w-full gap-3 lg:w-auto">
-        {/* Category */}
         <select
           value={selectedCategory}
           onChange={(event) => onCategoryChange(event.target.value)}
@@ -41,7 +38,6 @@ export default function ProductFilters({
           ))}
         </select>
 
-        {/* Status */}
         <select
           value={selectedStatus}
           onChange={(event) => onStatusChange(event.target.value)}

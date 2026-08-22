@@ -13,8 +13,7 @@ export default function ConfirmRestock() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
 
-  // New Supplier Option States
-  const [confirmSend, setConfirmSend] = useState(true); // true = Kirim, false = Tolak
+  const [confirmSend, setConfirmSend] = useState(true);
   const [qtyToSend, setQtyToSend] = useState(0);
   const [supplierNote, setSupplierNote] = useState("");
 
@@ -36,7 +35,7 @@ export default function ConfirmRestock() {
       setError(null);
       const data = await getRestockOrder(id, token);
       setOrder(data);
-      setQtyToSend(data.quantity); // Default quantity to requested amount
+      setQtyToSend(data.quantity);
     } catch (err) {
       setError(err?.response?.data?.detail || "Restock order not found or link is invalid.");
     } finally {
@@ -101,7 +100,6 @@ export default function ConfirmRestock() {
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#F8FAFC] px-4 py-12">
-      {/* Brand logo header */}
       <div className="mb-8 text-center flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E8F5F3] p-1.5 border border-[#E2E8F0] shadow-sm">
           <img src="/icons.png" alt="Logo" className="h-full w-full object-contain" />
@@ -182,7 +180,6 @@ export default function ConfirmRestock() {
             </div>
           )}
 
-          {/* Details Card */}
           <div className="rounded-xl bg-[#F8FAFC] border border-[#E2E8F0] p-4 mb-6 space-y-3 text-sm">
             <div className="flex justify-between border-b border-[#E2E8F0]/80 pb-2">
               <span className="text-[#64748B]">Supplier:</span>
@@ -219,7 +216,6 @@ export default function ConfirmRestock() {
             </div>
           ) : (
             <div className="space-y-4">
-              {/* Option Selector */}
               <div>
                 <label className="block text-xs font-semibold text-[#334155] mb-2">Apakah Anda bersedia mengirimkan restock?</label>
                 <div className="flex gap-6">
@@ -254,7 +250,6 @@ export default function ConfirmRestock() {
 
               {confirmSend ? (
                 <>
-                  {/* Quantity input */}
                   <div>
                     <label htmlFor="qty_to_send" className="block text-xs font-semibold text-[#334155] mb-1.5">
                       Jumlah yang dikirim (Maksimum {order?.quantity} pcs)
@@ -278,7 +273,6 @@ export default function ConfirmRestock() {
                     />
                   </div>
 
-                  {/* Supplier note */}
                   <div>
                     <label htmlFor="supplier_note" className="block text-xs font-semibold text-[#334155] mb-1.5">
                       Catatan Tambahan (Opsional)
@@ -294,7 +288,6 @@ export default function ConfirmRestock() {
                   </div>
                 </>
               ) : (
-                /* Rejection Reason note */
                 <div>
                   <label htmlFor="reject_reason" className="block text-xs font-semibold text-red-700 mb-1.5">
                     Alasan Penolakan (Wajib diisi) *
@@ -314,7 +307,6 @@ export default function ConfirmRestock() {
                 </div>
               )}
 
-              {/* Confirm submit button */}
               <div className="pt-2">
                 <button
                   onClick={handleConfirm}

@@ -5,16 +5,13 @@ from app.models.supplier import Supplier
 from app.models.product import Product
 from app.schemas.supplier import SupplierCreate, SupplierUpdate
 
-
 def get_suppliers(db: Session) -> List[Supplier]:
     """Return all suppliers ordered by id ascending."""
     return db.query(Supplier).order_by(Supplier.id.asc()).all()
 
-
 def get_supplier_by_id(db: Session, supplier_id: int) -> Optional[Supplier]:
     """Return a single supplier by primary key, or None if not found."""
     return db.query(Supplier).filter(Supplier.id == supplier_id).first()
-
 
 def create_supplier(db: Session, data: SupplierCreate) -> Supplier:
     """
@@ -28,7 +25,6 @@ def create_supplier(db: Session, data: SupplierCreate) -> Supplier:
     db.flush()
 
     if data.product_ids:
-        # Assign products to this supplier
         db.query(Product).filter(Product.id.in_(data.product_ids)).update(
             {Product.supplier_id: supplier.id},
             synchronize_session=False,
@@ -37,7 +33,6 @@ def create_supplier(db: Session, data: SupplierCreate) -> Supplier:
     db.commit()
     db.refresh(supplier)
     return supplier
-
 
 def update_supplier(db: Session, supplier: Supplier, data: SupplierUpdate) -> Supplier:
     """
@@ -49,12 +44,10 @@ def update_supplier(db: Session, supplier: Supplier, data: SupplierUpdate) -> Su
         supplier.whatsapp = data.whatsapp
 
     if data.product_ids is not None:
-        # 1. Clear supplier_id for products currently assigned to this supplier
         db.query(Product).filter(Product.supplier_id == supplier.id).update(
             {Product.supplier_id: None},
             synchronize_session=False,
         )
-        # 2. Assign the new products list
         if data.product_ids:
             db.query(Product).filter(Product.id.in_(data.product_ids)).update(
                 {Product.supplier_id: supplier.id},
@@ -64,7 +57,6 @@ def update_supplier(db: Session, supplier: Supplier, data: SupplierUpdate) -> Su
     db.commit()
     db.refresh(supplier)
     return supplier
-
 
 def delete_supplier(db: Session, supplier: Supplier) -> bool:
     """

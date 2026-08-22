@@ -47,7 +47,6 @@ function NavItem({ to, icon, label, onClick }) {
 export default function Sidebar({ onNavigate }) {
   return (
     <aside className="flex h-full w-64 flex-col bg-white border-r border-[#E2E8F0]">
-      {/* Brand */}
       <div className="px-5 pt-6 pb-5">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E8F5F3] p-1.5">
@@ -68,7 +67,6 @@ export default function Sidebar({ onNavigate }) {
         </div>
       </div>
 
-      {/* New Sale */}
       <div className="px-4 mb-5">
         <Link
           to="/pos"
@@ -84,7 +82,6 @@ export default function Sidebar({ onNavigate }) {
         </Link>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 px-3 space-y-1">
         {NAV_ITEMS.map((item) => (
           <NavItem
@@ -95,7 +92,6 @@ export default function Sidebar({ onNavigate }) {
         ))}
       </nav>
 
-      {/* Footer */}
       <div className="px-3 pt-4 pb-6 border-t border-[#E2E8F0] space-y-1">
         {FOOTER_ITEMS.map((item) => (
           <NavItem

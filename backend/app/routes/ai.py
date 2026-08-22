@@ -5,7 +5,6 @@ from fastapi import APIRouter, HTTPException, Query, Depends
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
-# Import Engine & Metrics
 from engine.metrics import InventoryEngine, InventoryMetrics
 from app.database import get_db
 from app.models.product import Product
@@ -13,16 +12,12 @@ from app.models.transaction import Transaction, TransactionItem
 
 router = APIRouter(tags=["AI"])
 
-# Resolve absolute paths relative to backend root directory
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 MOCK_DATA_PATH = os.path.join(BASE_DIR, "mock_data.json")
 ADAPTER_PATH = os.path.join(BASE_DIR, "lora_inventory_adapter")
 BASE_MODEL_ID = "Qwen/Qwen2.5-1.5B-Instruct"
 
-# Lazy-loaded LLM inference engine
 llm_pipeline = None
-
-
 
 def get_product_insights_data(db: Session, product: Product, days: int = 14):
     """
@@ -32,11 +27,9 @@ def get_product_insights_data(db: Session, product: Product, days: int = 14):
     from datetime import date, datetime, timedelta
     from sqlalchemy import func
     
-    # Ambil tanggal referensi transaksi terakhir
     latest_datetime = db.query(func.max(Transaction.created_at)).scalar()
     ref_date = latest_datetime.date() if latest_datetime else date.today()
 
-    # Masa days hari penuh termasuk hari ini/ref_date
     start_date = ref_date - timedelta(days=days-1)
     end_date = ref_date
 
@@ -70,17 +63,14 @@ def get_product_insights_data(db: Session, product: Product, days: int = 14):
             
         sales_map[d_norm] = int(row.total_qty or 0)
 
-    # Bagi menjadi dua bagian: recent dan prior
     recent_count = (days + 1) // 2
     prior_count = days - recent_count
 
-    # Prior: dari days-1 s/d recent_count
     sales_prior_list = []
     for i in range(days - 1, recent_count - 1, -1):
         day = ref_date - timedelta(days=i)
         sales_prior_list.append(sales_map.get(day, 0))
 
-    # Recent: dari recent_count-1 s/d 0
     sales_recent_list = []
     for i in range(recent_count - 1, -1, -1):
         day = ref_date - timedelta(days=i)
@@ -101,10 +91,8 @@ def get_product_status_and_recommendation(db: Session, product: Product, days: i
     from sqlalchemy import func
     from app.models.stock_movement import StockMovement
     
-    # 1. Ambil data penjualan historis
     payload = get_product_insights_data(db, product, days=days)
     
-    # 2. Kalkulasi metrik dasar
     metrics = InventoryEngine.calculate_metrics(
         product_name=payload["product_name"],
         current_stock=payload["current_stock"],
@@ -112,11 +100,9 @@ def get_product_status_and_recommendation(db: Session, product: Product, days: i
         sales_prior_7d=payload["sales_prior_7d"]
     )
     
-    # 3. Tentukan tanggal referensi (ref_date)
     latest_datetime = db.query(func.max(Transaction.created_at)).scalar()
     ref_date = latest_datetime.date() if latest_datetime else date.today()
     
-    # 4. Deteksi apakah produk baru masuk (oldest stock movement dalam 7 hari terakhir)
     first_movement_time = db.query(func.min(StockMovement.created_at)).filter(StockMovement.product_id == product.id).scalar()
     is_new_product = False
     if first_movement_time:
@@ -125,7 +111,6 @@ def get_product_status_and_recommendation(db: Session, product: Product, days: i
     else:
         is_new_product = True
         
-    # 5. Deteksi masa kedaluwarsa
     days_to_expiry = None
     is_expiry_near = False
     is_expiry_far = True
@@ -136,12 +121,10 @@ def get_product_status_and_recommendation(db: Session, product: Product, days: i
             is_expiry_near = True
             is_expiry_far = False
             
-    # 6. Override status dan rekomendasi jika status awal adalah Kuning (Dead Stock) atau jika mendekati kedaluwarsa
     status = metrics.status
     ai_output = None
     
     if is_expiry_near:
-        # Jika mendekati tanggal kedaluwarsa, wajib diskon promo (Kuning)
         status = "Kuning"
         days_str = f"{days_to_expiry} hari lagi" if days_to_expiry >= 0 else "sudah kedaluwarsa"
         ai_output = {
@@ -150,7 +133,6 @@ def get_product_status_and_recommendation(db: Session, product: Product, days: i
             "rationale": f"Produk mendekati tanggal kedaluwarsa ({days_str} pada {product.expiry_date.strftime('%Y-%m-%d')}). Diperlukan diskon untuk menghabiskan stok secepatnya."
         }
     elif status == "Kuning" and (is_new_product or is_expiry_far):
-        # Penjualan lambat tetapi exp masih jauh atau produk baru -> pertahankan Hijau
         status = "Hijau"
         if is_new_product:
             rationale_text = "Produk baru masuk sehingga fluktuasi awal penjualan wajar dan belum memerlukan tindakan promosi diskon."
@@ -165,18 +147,14 @@ def get_product_status_and_recommendation(db: Session, product: Product, days: i
     else:
         ai_output = get_llm_recommendation(metrics.prompt_payload, metrics.status)
         
-    # 7. Ambil original days of inventory dan terapkan batas (cap) agar tidak melebihi days_to_expiry
     original_doi = metrics.days_of_inventory
     capped_doi = original_doi
     
     if days_to_expiry is not None:
-        # Capping: Days of inventory tidak boleh melebihi sisa hari kedaluwarsa
-        # Jika sisa hari kedaluwarsa sudah minus (kedaluwarsa), maka sellable days of inventory adalah 0
         limit_days = max(0, days_to_expiry)
         if original_doi > limit_days:
             capped_doi = float(limit_days)
             
-    # Perbarui objek metrics jika status atau days_of_inventory berubah
     if status != metrics.status or capped_doi != metrics.days_of_inventory:
         metrics = InventoryMetrics(
             product_name=metrics.product_name,
@@ -198,7 +176,6 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
     """
     global llm_pipeline
 
-    # Fallback deterministic jika adapter belum di-load / mode demo cepat
     if not os.path.exists(ADAPTER_PATH):
         if status == "Merah":
             return {
@@ -219,7 +196,6 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
                 "rationale": "Tingkat perputaran barang dan persediaan berada pada batas optimal."
             }
 
-    # Inisialisasi model lokal saat pertama kali dipanggil
     if llm_pipeline is None:
         try:
             import torch
@@ -236,7 +212,6 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
             model.eval()
             llm_pipeline = (tokenizer, model)
         except Exception as e:
-            # Fallback jika library gagal dimuat atau gagal inisialisasi model (misal memori habis)
             print(f"Warning: Gagal memuat fine-tuned model local ({e}). Menggunakan fallback rules.")
             if status == "Merah":
                 return {
@@ -284,17 +259,11 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
     except Exception:
         return {"action": "EVALUASI_MANUAL", "recommendation": response_text, "rationale": "Parsed from raw model output."}
 
-
-# ==============================================================================
-# SCHEMA DEFINITION (PYDANTIC)
-# ==============================================================================
-
 class TransactionPayload(BaseModel):
     product_name: str = Field(..., example="Kopi Tubruk Spesial 200g")
     current_stock: int = Field(..., ge=0, example=5)
     sales_recent_7d: List[int] = Field(..., min_items=7, max_items=7, example=[8, 9, 7, 10, 8, 9, 8])
     sales_prior_7d: List[int] = Field(..., min_items=7, max_items=7, example=[5, 4, 6, 5, 5, 6, 5])
-
 
 class EvaluationResponse(BaseModel):
     product_name: str
@@ -302,11 +271,6 @@ class EvaluationResponse(BaseModel):
     metrics: Dict[str, Any]
     prompt_used: str
     ai_recommendation: Dict[str, str]
-
-
-# ==============================================================================
-# ENDPOINTS
-# ==============================================================================
 
 @router.get("/api/mock/scenarios")
 def get_available_scenarios(
@@ -317,7 +281,6 @@ def get_available_scenarios(
     scenarios_list = []
     available_keys = []
     
-    # 1. Load mock data if it exists
     if os.path.exists(MOCK_DATA_PATH):
         try:
             with open(MOCK_DATA_PATH, "r", encoding="utf-8") as f:
@@ -336,7 +299,6 @@ def get_available_scenarios(
         except Exception as e:
             print(f"Error loading mock scenarios: {e}")
             
-    # 2. Load database products
     try:
         products = db.query(Product).order_by(Product.id.asc()).all()
         for p in products:
@@ -358,7 +320,6 @@ def get_available_scenarios(
         "available_keys": available_keys,
         "scenarios": scenarios_list
     }
-
 
 @router.post("/api/mock/simulate", response_model=EvaluationResponse)
 def simulate_mock_scenario(
@@ -397,7 +358,6 @@ def simulate_mock_scenario(
             )
         payload = scenario_data["payload"]
 
-        # Kalkulasi metrik deterministik
         metrics: InventoryMetrics = InventoryEngine.calculate_metrics(
             product_name=payload["product_name"],
             current_stock=payload["current_stock"],
@@ -430,7 +390,6 @@ def simulate_mock_scenario(
         ai_recommendation=ai_output
     )
 
-
 @router.post("/api/inventory/evaluate", response_model=EvaluationResponse)
 def evaluate_custom_transaction(tx: TransactionPayload):
     """
@@ -460,7 +419,6 @@ def evaluate_custom_transaction(tx: TransactionPayload):
         prompt_used=metrics.prompt_payload,
         ai_recommendation=ai_output
     )
-
 
 @router.post("/api/inventory/evaluate-all", response_model=List[EvaluationResponse])
 def evaluate_all_products(

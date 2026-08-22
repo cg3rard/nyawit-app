@@ -30,7 +30,6 @@ export default function NotificationPanel({ open, onClose, lowStockProducts = []
   const ref = useRef(null);
   const total = lowStockProducts.length + expiryAlerts.length;
 
-  // Close on outside click
   useEffect(() => {
     if (!open) return;
     function handler(e) {
@@ -40,7 +39,6 @@ export default function NotificationPanel({ open, onClose, lowStockProducts = []
     return () => document.removeEventListener("mousedown", handler);
   }, [open, onClose]);
 
-  // Close on Escape
   useEffect(() => {
     if (!open) return;
     function handler(e) { if (e.key === "Escape") onClose(); }
@@ -55,7 +53,6 @@ export default function NotificationPanel({ open, onClose, lowStockProducts = []
       ref={ref}
       className="absolute right-0 top-full mt-2 z-50 w-80 rounded-2xl bg-white shadow-xl border border-gray-100 overflow-hidden"
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
         <span className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
           Notifications {total > 0 && <span className="ml-1 rounded-full bg-red-500 px-1.5 py-0.5 text-xs text-white">{total}</span>}
@@ -69,7 +66,6 @@ export default function NotificationPanel({ open, onClose, lowStockProducts = []
         </button>
       </div>
 
-      {/* Content */}
       <div className="max-h-80 overflow-y-auto">
         {total === 0 ? (
           <div className="py-8 text-center">

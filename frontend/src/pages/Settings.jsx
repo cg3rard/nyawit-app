@@ -7,7 +7,6 @@ export default function Settings() {
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
-  // Settings State (persisted to localStorage)
   const [storeSettings, setStoreSettings] = useState(() => {
     const saved = localStorage.getItem("costore_settings");
     if (saved) {
@@ -52,7 +51,6 @@ export default function Settings() {
     <div className="relative flex min-h-screen bg-[#F9F9FF]">
       <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
-      {/* Floating Success Toast */}
       {savedSuccess && (
         <div className="fixed top-6 right-6 z-50 flex items-start gap-3 rounded-2xl border border-emerald-200 bg-white p-4 shadow-xl shadow-emerald-950/10 transition-all duration-300 animate-in fade-in slide-in-from-top-4 sm:max-w-md">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
@@ -86,7 +84,6 @@ export default function Settings() {
 
         <main className="flex-1 p-4 lg:p-6">
           <div className="mx-auto max-w-[1200px]">
-            {/* Header */}
             <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <h1
@@ -102,9 +99,7 @@ export default function Settings() {
             </div>
 
             <form onSubmit={handleSave} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              {/* Left Column: Form Sections */}
               <div className="space-y-6 lg:col-span-2">
-                {/* 1. Store Profile */}
                 <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-slate-100">
                     <span className="material-symbols-outlined text-[#00685F] text-2xl">storefront</span>
@@ -179,7 +174,6 @@ export default function Settings() {
                   </div>
                 </div>
 
-                {/* 2. POS & Receipt Preferences */}
                 <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center gap-2.5 mb-5 pb-4 border-b border-slate-100">
                     <span className="material-symbols-outlined text-[#00685F] text-2xl">receipt_long</span>
@@ -230,7 +224,6 @@ export default function Settings() {
                       />
                     </div>
 
-                    {/* Toggles */}
                     <div className="pt-2 border-t border-slate-100 space-y-3">
                       <label className="flex items-center justify-between cursor-pointer">
                         <div>
@@ -261,7 +254,6 @@ export default function Settings() {
                   </div>
                 </div>
 
-                {/* Save Button */}
                 <div className="flex justify-end gap-3 pt-2">
                   <button
                     type="submit"
@@ -292,7 +284,6 @@ export default function Settings() {
                 </div>
               </div>
 
-              {/* Right Column: System Info & Diagnostics */}
               <div className="space-y-6">
                 <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">

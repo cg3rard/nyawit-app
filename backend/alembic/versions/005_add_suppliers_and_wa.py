@@ -15,9 +15,7 @@ down_revision: Union[str, None] = "004_create_transactions"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-
 def upgrade() -> None:
-    # 1. Create suppliers table
     op.create_table(
         "suppliers",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -27,7 +25,6 @@ def upgrade() -> None:
     )
     op.create_index("ix_suppliers_id", "suppliers", ["id"], unique=False)
 
-    # 2. Add supplier_id to products
     op.add_column(
         "products",
         sa.Column("supplier_id", sa.Integer(), nullable=True)
@@ -42,7 +39,6 @@ def upgrade() -> None:
     )
     op.create_index("ix_products_supplier_id", "products", ["supplier_id"], unique=False)
 
-    # 3. Create wa_settings table
     op.create_table(
         "wa_settings",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -54,13 +50,11 @@ def upgrade() -> None:
     )
     op.create_index("ix_wa_settings_id", "wa_settings", ["id"], unique=False)
 
-    # Seed default WA Settings row (id=1)
     op.execute(
         "INSERT INTO wa_settings (id, bot_name, phone_number, status, qr_code) "
         "VALUES (1, 'CoStore Bot', '+628123456789', 'DISCONNECTED', 'MOCK_QR_CODE_DATA')"
     )
 
-    # 4. Create restock_orders table
     op.create_table(
         "restock_orders",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -78,7 +72,6 @@ def upgrade() -> None:
     )
     op.create_index("ix_restock_orders_id", "restock_orders", ["id"], unique=False)
 
-    # 5. Create wa_messages table
     op.create_table(
         "wa_messages",
         sa.Column("id", sa.Integer(), nullable=False),
@@ -91,7 +84,6 @@ def upgrade() -> None:
         sa.PrimaryKeyConstraint("id"),
     )
     op.create_index("ix_wa_messages_id", "wa_messages", ["id"], unique=False)
-
 
 def downgrade() -> None:
     op.drop_index("ix_wa_messages_id", table_name="wa_messages")

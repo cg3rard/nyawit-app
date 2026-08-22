@@ -22,9 +22,7 @@ export default function TopBar({
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-[#E2E8F0] bg-white px-4 lg:px-6">
-      {/* Left */}
       <div className="flex min-w-0 flex-1 items-center gap-3">
-        {/* Mobile menu */}
         <button
           type="button"
           onClick={onMenuOpen}
@@ -36,7 +34,6 @@ export default function TopBar({
           </span>
         </button>
 
-        {/* Mobile brand */}
         <div className="lg:hidden">
           <span
             className="text-lg font-bold tracking-tight text-[#00685F]"
@@ -46,7 +43,6 @@ export default function TopBar({
           </span>
         </div>
 
-        {/* Search */}
         <div className="relative hidden w-full max-w-md md:block lg:ml-0">
           <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[19px] text-[#64748B]">
             search
@@ -62,9 +58,7 @@ export default function TopBar({
         </div>
       </div>
 
-      {/* Right */}
       <div className="ml-4 flex shrink-0 items-center gap-3">
-        {/* Notifications */}
         <div className="relative">
           <button
             type="button"
@@ -95,10 +89,8 @@ export default function TopBar({
           />
         </div>
 
-        {/* Divider */}
         <div className="hidden h-7 w-px bg-[#E2E8F0] sm:block" />
 
-        {/* Greeting */}
         <div className="hidden text-right sm:block">
           <p className="text-xs font-semibold text-[#141B2B]">
             {getGreeting()}, Nyawit
@@ -108,7 +100,6 @@ export default function TopBar({
           </p>
         </div>
 
-        {/* Avatar */}
         <div
           className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#E8F5F3] text-xs font-bold text-[#00685F]"
           aria-label="Nyawit profile"

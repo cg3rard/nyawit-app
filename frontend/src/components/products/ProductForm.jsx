@@ -308,7 +308,6 @@ export default function ProductForm({
           />
         )}
 
-        {/* Optional Photo Input */}
         <div className="sm:col-span-2 flex flex-col gap-2 rounded-lg border border-[#E2E8F0] p-4 bg-white">
           <label className="text-xs font-semibold text-[#334155]">
             Product Photo (Optional)

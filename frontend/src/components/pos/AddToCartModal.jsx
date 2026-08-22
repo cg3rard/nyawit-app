@@ -31,7 +31,6 @@ export default function AddToCartModal({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Set default batch when modal opens
   useEffect(() => {
     if (isOpen && product) {
       const batches = product.batches || [];
@@ -40,7 +39,6 @@ export default function AddToCartModal({
     }
   }, [isOpen, product]);
 
-  // Adjust quantity default based on selected batch and cart items
   useEffect(() => {
     if (selectedBatch && isOpen) {
       const cartItem = cart.find((item) => item.id === selectedBatch.id);
@@ -88,15 +86,12 @@ export default function AddToCartModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
-      {/* Card */}
       <div className="relative z-10 w-full max-w-md rounded-2xl bg-white shadow-2xl">
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E2E8F0] px-6 py-5">
           <h2 className="text-base font-bold text-[#141B2B]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             {isAlreadyInCart ? "Update Item Details" : "Add Item Details"}
@@ -110,9 +105,7 @@ export default function AddToCartModal({
           </button>
         </div>
 
-        {/* Content */}
         <div className="p-6 max-h-[60vh] overflow-y-auto space-y-5">
-          {/* Product Info Summary */}
           <div className="flex items-center gap-4">
             {storedPhoto ? (
               <img
@@ -132,7 +125,6 @@ export default function AddToCartModal({
             </div>
           </div>
 
-          {/* Batch Selector (Only show if multiple batches exist) */}
           {product.batches && product.batches.length > 1 && (
             <div className="flex flex-col gap-2 border-t border-[#E2E8F0] pt-4">
               <label className="text-xs font-bold text-[#334155] uppercase tracking-wider">Select Batch (Expiry Date)</label>
@@ -172,7 +164,6 @@ export default function AddToCartModal({
             </div>
           )}
 
-          {/* Stock Display & Info for Selected Batch */}
           <div className="flex justify-between text-xs text-[#64748B] border-t border-b border-[#E2E8F0] py-3">
             <span>Selected Batch Expiry:</span>
             <span className="font-semibold text-[#141B2B]">
@@ -185,7 +176,6 @@ export default function AddToCartModal({
             <span className="font-semibold text-[#141B2B]">{maxStock} units</span>
           </div>
 
-          {/* Quantity selector */}
           <div className="flex flex-col gap-2">
             <span className="text-xs font-semibold text-[#334155]">Quantity</span>
             <div className="flex items-center justify-center gap-3">
@@ -218,14 +208,12 @@ export default function AddToCartModal({
             </div>
           </div>
 
-          {/* Total Payable Display */}
           <div className="flex justify-between items-center rounded-xl bg-slate-50 border border-slate-100 px-4 py-3">
             <span className="text-xs font-semibold text-[#64748B]">Total Price</span>
             <span className="text-base font-bold text-[#00685F]">{formatIdr(total)}</span>
           </div>
         </div>
 
-        {/* Footer */}
         <div className="flex justify-end gap-3 border-t border-[#E2E8F0] px-6 py-4 bg-[#F8FAFC]">
           <button
             type="button"

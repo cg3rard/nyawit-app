@@ -15,7 +15,6 @@ down_revision: Union[str, None] = "003_create_stock_movements_table"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-
 def upgrade() -> None:
     op.create_table(
         "transactions",
@@ -43,7 +42,6 @@ def upgrade() -> None:
     op.create_index("ix_transaction_items_id", "transaction_items", ["id"], unique=False)
     op.create_index("ix_transaction_items_transaction_id", "transaction_items", ["transaction_id"], unique=False)
     op.create_index("ix_transaction_items_product_id", "transaction_items", ["product_id"], unique=False)
-
 
 def downgrade() -> None:
     op.drop_index("ix_transaction_items_product_id", table_name="transaction_items")

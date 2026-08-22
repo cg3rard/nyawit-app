@@ -10,7 +10,6 @@ from transformers import (
 from peft import LoraConfig, prepare_model_for_kbit_training
 from trl import SFTTrainer, SFTConfig
 
-# 1. Konfigurasi Parameter Training Statis
 MODEL_ID = "Qwen/Qwen2.5-1.5B-Instruct"
 DATASET_PATH = os.path.join("dataset", "dataset.json")
 OUTPUT_DIR = "./lora_inventory_adapter"

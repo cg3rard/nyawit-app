@@ -5,11 +5,9 @@ const api = axios.create({
   timeout: 15000,
 });
 
-/* ── Dashboard ───────────────────────────────────────────────────── */
 export const getDashboardSummary = () =>
   api.get("/api/dashboard/summary").then((r) => r.data);
 
-/* ── Products ────────────────────────────────────────────────────── */
 export const getProducts = () =>
   api.get("/api/products/").then((r) => r.data);
 
@@ -22,7 +20,6 @@ export const updateProduct = (productId, product) =>
 export const deleteProduct = (id) =>
   api.delete(`/api/products/${id}`).then((r) => r.data);
 
-/* ── Transactions ────────────────────────────────────────────────── */
 export const getTransactions = () =>
   api.get("/api/transactions/").then((r) => r.data);
 
@@ -32,7 +29,6 @@ export const getTransactionSummary = () =>
 export const createTransaction = (items) =>
   api.post("/api/transactions/", { items }).then((r) => r.data);
 
-/* ── Analytics ───────────────────────────────────────────────────── */
 export const getTopProducts = (limit = 5) =>
   api.get(`/api/analytics/top-products?limit=${limit}`).then((r) => r.data);
 
@@ -45,7 +41,6 @@ export const getLowStock = (threshold = 5) =>
 export const getInventorySummary = () =>
   api.get("/api/analytics/inventory-summary").then((r) => r.data);
 
-/* ── Inventory movements ─────────────────────────────────────────── */
 export const getMovements = (params = {}) =>
   api.get("/api/inventory/movements", { params }).then((r) => r.data);
 
@@ -58,7 +53,6 @@ export const stockOut = (data) =>
 export const adjustStock = (data) =>
   api.post("/api/inventory/adjustment", data).then((r) => r.data);
 
-/* ── AI Insights ─────────────────────────────────────────────────── */
 export const getAIScenarios = (days = 14) =>
   api.get("/api/mock/scenarios", { params: { days } }).then((r) => r.data);
 
@@ -71,7 +65,6 @@ export const evaluateInventory = (payload) =>
 export const evaluateAllProducts = (days = 14) =>
   api.post("/api/inventory/evaluate-all", null, { params: { days } }).then((r) => r.data);
 
-/* ── Suppliers ───────────────────────────────────────────────────── */
 export const getSuppliers = () =>
   api.get("/api/suppliers/").then((r) => r.data);
 
@@ -84,7 +77,6 @@ export const updateSupplier = (id, supplier) =>
 export const deleteSupplier = (id) =>
   api.delete(`/api/suppliers/${id}`).then((r) => r.data);
 
-/* ── WhatsApp ────────────────────────────────────────────────────── */
 export const getWASettings = () =>
   api.get("/api/wa/settings").then((r) => r.data);
 

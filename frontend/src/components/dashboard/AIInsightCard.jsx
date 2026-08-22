@@ -25,23 +25,22 @@ export default function AIInsightCard({ insight }) {
     <div
       className="rounded-2xl p-5 shadow-sm flex flex-col justify-between"
       style={{
-        background: hasInsight 
-          ? "linear-gradient(180deg, #4F46E508 0%, #FFFFFF 100%)" 
+        background: hasInsight
+          ? "linear-gradient(180deg, #4F46E508 0%, #FFFFFF 100%)"
           : "linear-gradient(135deg, #10B98108 0%, #FFFFFF 100%)",
         border: hasInsight ? "1px solid #4F46E518" : "1px solid #10B98118",
         minHeight: "340px"
       }}
     >
       <div>
-        {/* Header */}
         <div className="flex items-start justify-between gap-3 mb-4">
           <div className="flex items-start gap-3">
             <div
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl"
               style={{ backgroundColor: hasInsight ? "#4F46E515" : "#10B98115" }}
             >
-              <span 
-                className="material-symbols-outlined text-xl" 
+              <span
+                className="material-symbols-outlined text-xl"
                 style={{ color: hasInsight ? "var(--color-ai)" : "#10B981" }}
               >
                 auto_awesome
@@ -64,7 +63,6 @@ export default function AIInsightCard({ insight }) {
           )}
         </div>
 
-        {/* Content Body */}
         {hasInsight ? (
           <div className="flex flex-col gap-3">
             <div className="border-b border-slate-100 pb-2">
@@ -106,7 +104,6 @@ export default function AIInsightCard({ insight }) {
         )}
       </div>
 
-      {/* Footer / Status Indicator */}
       <div className="mt-4 flex items-center justify-between border-t border-slate-50 pt-3">
         <span className="text-[10px] text-slate-400">
           {hasInsight ? "AI detected critical items" : "Optimal operational condition"}
@@ -116,9 +113,9 @@ export default function AIInsightCard({ insight }) {
             <div
               key={i}
               className="h-1 rounded-full"
-              style={{ 
-                width: i === 0 ? 16 : 6, 
-                backgroundColor: hasInsight 
+              style={{
+                width: i === 0 ? 16 : 6,
+                backgroundColor: hasInsight
                   ? (i === 0 ? "var(--color-ai)" : "#4F46E525")
                   : (i === 0 ? "#10B981" : "#10B98125")
               }}

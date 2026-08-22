@@ -44,15 +44,12 @@ export default function Dashboard() {
 
   return (
     <div className="flex min-h-screen" style={{ backgroundColor: "var(--color-bg)" }}>
-      {/* Mobile sidebar */}
       <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
-      {/* Main content */}
       <div className="flex flex-1 flex-col min-w-0">
         <TopBar onMenuOpen={() => setMobileSidebarOpen(true)} searchQuery={searchQuery} onSearchChange={setSearchQuery} lowStockProducts={lowStockProducts} expiryAlerts={expiryAlerts} />
 
         <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-6">
-          {/* Greeting */}
           <div className="mb-6">
             <h1
               className="text-2xl font-semibold tracking-tight"
@@ -69,14 +66,12 @@ export default function Dashboard() {
             </p>
           </div>
 
-          {/* Error state */}
           {error && !loading && (
             <div className="rounded-2xl bg-white p-6 shadow-sm mb-6">
               <ErrorState message={error} onRetry={fetchData} />
             </div>
           )}
 
-          {/* Loading state */}
           {loading && (
             <div className="space-y-6">
               <KPISkeleton />
@@ -93,13 +88,10 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Dashboard content */}
           {!loading && !error && data && (
             <div className="space-y-6">
-              {/* Row 1: KPI cards */}
               <DashboardKPI salesToday={data.sales_today} />
 
-              {/* Row 2: Top products + Revenue by product */}
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
                   <TopProductsTable products={data.top_products} searchQuery={searchQuery} />
@@ -107,7 +99,6 @@ export default function Dashboard() {
                 <RevenueByProduct products={data.revenue_by_product} />
               </div>
 
-              {/* Row 3: Inventory status + AI insight */}
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
                   <InventoryStatus inventory={data.inventory} />
@@ -115,7 +106,6 @@ export default function Dashboard() {
                 <AIInsightCard insight={data.ai_insight} />
               </div>
 
-              {/* Row 4: Action Required + Expiry Alerts */}
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
                 <ActionRequired lowStockProducts={lowStockProducts} expiryAlerts={expiryAlerts} searchQuery={searchQuery} />
                 <ExpiryAlerts alerts={expiryAlerts} searchQuery={searchQuery} />

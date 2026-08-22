@@ -96,9 +96,7 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen w-full flex-col lg:flex-row bg-white">
-      {/* ── LEFT COLUMN: FULL SCREEN PHOTO ───────────────────────── */}
       <div className="relative hidden lg:flex lg:w-1/2 min-h-screen flex-col justify-between p-10 xl:p-16 overflow-hidden">
-        {/* Background Image with Dark Overlay */}
         <div
           className="absolute inset-0 bg-cover bg-center transition-transform duration-700 hover:scale-105"
           style={{
@@ -107,7 +105,6 @@ export default function Login() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/50 to-black/70" />
 
-        {/* Top: CoStore Header */}
         <div className="relative z-10">
           <div className="flex items-center gap-3.5">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/20 p-2.5 backdrop-blur-md border border-white/20 shadow-lg">
@@ -131,7 +128,6 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Center Tagline */}
         <div className="relative z-10 max-w-lg my-auto py-12">
           <h2
             className="text-4xl font-extrabold text-white leading-tight tracking-tight"
@@ -145,16 +141,13 @@ export default function Login() {
           </p>
         </div>
 
-        {/* Bottom: @2026 nyawit */}
         <div className="relative z-10 pt-6 border-t border-white/15 flex items-center justify-between text-xs text-white/80">
           <span className="font-semibold tracking-wide">@2026 nyawit</span>
           <span className="text-white/60">All rights reserved</span>
         </div>
       </div>
 
-      {/* ── RIGHT COLUMN: LOGIN FORM ─────────────────────────────── */}
       <div className="flex flex-1 flex-col justify-between p-6 sm:p-12 lg:p-16 min-h-screen bg-white">
-        {/* Top Header / Mobile Brand */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5 lg:hidden">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E8F5F3] p-2">
@@ -183,7 +176,6 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Form Container */}
         <div className="mx-auto w-full max-w-md my-auto py-8">
           <div className="mb-8">
             <h2
@@ -197,7 +189,6 @@ export default function Login() {
             </p>
           </div>
 
-          {/* Error Alert */}
           {error && (
             <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700 animate-in fade-in">
               <span className="material-symbols-outlined text-lg shrink-0">
@@ -207,7 +198,6 @@ export default function Login() {
             </div>
           )}
 
-          {/* Success Alert */}
           {success && (
             <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-xs font-semibold text-emerald-700 animate-in fade-in">
               <span className="material-symbols-outlined text-lg shrink-0">
@@ -217,9 +207,7 @@ export default function Login() {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-            {/* Email Field */}
             <div>
               <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                 Email Address <span className="text-red-500">*</span>
@@ -240,7 +228,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Password Field */}
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="block text-xs font-semibold text-[#334155]">
@@ -283,7 +270,6 @@ export default function Login() {
               </div>
             </div>
 
-            {/* Remember Me */}
             <div className="flex items-center justify-between pt-1">
               <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
@@ -299,7 +285,6 @@ export default function Login() {
               </label>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting || success}
@@ -329,7 +314,6 @@ export default function Login() {
               )}
             </button>
 
-            {/* Quick Demo Button */}
             <div className="pt-2">
               <button
                 type="button"
@@ -345,7 +329,6 @@ export default function Login() {
           </form>
         </div>
 
-        {/* Bottom Mobile Footer */}
         <div className="text-center text-xs text-[#94A3B8] lg:hidden">
           @2026 nyawit
         </div>

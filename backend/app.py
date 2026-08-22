@@ -5,7 +5,6 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
-# Import Engine & Metrics
 from engine.metrics import InventoryEngine, InventoryMetrics
 
 app = FastAPI(
@@ -14,7 +13,6 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Enable CORS untuk koneksi ke dashboard frontend
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,7 +25,6 @@ MOCK_DATA_PATH = "mock_data.json"
 ADAPTER_PATH = "./lora_inventory_adapter"
 BASE_MODEL_ID = "Qwen/Qwen2.5-1.5B-Instruct"
 
-# Lazy-loaded LLM inference engine
 llm_pipeline = None
 
 def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
@@ -37,7 +34,6 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
     """
     global llm_pipeline
 
-    # Fallback deterministic jika adapter belum di-load / mode demo cepat
     if not os.path.exists(ADAPTER_PATH):
         if status == "Merah":
             return {
@@ -58,7 +54,6 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
                 "rationale": "Tingkat perputaran barang dan persediaan berada pada batas optimal."
             }
 
-    # Inisialisasi model lokal saat pertama kali dipanggil
     if llm_pipeline is None:
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -101,17 +96,11 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
     except Exception:
         return {"action": "EVALUASI_MANUAL", "recommendation": response_text, "rationale": "Parsed from raw model output."}
 
-
-# ==============================================================================
-# 2. SCHEMA DEFINITION (PYDANTIC)
-# ==============================================================================
-
 class TransactionPayload(BaseModel):
     product_name: str = Field(..., example="Kopi Tubruk Spesial 200g")
     current_stock: int = Field(..., ge=0, example=5)
     sales_recent_7d: List[int] = Field(..., min_items=7, max_items=7, example=[8, 9, 7, 10, 8, 9, 8])
     sales_prior_7d: List[int] = Field(..., min_items=7, max_items=7, example=[5, 4, 6, 5, 5, 6, 5])
-
 
 class EvaluationResponse(BaseModel):
     product_name: str
@@ -120,11 +109,6 @@ class EvaluationResponse(BaseModel):
     prompt_used: str
     ai_recommendation: Dict[str, str]
 
-
-# ==============================================================================
-# 3. ENDPOINTS
-# ==============================================================================
-
 @app.get("/")
 def health_check():
     return {
@@ -132,7 +116,6 @@ def health_check():
         "service": "POS Inventory AI Core Inference",
         "mock_mode_available": os.path.exists(MOCK_DATA_PATH)
     }
-
 
 @app.get("/api/mock/scenarios")
 def get_available_scenarios():
@@ -158,7 +141,6 @@ def get_available_scenarios():
         ]
     }
 
-
 @app.post("/api/mock/simulate", response_model=EvaluationResponse)
 def simulate_mock_scenario(
     scenario: str = Query(..., description="Key skenario: 'red_risk', 'yellow_risk', atau 'green_safe'")
@@ -182,7 +164,6 @@ def simulate_mock_scenario(
 
     payload = scenario_data["payload"]
 
-    # 1. Kalkulasi metrik deterministik
     metrics: InventoryMetrics = InventoryEngine.calculate_metrics(
         product_name=payload["product_name"],
         current_stock=payload["current_stock"],
@@ -190,7 +171,6 @@ def simulate_mock_scenario(
         sales_prior_7d=payload["sales_prior_7d"]
     )
 
-    # 2. Inferensi AI
     ai_output = get_llm_recommendation(metrics.prompt_payload, metrics.status)
 
     return EvaluationResponse(
@@ -206,7 +186,6 @@ def simulate_mock_scenario(
         prompt_used=metrics.prompt_payload,
         ai_recommendation=ai_output
     )
-
 
 @app.post("/api/inventory/evaluate", response_model=EvaluationResponse)
 def evaluate_custom_transaction(tx: TransactionPayload):
@@ -236,8 +215,6 @@ def evaluate_custom_transaction(tx: TransactionPayload):
         ai_recommendation=ai_output
     )
 
-
 if __name__ == "__main__":
     import uvicorn
-    # Menjalankan server pada port 8000
     uvicorn.run("app:app", host="0.0.0.0", port=8000, reload=True)

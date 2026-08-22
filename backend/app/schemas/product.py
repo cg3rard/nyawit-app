@@ -6,7 +6,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.supplier import SupplierReadSimple
 
-
 class ProductCreate(BaseModel):
     """Schema for creating a new product. All business-required fields are mandatory."""
 
@@ -25,7 +24,6 @@ class ProductCreate(BaseModel):
     expiry_date: Optional[date] = Field(default=None, description="Expiry date (optional)")
     supplier_id: Optional[int] = Field(default=None, description="Supplier ID (optional)")
 
-
 class ProductUpdate(BaseModel):
     """Schema for updating a product. All fields are optional — only provided fields are changed."""
 
@@ -36,7 +34,6 @@ class ProductUpdate(BaseModel):
     selling_price: Optional[Decimal] = Field(default=None, ge=0, decimal_places=2)
     expiry_date: Optional[date] = Field(default=None)
     supplier_id: Optional[int] = Field(default=None, description="Supplier ID (optional)")
-
 
 class ProductRead(BaseModel):
     """Schema returned to the client. Includes all fields including id."""

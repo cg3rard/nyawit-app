@@ -147,10 +147,9 @@ def seed_30d():
                 expiry_date=datetime.strptime(p["expiry_date"], "%Y-%m-%d").date()
             )
             db.add(product)
-            db.flush()  # Populate product.id
+            db.flush()
             products_list.append(product)
 
-            # Record initial adjustment stock movement
             movement = StockMovement(
                 product_id=product.id,
                 movement_type=MovementType.ADJUSTMENT,
@@ -169,16 +168,13 @@ def seed_30d():
         total_revenue = Decimal("0.00")
         total_trxs = 0
 
-        # Loop from 30 days ago up to today (D-30 s/d D-0)
         for day_offset in range(30, -1, -1):
             current_date = today - timedelta(days=day_offset)
             
-            # 5 s/d 15 transaksi per hari
             num_trxs = random.randint(5, 15)
             for t_idx in range(num_trxs):
                 trx_code = f"TRX-{current_date.strftime('%Y%m%d')}-{uuid.uuid4().hex[:6].upper()}"
                 
-                # Random time between 8 AM and 9 PM
                 hour = random.randint(8, 21)
                 minute = random.randint(0, 59)
                 second = random.randint(0, 59)
@@ -186,7 +182,6 @@ def seed_30d():
                     hours=hour, minutes=minute, seconds=second
                 )
 
-                # Pick 1 s/d 4 random products
                 sampled_products = random.sample(products_list, random.randint(1, 4))
                 
                 trx_amount = Decimal("0.00")
@@ -194,17 +189,14 @@ def seed_30d():
                 movements = []
 
                 for p in sampled_products:
-                    # Random quantity sold (1 s/d 4 units)
                     qty = random.randint(1, 4)
                     
-                    # Prevent selling more than stock
                     if p.stock < qty:
                         continue
                         
                     subtotal = p.selling_price * qty
                     trx_amount += subtotal
 
-                    # Add item
                     trx_items.append(TransactionItem(
                         product_id=p.id,
                         quantity=qty,
@@ -212,12 +204,10 @@ def seed_30d():
                         subtotal=subtotal
                     ))
 
-                    # Update product stock
                     stock_before = p.stock
                     p.stock -= qty
                     stock_after = p.stock
 
-                    # Record movement
                     movements.append(StockMovement(
                         product_id=p.id,
                         movement_type=MovementType.OUT,
@@ -231,7 +221,6 @@ def seed_30d():
                 if not trx_items:
                     continue
 
-                # Save Transaction
                 transaction = Transaction(
                     transaction_code=trx_code,
                     total_amount=trx_amount,
@@ -240,7 +229,6 @@ def seed_30d():
                 db.add(transaction)
                 db.flush()
 
-                # Save items & movements
                 for item in trx_items:
                     item.transaction_id = transaction.id
                     db.add(item)
@@ -252,7 +240,6 @@ def seed_30d():
 
         db.commit()
         
-        # Verify final stock is updated in product table
         print("\n--- Final Stock Count Verification ---")
         for p in products_list:
             print(f"- {p.name}: {p.stock} pcs remaining")

@@ -4,15 +4,12 @@ from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
 
-
 class TransactionItemRequest(BaseModel):
     product_id: int = Field(..., gt=0)
     quantity: int = Field(..., gt=0, description="Units to purchase (must be > 0)")
 
-
 class TransactionCreate(BaseModel):
     items: List[TransactionItemRequest] = Field(..., min_length=1)
-
 
 class TransactionItemRead(BaseModel):
     id: int
@@ -23,7 +20,6 @@ class TransactionItemRead(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class TransactionRead(BaseModel):
     id: int
     transaction_code: str
@@ -32,7 +28,6 @@ class TransactionRead(BaseModel):
     items: List[TransactionItemRead]
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class SalesSummary(BaseModel):
     """Read-only aggregated sales summary."""

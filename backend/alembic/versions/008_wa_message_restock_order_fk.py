@@ -14,7 +14,6 @@ down_revision: Union[str, None] = "007_restock_order_uuid_id"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-
 def upgrade() -> None:
     op.add_column(
         "wa_messages",
@@ -25,7 +24,6 @@ def upgrade() -> None:
             nullable=True,
         ),
     )
-
 
 def downgrade() -> None:
     op.drop_column("wa_messages", "restock_order_id")

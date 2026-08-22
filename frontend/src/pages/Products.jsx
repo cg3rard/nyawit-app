@@ -72,26 +72,21 @@ export default function Products() {
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Add / Edit modal
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [editingProduct, setEditingProduct] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
-  // Delete modal
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [deletingProduct, setDeletingProduct] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState(null);
 
-  // Adjust stock modal
   const [adjustStockModalOpen, setAdjustStockModalOpen] = useState(false);
   const [selectedProductForStock, setSelectedProductForStock] = useState(null);
 
-  // CSV Import State
   const [csvImportSummary, setCsvImportSummary] = useState(null);
 
-  // ESC shortcut for CSV Summary
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape" && csvImportSummary) {
@@ -189,7 +184,6 @@ export default function Products() {
     document.body.removeChild(link);
   };
 
-  // ── Load Products ───────────────────────────────────────────────
   const loadProducts = async () => {
     try {
       setLoading(true);
@@ -218,12 +212,10 @@ export default function Products() {
     loadSuppliers();
   }, []);
 
-  // ── Categories ─────────────────────────────────────────────────
   const categories = useMemo(() => {
     return [...new Set(products.map((product) => product.category).filter(Boolean))];
   }, [products]);
 
-  // ── Filter Products ────────────────────────────────────────────
   const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -250,7 +242,6 @@ export default function Products() {
     });
   }, [products, searchQuery, selectedCategory, selectedStatus]);
 
-  // ── Add Product ────────────────────────────────────────────────
   const handleAddProduct = () => {
     setEditingProduct(null);
     setModalMode("add");
@@ -258,7 +249,6 @@ export default function Products() {
     setError(null);
   };
 
-  // ── Edit Product ───────────────────────────────────────────────
   const handleEditProduct = (product) => {
     setEditingProduct(product);
     setModalMode("edit");
@@ -266,7 +256,6 @@ export default function Products() {
     setError(null);
   };
 
-  // ── Close Add/Edit Modal ───────────────────────────────────────
   const handleCloseModal = () => {
     if (submitting) {
       return;
@@ -276,7 +265,6 @@ export default function Products() {
     setEditingProduct(null);
   };
 
-  // ── Save Product ───────────────────────────────────────────────
   const handleSubmitProduct = async (payload) => {
     try {
       setSubmitting(true);
@@ -309,14 +297,12 @@ export default function Products() {
     }
   };
 
-  // ── Open Delete Modal ──────────────────────────────────────────
   const handleDeleteProduct = (product) => {
     setDeletingProduct(product);
     setDeleteError(null);
     setDeleteModalOpen(true);
   };
 
-  // ── Close Delete Modal ─────────────────────────────────────────
   const handleCloseDeleteModal = () => {
     if (deleting) {
       return;
@@ -327,7 +313,6 @@ export default function Products() {
     setDeleteError(null);
   };
 
-  // ── Delete Product ─────────────────────────────────────────────
   const handleConfirmDelete = async () => {
     if (!deletingProduct) {
       return;
@@ -361,7 +346,6 @@ export default function Products() {
 
         <main className="flex-1 p-4 lg:p-6">
           <div className="mx-auto max-w-[1600px]">
-            {/* Header */}
             <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <h1
@@ -408,7 +392,6 @@ export default function Products() {
               </div>
             </div>
 
-            {/* Global Error */}
             {error && (
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
                 <span className="material-symbols-outlined mt-0.5 text-[20px] text-red-500">error</span>
@@ -425,12 +408,10 @@ export default function Products() {
               </div>
             )}
 
-            {/* Filters */}
             <div className="mb-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
               <ProductFilters searchQuery={searchQuery} onSearchChange={setSearchQuery} selectedCategory={selectedCategory} onCategoryChange={setSelectedCategory} selectedStatus={selectedStatus} onStatusChange={setSelectedStatus} categories={categories} />
             </div>
 
-            {/* Product Table */}
             <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
               <div className="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
                 <div>
@@ -463,13 +444,10 @@ export default function Products() {
         </main>
       </div>
 
-      {/* Add / Edit Product Modal */}
       <ProductModal open={modalOpen} mode={modalMode} product={editingProduct} onClose={handleCloseModal} onSubmit={handleSubmitProduct} submitting={submitting} categories={categories} suppliers={suppliers} />
 
-      {/* Delete Product Modal */}
       <DeleteProductModal open={deleteModalOpen} product={deletingProduct} onClose={handleCloseDeleteModal} onConfirm={handleConfirmDelete} deleting={deleting} error={deleteError} />
 
-      {/* Adjust Stock Modal */}
       <AdjustStockModal
         isOpen={adjustStockModalOpen}
         product={selectedProductForStock}
@@ -480,7 +458,6 @@ export default function Products() {
         onSuccess={loadProducts}
       />
 
-      {/* CSV Import Summary Modal */}
       {csvImportSummary && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-[2px]" onClick={() => setCsvImportSummary(null)} />

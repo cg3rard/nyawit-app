@@ -23,9 +23,8 @@ export default function Suppliers() {
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Supplier modal state
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("add"); // "add" or "edit"
+  const [modalMode, setModalMode] = useState("add");
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [name, setName] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
@@ -33,12 +32,10 @@ export default function Suppliers() {
   const [submitting, setSubmitting] = useState(false);
   const [createdOrder, setCreatedOrder] = useState(null);
 
-  // Delete modal state
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [deletingSupplier, setDeletingSupplier] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Restock modal state
   const [restockOpen, setRestockOpen] = useState(false);
   const [restockProduct, setRestockProduct] = useState(null);
   const [restockQty, setRestockQty] = useState(10);
@@ -143,7 +140,7 @@ export default function Suppliers() {
 
   const handleOpenRestock = (product) => {
     setRestockProduct(product);
-    setRestockQty(50); // Default restock recommendation
+    setRestockQty(50);
     setRestockMessage("");
     setCreatedOrder(null);
     setRestockOpen(true);
@@ -169,7 +166,6 @@ export default function Suppliers() {
       <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       <main className="flex-1 p-6 lg:p-8">
-        {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-[#141B2B]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
@@ -222,7 +218,6 @@ export default function Suppliers() {
             {suppliers.map((supplier) => (
               <div key={supplier.id} className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm flex flex-col justify-between">
                 <div>
-                  {/* Supplier Header */}
                   <div className="flex items-start justify-between border-b border-[#F1F5F9] pb-4 mb-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#E8F5F3] text-[#00685F]">
@@ -255,14 +250,12 @@ export default function Suppliers() {
                     </div>
                   </div>
 
-                  {/* Products Header */}
                   <div className="mb-2">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-[#94A3B8]">
                       Assigned Products ({supplier.products.length})
                     </h4>
                   </div>
 
-                  {/* Products List */}
                   {supplier.products.length === 0 ? (
                     <p className="text-xs text-[#94A3B8] italic py-2">No products assigned yet. Edit this supplier to assign products.</p>
                   ) : (
@@ -293,7 +286,6 @@ export default function Suppliers() {
         )}
       </main>
 
-      {/* Add / Edit Supplier Modal */}
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-[2px]" onClick={handleCloseModal} />
@@ -389,7 +381,6 @@ export default function Suppliers() {
         </div>
       )}
 
-      {/* Delete Confirmation Modal */}
       {deleteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-[2px]" onClick={() => setDeleteOpen(false)} />
@@ -424,7 +415,6 @@ export default function Suppliers() {
         </div>
       )}
 
-      {/* Restock Request Modal */}
       {restockOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-[2px]" onClick={() => !sendingRestock && setRestockOpen(false)} />

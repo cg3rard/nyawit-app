@@ -15,10 +15,7 @@ down_revision: Union[str, None] = "006_add_supplier_note"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-
 def upgrade() -> None:
-    # Drop the old restock_orders table and recreate with UUID primary key.
-    # wa_messages does NOT reference restock_orders, so we can safely drop & recreate.
     op.drop_table("restock_orders")
 
     op.create_table(
@@ -33,7 +30,6 @@ def upgrade() -> None:
         sa.Column("confirmed_at", sa.DateTime(), nullable=True),
         sa.Column("supplier_note", sa.String(255), nullable=True),
     )
-
 
 def downgrade() -> None:
     op.drop_table("restock_orders")

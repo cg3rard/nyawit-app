@@ -12,7 +12,6 @@ from app.services.transaction_service import get_product_sales_14d
 from engine.metrics import InventoryEngine
 from app.routes.ai import get_llm_recommendation
 
-
 def _record_movement(
     db: Session,
     product: Product,
@@ -43,7 +42,6 @@ def _record_movement(
 
     return movement
 
-
 def stock_in(db: Session, data: StockInRequest) -> Optional[StockMovement]:
     """Add stock to a product. If expiry_date is provided, updates product.expiry_date."""
     product = db.query(Product).filter(Product.id == data.product_id).first()
@@ -65,7 +63,6 @@ def stock_in(db: Session, data: StockInRequest) -> Optional[StockMovement]:
         stock_after,
         data.reason,
     )
-
 
 def stock_out(db: Session, data: StockOutRequest) -> Optional[StockMovement]:
     """Remove stock from a product. Raises ValueError if stock is insufficient."""
@@ -91,7 +88,6 @@ def stock_out(db: Session, data: StockOutRequest) -> Optional[StockMovement]:
         data.reason,
     )
 
-
 def stock_adjustment(db: Session, data: StockAdjustmentRequest) -> Optional[StockMovement]:
     """Set product stock to an absolute target value."""
     product = db.query(Product).filter(Product.id == data.product_id).first()
@@ -112,7 +108,6 @@ def stock_adjustment(db: Session, data: StockAdjustmentRequest) -> Optional[Stoc
         data.reason,
     )
 
-
 def get_movements(
     db: Session,
     product_id: Optional[int] = None,
@@ -127,11 +122,6 @@ def get_movements(
         q = q.filter(StockMovement.movement_type == movement_type)
 
     return q.order_by(StockMovement.id.desc()).all()
-
-
-# ---------------------------------------------------------------------------
-# AI Inventory Health & Risk Evaluation Queries
-# ---------------------------------------------------------------------------
 
 def evaluate_product_health(db: Session, product_id: int) -> Optional[Dict[str, Any]]:
     """
@@ -176,7 +166,6 @@ def evaluate_product_health(db: Session, product_id: int) -> Optional[Dict[str, 
         "ai_recommendation": ai_recommendation,
     }
 
-
 def evaluate_all_inventory(db: Session) -> List[Dict[str, Any]]:
     """
     Evaluasi seluruh katalog produk untuk mendeteksi risiko Merah & Kuning.
@@ -194,7 +183,6 @@ def evaluate_all_inventory(db: Session) -> List[Dict[str, Any]]:
             sales_prior_7d=sales_prior_7d,
         )
         
-        # Eksekusi AI hanya untuk status berisiko (Merah/Kuning) untuk optimasi latensi
         if metrics.status in ("Merah", "Kuning"):
             ai_rec = get_llm_recommendation(metrics.prompt_payload, metrics.status)
         else:
@@ -219,7 +207,6 @@ def evaluate_all_inventory(db: Session) -> List[Dict[str, Any]]:
             "ai_recommendation": ai_rec,
         })
 
-    # Sort: Merah (DOI ASC), Kuning (Stock DESC), Hijau
     def sort_order(item):
         status = item["status"]
         if status == "Merah":

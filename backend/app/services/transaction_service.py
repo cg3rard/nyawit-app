@@ -12,11 +12,9 @@ from app.models.stock_movement import MovementType, StockMovement
 from app.models.transaction import Transaction, TransactionItem
 from app.schemas.transaction import SalesSummary, TransactionCreate, TransactionItemRequest
 
-
 def _generate_code() -> str:
     """Generate a unique transaction code like TRX-A1B2C3D4."""
     return f"TRX-{uuid.uuid4().hex[:8].upper()}"
-
 
 def create_transaction(db: Session, data: TransactionCreate) -> Transaction:
     """
@@ -29,9 +27,6 @@ def create_transaction(db: Session, data: TransactionCreate) -> Transaction:
         LookupError — product not found (→ 404)
         ValueError  — insufficient stock (→ 400)
     """
-    # -------------------------------------------------------------------------
-    # Phase 1: aggregate duplicate products
-    # -------------------------------------------------------------------------
     quantities: dict[int, int] = {}
 
     for item in data.items:
@@ -39,9 +34,6 @@ def create_transaction(db: Session, data: TransactionCreate) -> Transaction:
             quantities.get(item.product_id, 0) + item.quantity
         )
 
-    # -------------------------------------------------------------------------
-    # Phase 2: validate EVERYTHING before touching the DB
-    # -------------------------------------------------------------------------
     resolved: List[dict] = []
 
     for product_id, quantity in quantities.items():
@@ -73,9 +65,6 @@ def create_transaction(db: Session, data: TransactionCreate) -> Transaction:
             }
         )
 
-    # -------------------------------------------------------------------------
-    # Phase 3: persist everything in one transaction
-    # -------------------------------------------------------------------------
     total_amount = sum(
         (r["subtotal"] for r in resolved),
         Decimal("0"),
@@ -95,7 +84,6 @@ def create_transaction(db: Session, data: TransactionCreate) -> Transaction:
         product: Product = r["product"]
         qty: int = r["quantity"]
 
-        # TransactionItem
         item_row = TransactionItem(
             transaction_id=transaction.id,
             product_id=product.id,
@@ -105,7 +93,6 @@ def create_transaction(db: Session, data: TransactionCreate) -> Transaction:
         )
         db.add(item_row)
 
-        # StockMovement OUT
         stock_before = product.stock
         stock_after = stock_before - qty
 
@@ -132,11 +119,6 @@ def create_transaction(db: Session, data: TransactionCreate) -> Transaction:
 
     return transaction
 
-
-# ---------------------------------------------------------------------------
-# READ-ONLY queries — never write to DB, never touch stock
-# ---------------------------------------------------------------------------
-
 def _attach_items(db: Session, transaction: Transaction) -> Transaction:
     """Attach items list to a transaction object for response serialisation."""
     transaction.items = (
@@ -145,7 +127,6 @@ def _attach_items(db: Session, transaction: Transaction) -> Transaction:
         .all()
     )
     return transaction
-
 
 def get_transactions(
     db: Session,
@@ -157,7 +138,6 @@ def get_transactions(
     if start_date is not None:
         q = q.filter(Transaction.created_at >= start_date)
     if end_date is not None:
-        # include the full end_date day
         from datetime import datetime, timedelta
         end_dt = datetime.combine(end_date, datetime.max.time())
         q = q.filter(Transaction.created_at <= end_dt)
@@ -166,14 +146,12 @@ def get_transactions(
         _attach_items(db, t)
     return transactions
 
-
 def get_transaction_by_id(db: Session, transaction_id: int) -> Optional[Transaction]:
     """Return a single transaction with items, or None if not found."""
     transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
     if transaction is None:
         return None
     return _attach_items(db, transaction)
-
 
 def get_sales_summary(db: Session) -> SalesSummary:
     """Return aggregated totals. Pure SELECT — no writes."""
@@ -201,8 +179,6 @@ def get_product_sales_14d(
 
     start_date = target_date - timedelta(days=13)
 
-    # 1. Query agregasi harian via SQLAlchemy
-    # Menggabungkan transactions dan transaction_items
     stmt = (
         select(
             func.date(Transaction.created_at).label("sale_date"),
@@ -219,20 +195,17 @@ def get_product_sales_14d(
 
     results = db.execute(stmt).all()
 
-    # Ubah hasil query menjadi mapping: {date: total_qty}
     sales_map: Dict[date, int] = {
         (row.sale_date if isinstance(row.sale_date, date) else date.fromisoformat(str(row.sale_date))): int(row.total_qty)
         for row in results
     }
 
-    # 2. Zero-filling 14 hari penuh (H-13 s/d H-0)
     full_14_days: List[int] = []
     for i in range(13, -1, -1):
         current_day = target_date - timedelta(days=i)
         full_14_days.append(sales_map.get(current_day, 0))
 
-    # 3. Pisahkan ke dua jendela 7 harian
-    sales_prior_7d = full_14_days[0:7]    # Index 0..6 (H-13 s/d H-7)
-    sales_recent_7d = full_14_days[7:14]  # Index 7..13 (H-6 s/d H-0)
+    sales_prior_7d = full_14_days[0:7]
+    sales_recent_7d = full_14_days[7:14]
 
     return sales_recent_7d, sales_prior_7d

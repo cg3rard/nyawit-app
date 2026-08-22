@@ -15,9 +15,7 @@ from app.services.analytics_service import (
     get_top_products,
 )
 
-# Days ahead to include in expiry alerts (products expiring within this window)
 EXPIRY_ALERT_DAYS_AHEAD = 7
-
 
 def _get_sales_today(db: Session) -> SalesToday:
     """
@@ -29,7 +27,6 @@ def _get_sales_today(db: Session) -> SalesToday:
     start_dt = datetime.combine(today, time.min)
     end_dt = datetime.combine(today, time.max)
 
-    # 1. Total revenue and total transaction count directly from Transaction table
     trx_row = (
         db.query(
             func.coalesce(func.sum(Transaction.total_amount), 0).label("total_revenue"),
@@ -40,7 +37,6 @@ def _get_sales_today(db: Session) -> SalesToday:
         .one()
     )
 
-    # 2. Total items sold and COGS from TransactionItem
     items_row = (
         db.query(
             func.coalesce(func.sum(TransactionItem.quantity), 0).label("total_items_sold"),
@@ -65,7 +61,6 @@ def _get_sales_today(db: Session) -> SalesToday:
         total_items_sold=int(items_row.total_items_sold),
         total_net_income=net_income,
     )
-
 
 def _get_expiry_alerts(db: Session) -> List[ExpiryAlert]:
     """
@@ -100,7 +95,6 @@ def _get_expiry_alerts(db: Session) -> List[ExpiryAlert]:
         for p in rows
     ]
 
-
 def _get_ai_insight(db: Session) -> Optional[AIInsightDetail]:
     from datetime import timedelta
     from engine.metrics import InventoryEngine
@@ -113,7 +107,6 @@ def _get_ai_insight(db: Session) -> Optional[AIInsightDetail]:
     today = date.today()
     start_date = today - timedelta(days=13)
     
-    # Single query to fetch 14-day history for all products
     sales_data = (
         db.query(
             TransactionItem.product_id,
@@ -167,7 +160,6 @@ def _get_ai_insight(db: Session) -> Optional[AIInsightDetail]:
     if not critical_items:
         return None
         
-    # Sort: Red first (asc DOI), then Yellow (desc stock)
     def sort_key(item):
         _, _, m = item
         status_val = 0 if m.status == "Merah" else 1
@@ -192,7 +184,6 @@ def _get_ai_insight(db: Session) -> Optional[AIInsightDetail]:
         },
         ai_recommendation=ai_rec
     )
-
 
 def get_dashboard_summary(db: Session) -> DashboardSummary:
     """

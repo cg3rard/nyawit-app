@@ -4,7 +4,6 @@ from sqlalchemy import Column, DateTime, ForeignKey, Integer, Numeric, String, f
 
 from app.models.base import Base
 
-
 class Transaction(Base):
     __tablename__ = "transactions"
 
@@ -12,7 +11,6 @@ class Transaction(Base):
     transaction_code = Column(String(50), unique=True, nullable=False, index=True)
     total_amount = Column(Numeric(12, 2), nullable=False)
     created_at = Column(DateTime, nullable=False, server_default=func.now())
-
 
 class TransactionItem(Base):
     __tablename__ = "transaction_items"
@@ -25,5 +23,5 @@ class TransactionItem(Base):
         Integer, ForeignKey("products.id", ondelete="RESTRICT"), nullable=False, index=True
     )
     quantity = Column(Integer, nullable=False)
-    unit_price = Column(Numeric(10, 2), nullable=False)   # snapshot of selling_price at sale time
+    unit_price = Column(Numeric(10, 2), nullable=False)
     subtotal = Column(Numeric(12, 2), nullable=False)

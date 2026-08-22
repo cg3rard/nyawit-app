@@ -12,14 +12,12 @@ export default function AIInsights() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("preset");
 
-  // Preset states
   const [scenarios, setScenarios] = useState([]);
   const [selectedScenarioKey, setSelectedScenarioKey] = useState("");
   const [loadingSimulation, setLoadingSimulation] = useState(false);
   const [simulationResult, setSimulationResult] = useState(null);
   const [presetError, setPresetError] = useState(null);
 
-  // Filter Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIndications, setSelectedIndications] = useState({
     Merah: false,
@@ -30,7 +28,6 @@ export default function AIInsights() {
   const [selectedProducts, setSelectedProducts] = useState({});
   const [analysisDays, setAnalysisDays] = useState(14);
 
-  // Custom states
   const [customInput, setCustomInput] = useState({
     product_name: "Toraja Arabica Coffee 250g",
     current_stock: 4,
@@ -52,7 +49,6 @@ export default function AIInsights() {
           setSelectedScenarioKey(data.scenarios[0].key);
         }
 
-        // Inisialisasi kategori dan produk untuk filter (default tidak dicentang)
         const dbScenarios = data.scenarios.filter((s) =>
           s.key.startsWith("db_"),
         );
@@ -80,7 +76,6 @@ export default function AIInsights() {
     }
   };
 
-  // Load scenarios on mount
   useEffect(() => {
     loadFiltersData();
   }, []);
@@ -90,7 +85,7 @@ export default function AIInsights() {
       ...prev,
       [catName]: isChecked,
     }));
-    
+
     const updatedProducts = { ...selectedProducts };
     scenarios.forEach((s) => {
       if (s.key.startsWith("db_") && s.category === catName) {
@@ -103,23 +98,23 @@ export default function AIInsights() {
   const handleProductToggle = (prodKey, isChecked) => {
     setSelectedProducts((prev) => {
       const nextProducts = { ...prev, [prodKey]: isChecked };
-      
+
       const targetProduct = scenarios.find((s) => s.key === prodKey);
       if (targetProduct && targetProduct.category) {
         const catName = targetProduct.category;
-        
-        const anyChecked = scenarios.some((s) => 
-          s.key.startsWith("db_") && 
-          s.category === catName && 
+
+        const anyChecked = scenarios.some((s) =>
+          s.key.startsWith("db_") &&
+          s.category === catName &&
           (s.key === prodKey ? isChecked : prev[s.key])
         );
-        
+
         setSelectedCategories((prevCats) => ({
           ...prevCats,
           [catName]: anyChecked,
         }));
       }
-      
+
       return nextProducts;
     });
   };
@@ -130,7 +125,7 @@ export default function AIInsights() {
       nextCats[cat] = isSelected;
     });
     setSelectedCategories(nextCats);
-    
+
     const nextProds = {};
     Object.keys(selectedProducts).forEach((key) => {
       nextProds[key] = isSelected;
@@ -144,7 +139,7 @@ export default function AIInsights() {
       nextProds[key] = isSelected;
     });
     setSelectedProducts(nextProds);
-    
+
     const nextCats = {};
     Object.keys(selectedCategories).forEach((cat) => {
       nextCats[cat] = isSelected;
@@ -177,7 +172,6 @@ export default function AIInsights() {
     setCustomError(null);
     setCustomResult(null);
 
-    // Validate inputs
     const stock = parseInt(customInput.current_stock, 10);
     const recentSales = customInput.sales_recent_7d.map((val) =>
       parseInt(val, 10),
@@ -250,7 +244,6 @@ export default function AIInsights() {
 
         <main className="flex-1 p-4 lg:p-6">
           <div className="mx-auto max-w-[1600px]">
-            {/* Page Title */}
             <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
               <div>
                 <h1
@@ -265,7 +258,6 @@ export default function AIInsights() {
                 </p>
               </div>
 
-              {/* Tabs */}
               <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1">
                 <button
                   type="button"
@@ -298,10 +290,8 @@ export default function AIInsights() {
               </div>
             </div>
 
-            {/* TAB 1: PRESET SCENARIO */}
             {activeTab === "preset" && (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                {/* Left Panel: Run Analysis Control */}
                 <div className="lg:col-span-4 flex flex-col gap-5">
                   <div className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm">
                     <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#4F46E5]/10 text-[#4F46E5]">
@@ -383,7 +373,6 @@ export default function AIInsights() {
                   </div>
                 </div>
 
-                {/* Right: Output Result */}
                 <div className="lg:col-span-8 flex flex-col gap-6">
                   {loadingSimulation ? (
                     <LoadingResultCard />
@@ -435,10 +424,8 @@ export default function AIInsights() {
               </div>
             )}
 
-            {/* TAB 2: CUSTOM EVALUATOR */}
             {activeTab === "custom" && (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                {/* Left: Custom Inputs Form */}
                 <div className="lg:col-span-6">
                   <form
                     onSubmit={handleRunCustomEvaluation}
@@ -519,13 +506,11 @@ export default function AIInsights() {
                       </div>
                     </div>
 
-                    {/* Sales History Inputs */}
                     <div className="border-t border-slate-100 pt-4">
                       <h3 className="text-xs font-bold text-slate-600 uppercase tracking-wide mb-3">
                         Daily Sales Units History (Last 14 Days)
                       </h3>
 
-                      {/* Recent 7 days */}
                       <div className="mb-4">
                         <label className="block text-xs font-semibold text-slate-500 mb-2">
                           Recent 7 Days (Index 0 = Oldest, Index 6 = Today)
@@ -556,7 +541,6 @@ export default function AIInsights() {
                         </div>
                       </div>
 
-                      {/* Prior 7 days */}
                       <div>
                         <label className="block text-xs font-semibold text-slate-500 mb-2">
                           Prior 7 Days (Baseline Comparison)
@@ -612,7 +596,6 @@ export default function AIInsights() {
                   </form>
                 </div>
 
-                {/* Right: Custom Output Result */}
                 <div className="lg:col-span-6">
                   {loadingCustom ? (
                     <LoadingResultCard />
@@ -628,11 +611,9 @@ export default function AIInsights() {
         </main>
       </div>
 
-      {/* FILTER MODAL POPUP */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
           <div className="relative w-full max-w-2xl rounded-2xl border border-slate-100 bg-white p-6 shadow-2xl flex flex-col max-h-[85vh]">
-            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
               <div>
                 <h3 className="text-lg font-bold text-[#141B2B] flex items-center gap-2">
@@ -657,9 +638,7 @@ export default function AIInsights() {
               </button>
             </div>
 
-            {/* Modal Body (Scrollable checklists) */}
             <div className="flex-1 overflow-y-auto pr-1 flex flex-col gap-5 py-2">
-              {/* Section 0: Analysis Time Window */}
               <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
                   <h4 className="text-xs font-extrabold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
@@ -690,7 +669,6 @@ export default function AIInsights() {
                 </select>
               </div>
 
-              {/* Section 1: By Indication */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
@@ -770,7 +748,6 @@ export default function AIInsights() {
                 </div>
               </div>
 
-              {/* Section 2: By Category */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
@@ -816,7 +793,6 @@ export default function AIInsights() {
                 </div>
               </div>
 
-              {/* Section 3: By Specific Products */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-wide">
@@ -868,7 +844,6 @@ export default function AIInsights() {
               </div>
             </div>
 
-            {/* Modal Footer */}
             <div className="border-t border-slate-100 pt-4 mt-4 flex items-center justify-end gap-3">
               <button
                 type="button"
@@ -900,13 +875,10 @@ export default function AIInsights() {
   );
 }
 
-/* ───────────────────────────────────────────────────────────── */
-
 function ResultCard({ result }) {
   const { product_name, status, metrics, ai_recommendation } = result;
   const action = ai_recommendation.action;
 
-  // Visual formatting based on status
   let statusBadgeColor = "";
   let actionIcon = "help";
   let actionColorClass = "";
@@ -968,7 +940,6 @@ function ResultCard({ result }) {
     <div
       className={`rounded-2xl border border-slate-100 bg-gradient-to-b ${gradientBg} p-5 shadow-sm`}
     >
-      {/* Main product summary info */}
       <div className="flex items-center justify-between mb-5 border-b border-slate-100 pb-4">
         <div>
           <h3 className="text-base font-bold text-slate-800">{product_name}</h3>
@@ -983,7 +954,6 @@ function ResultCard({ result }) {
         </span>
       </div>
 
-      {/* Grid calculated metrics */}
       <div className="grid grid-cols-2 gap-4 mb-5 sm:grid-cols-3 lg:grid-cols-5">
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center flex flex-col justify-between min-h-[76px]">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
@@ -993,8 +963,7 @@ function ResultCard({ result }) {
             {metrics.current_stock} pcs
           </p>
         </div>
-        
-        {/* Expiry Date Card */}
+
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center flex flex-col justify-between min-h-[76px]">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
             Expiry Date
@@ -1017,7 +986,7 @@ function ResultCard({ result }) {
             {metrics.sma_7_daily} pcs/day
           </p>
         </div>
-        
+
         <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-center flex flex-col justify-between min-h-[76px]">
           <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wide">
             Sales Trend
@@ -1028,12 +997,11 @@ function ResultCard({ result }) {
             {metrics.sales_trend_pct}
           </p>
         </div>
-        
-        {/* Days of Inventory Card */}
+
         {(() => {
-          const isCapped = metrics.expiry_date !== null && 
-                           metrics.days_to_expiry !== null && 
-                           metrics.original_days_of_inventory !== undefined && 
+          const isCapped = metrics.expiry_date !== null &&
+                           metrics.days_to_expiry !== null &&
+                           metrics.original_days_of_inventory !== undefined &&
                            metrics.original_days_of_inventory > metrics.days_to_expiry;
 
           return (
@@ -1052,7 +1020,6 @@ function ResultCard({ result }) {
         })()}
       </div>
 
-      {/* Transparency: Sales History Breakdown */}
       {(metrics.sales_recent_7d || metrics.sales_prior_7d) && (() => {
         const recentDaysCount = metrics.sales_recent_7d ? metrics.sales_recent_7d.length : 7;
         const priorDaysCount = metrics.sales_prior_7d ? metrics.sales_prior_7d.length : 7;
@@ -1154,7 +1121,6 @@ function ResultCard({ result }) {
         );
       })()}
 
-      {/* AI recommendation block */}
       <div className={`rounded-xl border p-4 ${actionColorClass}`}>
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-inherit">
@@ -1187,8 +1153,6 @@ function ResultCard({ result }) {
   );
 }
 
-/* ───────────────────────────────────────────────────────────── */
-
 function EmptyResultCard({ text }) {
   return (
     <div className="flex min-h-[350px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white px-6 py-10 text-center shadow-sm">
@@ -1206,8 +1170,6 @@ function EmptyResultCard({ text }) {
     </div>
   );
 }
-
-/* ───────────────────────────────────────────────────────────── */
 
 function LoadingResultCard() {
   return (

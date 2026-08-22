@@ -6,12 +6,10 @@ from sqlalchemy.orm import relationship
 
 from app.models.base import Base
 
-
 class MovementType(str, enum.Enum):
     IN = "IN"
     OUT = "OUT"
     ADJUSTMENT = "ADJUSTMENT"
-
 
 class StockMovement(Base):
     __tablename__ = "stock_movements"
@@ -53,7 +51,6 @@ class StockMovement(Base):
         server_default=func.now(),
     )
 
-    # Relationship to Product
     product = relationship(
         "Product",
         back_populates="stock_movements",

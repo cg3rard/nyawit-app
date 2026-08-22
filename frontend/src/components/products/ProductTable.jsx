@@ -54,7 +54,6 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
                 key={product.id}
                 className="bg-white transition-colors hover:bg-[#F9F9FF]"
               >
-                {/* Product */}
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
                     {storedPhoto ? (
@@ -83,12 +82,10 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
                   </div>
                 </td>
 
-              {/* Category */}
               <td className="px-5 py-4 text-sm text-[#64748B]">
                 {product.category || "—"}
               </td>
 
-              {/* Supplier */}
               <td className="px-5 py-4 text-sm">
                 {product.supplier ? (
                   <span className="font-semibold text-[#00685F] bg-[#E8F5F3] px-2.5 py-1 rounded-full text-xs">
@@ -99,30 +96,24 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
                 )}
               </td>
 
-              {/* Selling Price */}
               <td className="px-5 py-4 text-right text-sm font-semibold text-[#141B2B]">
                 {formatCurrency(product.selling_price)}
               </td>
 
-              {/* Stock */}
               <td className="px-5 py-4 text-center text-sm font-semibold text-[#141B2B]">
                 {product.stock}
               </td>
 
-              {/* Status */}
               <td className="px-5 py-4 text-center">
                 <ProductStatus stock={product.stock} />
               </td>
 
-              {/* Expiry */}
               <td className="px-5 py-4">
                 <ExpiryStatus expiryDate={product.expiry_date} />
               </td>
 
-              {/* Action */}
               <td className="px-5 py-4 text-center">
                 <div className="flex items-center justify-center gap-1">
-                  {/* Add/Adjust Stock */}
                   <button
                     type="button"
                     onClick={() => onAdjustStock(product)}
@@ -134,7 +125,6 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
                     </span>
                   </button>
 
-                  {/* Edit */}
                   <button
                     type="button"
                     onClick={() => onEdit(product)}
@@ -146,7 +136,6 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
                     </span>
                   </button>
 
-                  {/* Delete */}
                   <button
                     type="button"
                     onClick={() => onDelete(product)}
@@ -168,10 +157,6 @@ export default function ProductTable({ products, onEdit, onDelete, onAdjustStock
   );
 }
 
-/* ─────────────────────────────────────────────────────────────── */
-/* Currency */
-/* ─────────────────────────────────────────────────────────────── */
-
 function formatCurrency(value) {
   return new Intl.NumberFormat("id-ID", {
     style: "currency",
@@ -181,10 +166,6 @@ function formatCurrency(value) {
     .format(Number(value || 0))
     .replace("IDR", "Rp");
 }
-
-/* ─────────────────────────────────────────────────────────────── */
-/* Expiry Status */
-/* ─────────────────────────────────────────────────────────────── */
 
 function ExpiryStatus({ expiryDate }) {
   if (!expiryDate) {
@@ -211,7 +192,6 @@ function ExpiryStatus({ expiryDate }) {
   const diffTime = expiry.getTime() - today.getTime();
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-  // Sudah expired
   if (diffDays < 0) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
@@ -221,7 +201,6 @@ function ExpiryStatus({ expiryDate }) {
     );
   }
 
-  // Expired hari ini
   if (diffDays === 0) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
@@ -231,7 +210,6 @@ function ExpiryStatus({ expiryDate }) {
     );
   }
 
-  // ≤ 7 hari
   if (diffDays <= 7) {
     return (
       <div className="flex flex-col">
@@ -247,17 +225,12 @@ function ExpiryStatus({ expiryDate }) {
     );
   }
 
-  // Normal
   return (
     <span className="text-sm text-[#64748B]">
       {formatExpiry(expiryDate)}
     </span>
   );
 }
-
-/* ─────────────────────────────────────────────────────────────── */
-/* Date formatting */
-/* ─────────────────────────────────────────────────────────────── */
 
 function formatExpiry(value) {
   if (!value) {

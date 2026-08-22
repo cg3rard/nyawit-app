@@ -24,19 +24,16 @@ from app.services import inventory_service
 
 router = APIRouter(prefix="/api/wa", tags=["whatsapp"])
 
-
 @router.get("/settings", response_model=WASettingsRead)
 def get_wa_settings(db: Session = Depends(get_db)):
     """Retrieve WhatsApp Bot settings. We assume there's always one config row (id=1)."""
     settings = db.query(WASettings).filter(WASettings.id == 1).first()
     if not settings:
-        # Fallback if somehow not seeded
         settings = WASettings(id=1, bot_name="CoStore Bot", phone_number="+628123456789", status="DISCONNECTED")
         db.add(settings)
         db.commit()
         db.refresh(settings)
     return settings
-
 
 @router.put("/settings", response_model=WASettingsRead)
 def update_wa_settings(data: WASettingsUpdate, db: Session = Depends(get_db)):
@@ -53,7 +50,6 @@ def update_wa_settings(data: WASettingsUpdate, db: Session = Depends(get_db)):
     db.refresh(settings)
     return settings
 
-
 @router.post("/connect", response_model=WASettingsRead)
 def connect_wa_bot(db: Session = Depends(get_db)):
     """Simulate connecting the WhatsApp Bot."""
@@ -65,7 +61,6 @@ def connect_wa_bot(db: Session = Depends(get_db)):
     db.commit()
     db.refresh(settings)
     return settings
-
 
 @router.post("/disconnect", response_model=WASettingsRead)
 def disconnect_wa_bot(db: Session = Depends(get_db)):
@@ -79,7 +74,6 @@ def disconnect_wa_bot(db: Session = Depends(get_db)):
     db.refresh(settings)
     return settings
 
-
 from sqlalchemy.orm import joinedload
 
 @router.get("/messages", response_model=List[WAMessageRead])
@@ -92,18 +86,15 @@ def get_wa_messages(db: Session = Depends(get_db)):
         .all()
     )
 
-
 @router.post("/send-restock", response_model=RestockOrderRead, status_code=status.HTTP_201_CREATED)
 def send_restock_request(data: RestockOrderCreate, db: Session = Depends(get_db)):
     """
     Trigger restock: create RestockOrder and send a mock WhatsApp message log containing the confirmation link.
     """
-    # 1. Verify product exists
     product = db.query(Product).filter(Product.id == data.product_id).first()
     if not product:
         raise HTTPException(status_code=404, detail="Product not found")
     
-    # 2. Check if product has a supplier assigned
     if not product.supplier_id:
         raise HTTPException(
             status_code=400,
@@ -114,7 +105,6 @@ def send_restock_request(data: RestockOrderCreate, db: Session = Depends(get_db)
     if not supplier:
         raise HTTPException(status_code=404, detail="Supplier not found")
     
-    # 3. Create Restock Order in PENDING status
     order = RestockOrder(
         id=str(uuid.uuid4()),
         product_id=product.id,
@@ -124,12 +114,10 @@ def send_restock_request(data: RestockOrderCreate, db: Session = Depends(get_db)
         token=uuid.uuid4().hex
     )
     db.add(order)
-    db.flush() # ensure order.id and order.token are available
+    db.flush()
 
-    # 4. Generate confirmation link
     confirm_link = f"http://localhost:5173/confirm_restock/{order.id}?token={order.token}"
     
-    # 5. Create WhatsApp Message body
     message_text = (
         f"Halo {supplier.name},\n\n"
         f"Mohon untuk menyuplai kembali produk berikut ke toko kami:\n"
@@ -141,7 +129,6 @@ def send_restock_request(data: RestockOrderCreate, db: Session = Depends(get_db)
         f"Terima kasih!\nCoStore Nyawit"
     )
 
-    # 6. Save WAMessage log
     wa_message = WAMessage(
         supplier_id=supplier.id,
         restock_order_id=order.id,
@@ -152,10 +139,8 @@ def send_restock_request(data: RestockOrderCreate, db: Session = Depends(get_db)
     db.add(wa_message)
     db.commit()
     
-    # Refresh to load relationships
     db.refresh(order)
     return order
-
 
 @router.get("/restock-order/{order_id}", response_model=RestockOrderRead)
 def get_restock_order(order_id: str, token: str, db: Session = Depends(get_db)):
@@ -180,7 +165,6 @@ def get_restock_order(order_id: str, token: str, db: Session = Depends(get_db)):
             detail="Invalid restock order ID or token. Access denied."
         )
     return order
-
 
 @router.post("/confirm-restock/{order_id}")
 def confirm_restock_order(
@@ -229,12 +213,10 @@ def confirm_restock_order(
             detail="Quantity sent must be greater than 0 if you are confirming the order."
         )
 
-    # Mark as CONFIRMED — store the supplier-sent quantity in received_quantity as a hint
     order.status = "CONFIRMED"
-    order.received_quantity = payload.quantity  # default hint; owner can override when receiving
+    order.received_quantity = payload.quantity
     db.commit()
     return {"message": "Restock order confirmed by supplier. Awaiting store owner acceptance.", "status": "CONFIRMED"}
-
 
 @router.post("/receive-restock/{order_id}")
 def receive_restock(
@@ -264,7 +246,6 @@ def receive_restock(
     if payload.received_quantity <= 0:
         raise HTTPException(status_code=400, detail="Received quantity must be greater than 0.")
 
-    # Build reason string
     supplier_name = order.supplier.name if order.supplier else "Supplier"
     expiry_note = f", Exp: {payload.received_expiry_date}" if payload.received_expiry_date else ""
     supplier_note = f", Catatan supplier: {order.supplier_note}" if order.supplier_note else ""
@@ -285,7 +266,6 @@ def receive_restock(
         db.rollback()
         raise HTTPException(status_code=404, detail="Failed to process stock in: product not found.")
 
-    # Update order fields
     order.status = "RECEIVED"
     order.received_quantity = payload.received_quantity
     order.received_expiry_date = payload.received_expiry_date

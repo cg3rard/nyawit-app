@@ -51,7 +51,6 @@ export default function Signup() {
     setIsSubmitting(true);
 
     setTimeout(() => {
-      // 1. Save store settings profile
       const currentSettings = {
         storeName: formData.storeName.trim() || "CoStore",
         ownerName: formData.ownerName.trim() || "Store Manager",
@@ -69,7 +68,6 @@ export default function Signup() {
 
       localStorage.setItem("costore_settings", JSON.stringify(currentSettings));
 
-      // 2. Save auth session
       const authUser = {
         email: formData.storeEmail.trim(),
         storeName: formData.storeName.trim(),
@@ -91,16 +89,13 @@ export default function Signup() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-[#F4F7F6] p-4 sm:p-6 lg:p-8">
-      {/* Decorative background blur shapes */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute -top-40 -right-40 h-96 w-96 rounded-full bg-[#00685F]/10 blur-3xl" />
         <div className="absolute -bottom-40 -left-40 h-96 w-96 rounded-full bg-[#4648D4]/10 blur-3xl" />
       </div>
 
       <div className="relative w-full max-w-2xl">
-        {/* Main Card */}
         <div className="rounded-3xl border border-[#E2E8F0] bg-white p-6 shadow-xl shadow-slate-900/5 sm:p-10">
-          {/* Header Brand */}
           <div className="mb-8 flex flex-col items-center text-center">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E8F5F3] p-2.5 shadow-xs mb-3">
               <img src="/icons.png" alt="CoStore Logo" className="h-full w-full object-contain" />
@@ -117,7 +112,6 @@ export default function Signup() {
             </p>
           </div>
 
-          {/* Alerts */}
           {error && (
             <div className="mb-6 flex items-center gap-2.5 rounded-2xl border border-red-200 bg-red-50 p-4 text-xs font-semibold text-red-700 animate-in fade-in">
               <span className="material-symbols-outlined text-lg shrink-0">error</span>
@@ -132,10 +126,8 @@ export default function Signup() {
             </div>
           )}
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {/* Store Name */}
               <div>
                 <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                   Store Name <span className="text-red-500">*</span>
@@ -156,7 +148,6 @@ export default function Signup() {
                 </div>
               </div>
 
-              {/* Store Manager / Owner Name */}
               <div>
                 <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                   Store Manager / Owner <span className="text-red-500">*</span>
@@ -177,7 +168,6 @@ export default function Signup() {
                 </div>
               </div>
 
-              {/* Email */}
               <div>
                 <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                   Email Address <span className="text-red-500">*</span>
@@ -198,7 +188,6 @@ export default function Signup() {
                 </div>
               </div>
 
-              {/* Phone / Contact Number */}
               <div>
                 <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                   Phone / Contact Number <span className="text-red-500">*</span>
@@ -219,7 +208,6 @@ export default function Signup() {
                 </div>
               </div>
 
-              {/* Store Address */}
               <div className="sm:col-span-2">
                 <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                   Store Address <span className="text-red-500">*</span>
@@ -240,7 +228,6 @@ export default function Signup() {
                 </div>
               </div>
 
-              {/* Password */}
               <div>
                 <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                   Password <span className="text-red-500">*</span>
@@ -270,7 +257,6 @@ export default function Signup() {
                 </div>
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <label className="block text-xs font-semibold text-[#334155] mb-1.5">
                   Confirm Password <span className="text-red-500">*</span>
@@ -292,7 +278,6 @@ export default function Signup() {
               </div>
             </div>
 
-            {/* Terms checkbox */}
             <div className="pt-2">
               <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
@@ -308,7 +293,6 @@ export default function Signup() {
               </label>
             </div>
 
-            {/* Submit Button */}
             <button
               type="submit"
               disabled={isSubmitting || success}
@@ -333,7 +317,6 @@ export default function Signup() {
             </button>
           </form>
 
-          {/* Footer Link */}
           <div className="mt-8 border-t border-slate-100 pt-6 text-center">
             <p className="text-xs text-[#64748B]">
               Already have a store account?{" "}

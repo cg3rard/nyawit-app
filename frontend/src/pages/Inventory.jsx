@@ -14,7 +14,6 @@ export default function Inventory() {
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // ── Load Inventory Movements ───────────────────────────────────
   const loadMovements = async () => {
     try {
       setLoading(true);
@@ -38,7 +37,6 @@ export default function Inventory() {
     loadMovements();
   }, []);
 
-  // ── Filter Movements ───────────────────────────────────────────
   const filteredMovements = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
 
@@ -62,11 +60,9 @@ export default function Inventory() {
     });
   }, [movements, searchQuery, selectedType]);
 
-  // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
 
-  // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedType]);
@@ -95,7 +91,6 @@ export default function Inventory() {
         <main className="flex-1 p-4 lg:p-6">
           <div className="mx-auto max-w-[1600px]">
 
-            {/* Header */}
             <div className="mb-5">
               <h1
                 className="text-xl font-semibold text-[#141B2B]"
@@ -111,7 +106,6 @@ export default function Inventory() {
               </p>
             </div>
 
-            {/* Error */}
             {error && (
               <div className="mb-4 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 px-4 py-3">
                 <span className="material-symbols-outlined mt-0.5 text-[20px] text-red-500">
@@ -140,11 +134,9 @@ export default function Inventory() {
               </div>
             )}
 
-            {/* Filters */}
             <div className="mb-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
 
-                {/* Search */}
                 <div className="relative w-full lg:max-w-md">
                   <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-[#94A3B8]">
                     search
@@ -161,7 +153,6 @@ export default function Inventory() {
                   />
                 </div>
 
-                {/* Movement Type */}
                 <select
                   value={selectedType}
                   onChange={(event) =>
@@ -177,10 +168,8 @@ export default function Inventory() {
               </div>
             </div>
 
-            {/* Inventory Movement Table */}
             <div className="overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
 
-              {/* Table Header */}
               <div className="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-4">
                 <div>
                   <h2 className="text-sm font-semibold text-[#141B2B]">
@@ -217,8 +206,7 @@ export default function Inventory() {
               ) : (
                 <>
                   <MovementTable movements={paginatedMovements} />
-                  
-                  {/* Pagination Controls */}
+
                   {(() => {
                     const totalEntries = filteredMovements.length;
                     const totalPages = Math.ceil(totalEntries / pageSize);
@@ -226,7 +214,6 @@ export default function Inventory() {
 
                     return (
                       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#E2E8F0] px-5 py-4 bg-white">
-                        {/* Page Size Selector */}
                         <div className="flex items-center gap-2 text-xs text-[#64748B]">
                           <span>Show</span>
                           <select
@@ -245,7 +232,6 @@ export default function Inventory() {
                           <span>entries</span>
                         </div>
 
-                        {/* Showing X to Y of Z */}
                         <div className="text-xs text-[#64748B]">
                           Showing <span className="font-semibold text-[#141B2B]">{totalEntries === 0 ? 0 : startIndex + 1}</span> to{" "}
                           <span className="font-semibold text-[#141B2B]">
@@ -254,7 +240,6 @@ export default function Inventory() {
                           of <span className="font-semibold text-[#141B2B]">{totalEntries}</span> entries
                         </div>
 
-                        {/* Navigation buttons */}
                         <div className="flex items-center gap-1.5">
                           <button
                             type="button"
@@ -320,8 +305,6 @@ export default function Inventory() {
     </div>
   );
 }
-
-/* ───────────────────────────────────────────────────────────── */
 
 function MovementTable({ movements }) {
   return (
@@ -401,19 +384,6 @@ function MovementTable({ movements }) {
             const isAdjustment =
               normalizedType === "ADJUSTMENT";
 
-            /*
-             * Determine the displayed quantity.
-             *
-             * IN:
-             *   10 -> +10
-             *
-             * OUT:
-             *   2 -> -2
-             *
-             * ADJUSTMENT:
-             *   0  -> 10 = +10
-             *   25 -> 15 = -10
-             */
             let displayQuantity = quantity;
 
             if (isIn) {
@@ -441,7 +411,6 @@ function MovementTable({ movements }) {
                 className="bg-white transition-colors hover:bg-[#F9F9FF]"
               >
 
-                {/* Product */}
                 <td className="px-5 py-4">
                   <div className="flex items-center gap-3">
 
@@ -466,7 +435,6 @@ function MovementTable({ movements }) {
                   </div>
                 </td>
 
-                {/* Type */}
                 <td className="px-5 py-4 text-center">
 
                   {isAdjustment ? (
@@ -497,7 +465,6 @@ function MovementTable({ movements }) {
 
                 </td>
 
-                {/* Quantity */}
                 <td className="px-5 py-4 text-right">
                   <span
                     className={`text-sm font-semibold ${
@@ -512,22 +479,18 @@ function MovementTable({ movements }) {
                   </span>
                 </td>
 
-                {/* Stock Before */}
                 <td className="px-5 py-4 text-right text-sm text-[#64748B]">
                   {stockBefore}
                 </td>
 
-                {/* Stock After */}
                 <td className="px-5 py-4 text-right text-sm font-semibold text-[#141B2B]">
                   {stockAfter}
                 </td>
 
-                {/* Reference */}
                 <td className="px-5 py-4 text-sm text-[#64748B]">
                   {reason}
                 </td>
 
-                {/* Date */}
                 <td className="px-5 py-4 text-sm text-[#64748B]">
                   {formatDate(date)}
                 </td>
@@ -541,8 +504,6 @@ function MovementTable({ movements }) {
     </div>
   );
 }
-
-/* ───────────────────────────────────────────────────────────── */
 
 function MovementLoading() {
   return (
@@ -567,8 +528,6 @@ function MovementLoading() {
   );
 }
 
-/* ───────────────────────────────────────────────────────────── */
-
 function MovementEmpty() {
   return (
     <div className="flex min-h-[300px] flex-col items-center justify-center px-6 text-center">
@@ -590,8 +549,6 @@ function MovementEmpty() {
     </div>
   );
 }
-
-/* ───────────────────────────────────────────────────────────── */
 
 function formatDate(value) {
   if (!value) {

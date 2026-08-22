@@ -78,7 +78,6 @@ export default function Support() {
 
         <main className="flex-1 p-4 lg:p-6">
           <div className="mx-auto max-w-[1200px]">
-            {/* Page Header */}
             <div className="mb-8 text-center sm:text-left">
               <h1
                 className="text-2xl font-bold tracking-tight text-[#141B2B]"
@@ -91,7 +90,6 @@ export default function Support() {
               </p>
             </div>
 
-            {/* Quick Search & Filters */}
             <div className="mb-8 rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm">
               <div className="relative mb-4">
                 <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
@@ -106,7 +104,6 @@ export default function Support() {
                 />
               </div>
 
-              {/* Category Pills */}
               <div className="flex flex-wrap gap-2">
                 {categories.map((cat) => (
                   <button
@@ -126,7 +123,6 @@ export default function Support() {
             </div>
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              {/* Left 2 Cols: FAQ Accordion */}
               <div className="space-y-4 lg:col-span-2">
                 <h2 className="text-base font-bold text-[#141B2B] flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#00685F]">help_outline</span>
@@ -179,7 +175,6 @@ export default function Support() {
                   })
                 )}
 
-                {/* Keyboard Shortcuts Section */}
                 <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm mt-6">
                   <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
                     <span className="material-symbols-outlined text-[#4648D4] text-xl">keyboard</span>
@@ -218,7 +213,6 @@ export default function Support() {
                 </div>
               </div>
 
-              {/* Right Column: Contact & Support Channels */}
               <div className="space-y-6">
                 <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm sm:p-6">
                   <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-slate-100">
@@ -265,7 +259,6 @@ export default function Support() {
                   </div>
                 </div>
 
-                {/* System Documentation Note */}
                 <div className="rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50/50 to-white p-5 shadow-sm">
                   <div className="flex items-center gap-2 text-indigo-700 mb-2">
                     <span className="material-symbols-outlined text-lg">verified</span>

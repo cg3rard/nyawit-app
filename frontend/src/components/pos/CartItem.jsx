@@ -9,14 +9,12 @@ export default function CartItem({
 
   return (
     <div className="flex items-center gap-3 rounded-lg border border-[#E2E8F0] bg-white p-2.5">
-      {/* Product icon */}
       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-[#F1F3FF] text-[#00685F]">
         <span className="material-symbols-outlined text-[22px]">
           shopping_bag
         </span>
       </div>
 
-      {/* Product info */}
       <div className="min-w-0 flex-1">
         <h4 className="truncate text-sm font-medium text-[#141B2B]">
           {item.name}
@@ -40,7 +38,6 @@ export default function CartItem({
         </p>
       </div>
 
-      {/* Quantity */}
       <div className="flex items-center gap-1 rounded-md bg-[#F1F3FF] p-1">
         <button
           type="button"
@@ -70,7 +67,6 @@ export default function CartItem({
         </button>
       </div>
 
-      {/* Remove */}
       <button
         type="button"
         onClick={() => onRemove(item.id)}

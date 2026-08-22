@@ -19,7 +19,6 @@ export default function InventoryStatus({ inventory }) {
         {total} products · {inventory?.total_stock_units ?? 0} total units
       </p>
 
-      {/* Stacked bar */}
       {total > 0 && (
         <div className="flex h-3 w-full overflow-hidden rounded-full gap-0.5 mb-4">
           {segments.map((s) => {
@@ -36,7 +35,6 @@ export default function InventoryStatus({ inventory }) {
         </div>
       )}
 
-      {/* Legend */}
       <div className="grid grid-cols-3 gap-2">
         {segments.map((s) => (
           <div

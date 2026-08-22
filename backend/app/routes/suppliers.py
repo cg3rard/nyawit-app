@@ -9,12 +9,10 @@ from app.services import supplier_service
 
 router = APIRouter(prefix="/api/suppliers", tags=["suppliers"])
 
-
 @router.get("/", response_model=List[SupplierRead])
 def list_suppliers(db: Session = Depends(get_db)):
     """Return all suppliers ordered by id ascending."""
     return supplier_service.get_suppliers(db)
-
 
 @router.get("/{supplier_id}", response_model=SupplierRead)
 def get_supplier(supplier_id: int, db: Session = Depends(get_db)):
@@ -27,12 +25,10 @@ def get_supplier(supplier_id: int, db: Session = Depends(get_db)):
         )
     return supplier
 
-
 @router.post("/", response_model=SupplierRead, status_code=status.HTTP_201_CREATED)
 def create_supplier(data: SupplierCreate, db: Session = Depends(get_db)):
     """Create a new supplier and assign products."""
     return supplier_service.create_supplier(db, data)
-
 
 @router.put("/{supplier_id}", response_model=SupplierRead)
 def update_supplier(
@@ -46,7 +42,6 @@ def update_supplier(
             detail="Supplier not found",
         )
     return supplier_service.update_supplier(db, supplier, data)
-
 
 @router.delete("/{supplier_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_supplier(supplier_id: int, db: Session = Depends(get_db)):

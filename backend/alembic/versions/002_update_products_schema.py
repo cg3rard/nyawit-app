@@ -10,12 +10,10 @@ from typing import Sequence, Union
 import sqlalchemy as sa
 from alembic import op
 
-# revision identifiers, used by Alembic.
 revision: str = "002_update_products_schema"
 down_revision: Union[str, None] = "001_initial"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
-
 
 def upgrade() -> None:
     """
@@ -51,7 +49,6 @@ def upgrade() -> None:
         "ix_products_product_code", "products", ["product_code"], unique=True
     )
     op.drop_column("products", "price")
-
 
 def downgrade() -> None:
     """Reverse: restore price column, remove new fields."""

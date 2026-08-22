@@ -10,12 +10,10 @@ from app.services import product_service
 
 router = APIRouter(prefix="/api/products", tags=["products"])
 
-
 @router.get("/", response_model=List[ProductRead])
 def list_products(db: Session = Depends(get_db)):
     """Return all products ordered by id ascending."""
     return product_service.get_products(db)
-
 
 @router.get("/{product_id}", response_model=ProductRead)
 def get_product(product_id: int, db: Session = Depends(get_db)):
@@ -28,7 +26,6 @@ def get_product(product_id: int, db: Session = Depends(get_db)):
         )
     return product
 
-
 @router.post("/", response_model=ProductRead, status_code=status.HTTP_201_CREATED)
 def create_product(data: ProductCreate, db: Session = Depends(get_db)):
     """Create a new product. Returns 409 if product_code already exists."""
@@ -40,7 +37,6 @@ def create_product(data: ProductCreate, db: Session = Depends(get_db)):
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Product with code '{data.product_code}' already exists.",
         )
-
 
 @router.put("/{product_id}", response_model=ProductRead)
 def update_product(
@@ -61,7 +57,6 @@ def update_product(
             status_code=status.HTTP_409_CONFLICT,
             detail=f"Product code '{data.product_code}' is already used by another product.",
         )
-
 
 @router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_product(product_id: int, db: Session = Depends(get_db)):

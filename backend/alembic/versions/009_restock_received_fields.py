@@ -14,12 +14,10 @@ down_revision: Union[str, None] = "008_wa_message_restock_order_fk"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
-
 def upgrade() -> None:
     op.add_column("restock_orders", sa.Column("received_quantity", sa.Integer(), nullable=True))
     op.add_column("restock_orders", sa.Column("received_expiry_date", sa.Date(), nullable=True))
     op.add_column("restock_orders", sa.Column("received_at", sa.DateTime(), nullable=True))
-
 
 def downgrade() -> None:
     op.drop_column("restock_orders", "received_at")

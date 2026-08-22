@@ -4,7 +4,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from app.schemas.supplier import SupplierReadSimple
 
-
 class WASettingsRead(BaseModel):
     id: int
     bot_name: str
@@ -14,13 +13,11 @@ class WASettingsRead(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class WASettingsUpdate(BaseModel):
     bot_name: Optional[str] = None
     phone_number: Optional[str] = None
     status: Optional[str] = None
     qr_code: Optional[str] = None
-
 
 class RestockResultSimple(BaseModel):
     """Embedded in WAMessageRead — shows the live status of the linked restock order."""
@@ -28,13 +25,11 @@ class RestockResultSimple(BaseModel):
     status: str
     supplier_note: Optional[str] = None
     confirmed_at: Optional[datetime] = None
-    # Owner-side receipt fields
     received_quantity: Optional[int] = None
     received_expiry_date: Optional[date] = None
     received_at: Optional[datetime] = None
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class WAMessageRead(BaseModel):
     id: int
@@ -49,7 +44,6 @@ class WAMessageRead(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class ProductSimpleForRestock(BaseModel):
     id: int
     product_code: str
@@ -60,7 +54,6 @@ class ProductSimpleForRestock(BaseModel):
     stock: int
 
     model_config = ConfigDict(from_attributes=True)
-
 
 class RestockOrderRead(BaseModel):
     id: str
@@ -80,17 +73,14 @@ class RestockOrderRead(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class RestockOrderCreate(BaseModel):
     product_id: int = Field(..., description="ID of the product to restock")
     quantity: int = Field(..., ge=1, description="Quantity to request")
-
 
 class RestockConfirmationPayload(BaseModel):
     confirm: bool = Field(..., description="Whether the supplier confirms sending the restock")
     quantity: int = Field(..., ge=0, description="Quantity being sent")
     reason: Optional[str] = Field(default=None, max_length=255, description="Supplier note or reason")
-
 
 class ReceiveRestockPayload(BaseModel):
     received_quantity: int = Field(..., ge=1, description="Quantity actually received by the store")

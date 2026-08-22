@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-import app.models  # noqa: F401 — registers all models with Base.metadata at startup
+import app.models
 from app.core.config import settings
 from app.database import engine
 from app.routes import ai, analytics, dashboard, inventory, products, transactions, suppliers, whatsapp
@@ -20,7 +20,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Routers
 app.include_router(products.router)
 app.include_router(inventory.router)
 app.include_router(transactions.router)
@@ -30,11 +29,9 @@ app.include_router(ai.router)
 app.include_router(suppliers.router)
 app.include_router(whatsapp.router)
 
-
 @app.get("/")
 def root():
     return {"message": "CoStore API Running"}
-
 
 @app.get("/db-test")
 def db_test():

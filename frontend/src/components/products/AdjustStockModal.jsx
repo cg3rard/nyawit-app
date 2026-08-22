@@ -13,7 +13,7 @@ const generateUUID = () => {
 };
 
 export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }) {
-  const [movementType, setMovementType] = useState("IN"); // IN, OUT, ADJUSTMENT
+  const [movementType, setMovementType] = useState("IN");
   const [qty, setQty] = useState(1);
   const [newStock, setNewStock] = useState(0);
   const [reason, setReason] = useState("");
@@ -39,7 +39,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Reset fields when opened or product changes
   useEffect(() => {
     if (isOpen && product) {
       setMovementType("IN");
@@ -68,7 +67,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
         if (qty <= 0) throw new Error("Quantity must be greater than 0");
 
         if (isExpiryChanged && createAsNewBatch) {
-          // 1. Create duplicate product as a separate batch
           const newCode = generateUUID();
           await createProduct({
             product_code: newCode,
@@ -80,20 +78,17 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
             expiry_date: expiryDate || null,
           });
 
-          // Duplicate photo if any
           const oldPhoto = localStorage.getItem(`product_photo_${product.product_code}`);
           if (oldPhoto) {
             localStorage.setItem(`product_photo_${newCode}`, oldPhoto);
           }
         } else {
-          // 2. Standard Stock In
           await stockIn({
             product_id: product.id,
             quantity: qty,
             reason: reason.trim() || undefined,
           });
 
-          // 3. Update current product's expiry date if chosen
           if (isExpiryChanged && !createAsNewBatch) {
             await updateProduct(product.id, {
               expiry_date: expiryDate || null,
@@ -130,15 +125,12 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
-      {/* Card Box */}
       <div className="relative z-10 w-full max-w-md rounded-2xl bg-white shadow-2xl">
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E2E8F0] px-6 py-5">
           <h2 className="text-base font-bold text-[#141B2B]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             Record Stock Change
@@ -152,10 +144,8 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
           </button>
         </div>
 
-        {/* Form Body */}
         <form onSubmit={handleSubmit}>
           <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
-            {/* Product Summary */}
             <div className="rounded-xl bg-slate-50 border border-slate-100 p-4">
               <p className="text-[10px] font-bold text-[#94A3B8] uppercase tracking-wider">Product</p>
               <h3 className="font-bold text-sm text-[#141B2B] mt-0.5">{product.name}</h3>
@@ -165,7 +155,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
               </div>
             </div>
 
-            {/* Error Message */}
             {error && (
               <div className="flex items-start gap-2.5 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
                 <span className="material-symbols-outlined text-[16px] text-red-500 mt-0.5">error</span>
@@ -173,7 +162,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
               </div>
             )}
 
-            {/* Movement Type */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-[#334155]">Adjustment Type</label>
               <div className="grid grid-cols-3 gap-2">
@@ -216,7 +204,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
               </div>
             </div>
 
-            {/* Quantity inputs depending on type */}
             {movementType !== "ADJUSTMENT" ? (
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="qty_input" className="text-xs font-semibold text-[#334155]">
@@ -248,7 +235,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
               </div>
             )}
 
-            {/* Expiry Date (Stock In only) */}
             {movementType === "IN" && (
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="expiry_date" className="text-xs font-semibold text-[#334155]">Expiry Date</label>
@@ -262,7 +248,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
               </div>
             )}
 
-            {/* Batching Option (Stock In & Expiry Date modified) */}
             {isExpiryChanged && (
               <div className="rounded-xl border border-blue-100 bg-blue-50/50 p-3.5 space-y-2">
                 <p className="text-xs font-semibold text-blue-900">Different Expiry Date Detected</p>
@@ -297,7 +282,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
               </div>
             )}
 
-            {/* Reason */}
             <div className="flex flex-col gap-1.5">
               <label htmlFor="reason" className="text-xs font-semibold text-[#334155]">Reason / Notes</label>
               <input
@@ -317,7 +301,6 @@ export default function AdjustStockModal({ isOpen, product, onClose, onSuccess }
             </div>
           </div>
 
-          {/* Footer Actions */}
           <div className="flex justify-end gap-3 border-t border-[#E2E8F0] px-6 py-4 bg-[#F8FAFC]">
             <button
               type="button"

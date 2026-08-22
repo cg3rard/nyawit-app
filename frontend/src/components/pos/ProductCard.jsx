@@ -64,7 +64,6 @@ export default function ProductCard({ product, onAdd }) {
           : "cursor-pointer border-[#E2E8F0] hover:border-[#94A3B8] hover:shadow-md",
       ].join(" ")}
     >
-      {/* Product visual */}
       <div className="relative flex aspect-square items-center justify-center bg-[#F1F3FF] p-4">
         {storedPhoto ? (
           <img
@@ -80,20 +79,17 @@ export default function ProductCard({ product, onAdd }) {
           </div>
         )}
 
-        {/* Expiry Badge - Bottom Left on image */}
         {expiryInfo && (
           <span className={`absolute left-2.5 bottom-2.5 rounded-md border px-2 py-0.5 text-[9px] font-bold shadow-xs backdrop-blur-xs ${expiryInfo.color}`}>
             {expiryInfo.text}
           </span>
         )}
 
-        {/* Price Badge - Top Right on image */}
         <span className="absolute right-2.5 top-2.5 rounded-lg border border-[#E2E8F0] bg-white/95 backdrop-blur-xs px-2.5 py-1 text-xs font-bold text-[#141B2B] shadow-xs">
           {formatCurrency(product.selling_price)}
         </span>
       </div>
 
-      {/* Product info */}
       <div className="flex flex-1 flex-col justify-between p-3">
         <div>
           <h3 className="line-clamp-2 text-sm font-medium text-[#141B2B] transition-colors group-hover:text-[#00685F]">
