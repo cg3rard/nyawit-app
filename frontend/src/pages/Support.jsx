@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import MobileSidebar from "../components/layout/MobileSidebar";
 import TopBar from "../components/layout/TopBar";
 
@@ -48,10 +48,30 @@ const FAQ_LIST = [
 ];
 
 export default function Support() {
+  const searchInputRef = useRef(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [openFaqId, setOpenFaqId] = useState("pos-checkout");
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.shiftKey && (e.key === "S" || e.key === "s")) {
+        e.preventDefault();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.select();
+        }
+      } else if (e.key === "Escape") {
+        if (document.activeElement === searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const categories = ["All", "POS & Sales", "Inventory", "Product Management", "AI Engine"];
 
@@ -70,10 +90,8 @@ export default function Support() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           onMenuOpen={() => setMobileSidebarOpen(true)}
-          searchQuery=""
-          onSearchChange={() => {}}
-          lowStockProducts={[]}
-          expiryAlerts={[]}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
         <main className="flex-1 p-4 lg:p-6">
@@ -96,12 +114,16 @@ export default function Support() {
                   search
                 </span>
                 <input
+                  ref={searchInputRef}
                   type="search"
                   placeholder="Search help articles, guides, or questions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] pl-11 pr-4 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:bg-white focus:ring-2 focus:ring-[#00685F]/10"
+                  className="h-11 w-full rounded-xl border border-[#E2E8F0] bg-[#F8FAFC] pl-11 pr-20 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:bg-white focus:ring-2 focus:ring-[#00685F]/10"
                 />
+                <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
+                  Shift + S
+                </kbd>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -110,7 +132,7 @@ export default function Support() {
                     key={cat}
                     type="button"
                     onClick={() => setSelectedCategory(cat)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition ${
+                    className={`rounded-lg px-3 py-1.5 text-xs font-semibold transition cursor-pointer ${
                       selectedCategory === cat
                         ? "bg-[#00685F] text-white shadow-sm"
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -178,35 +200,35 @@ export default function Support() {
                 <div className="rounded-2xl border border-[#E2E8F0] bg-white p-5 shadow-sm mt-6">
                   <div className="flex items-center gap-2 mb-4 pb-3 border-b border-slate-100">
                     <span className="material-symbols-outlined text-[#4648D4] text-xl">keyboard</span>
-                    <h3 className="text-sm font-bold text-[#141B2B]">POS Operational Shortcuts</h3>
+                    <h3 className="text-sm font-bold text-[#141B2B]">Operational & POS Keyboard Shortcuts</h3>
                   </div>
 
                   <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 text-xs">
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
-                      <span className="text-slate-600">Quick Product Search</span>
-                      <kbd className="rounded bg-white px-2 py-0.5 font-bold shadow-xs border border-slate-200 text-slate-700">
-                        Search Bar
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-slate-700 font-medium">Focus Search Bar</span>
+                      <kbd className="rounded bg-white px-2 py-0.5 font-bold shadow-xs border border-slate-200 text-[#00685F]">
+                        Shift + S
                       </kbd>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
-                      <span className="text-slate-600">Quick Cash Selection</span>
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-slate-700 font-medium">Clear / Unfocus Search</span>
+                      <kbd className="rounded bg-white px-2 py-0.5 font-bold shadow-xs border border-slate-200 text-slate-700">
+                        Esc
+                      </kbd>
+                    </div>
+
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-slate-700 font-medium">Quick Cash Selection</span>
                       <kbd className="rounded bg-white px-2 py-0.5 font-bold shadow-xs border border-slate-200 text-slate-700">
                         Exact Amount Button
                       </kbd>
                     </div>
 
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
-                      <span className="text-slate-600">Print Receipt</span>
+                    <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100">
+                      <span className="text-slate-700 font-medium">Print Receipt</span>
                       <kbd className="rounded bg-white px-2 py-0.5 font-bold shadow-xs border border-slate-200 text-slate-700">
-                        Print Button / Ctrl + P
-                      </kbd>
-                    </div>
-
-                    <div className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100">
-                      <span className="text-slate-600">Clear Search Query</span>
-                      <kbd className="rounded bg-white px-2 py-0.5 font-bold shadow-xs border border-slate-200 text-slate-700">
-                        Esc
+                        Print / Ctrl + P
                       </kbd>
                     </div>
                   </div>

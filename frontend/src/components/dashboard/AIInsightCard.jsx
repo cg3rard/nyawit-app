@@ -21,6 +21,27 @@ export default function AIInsightCard({ insight }) {
     return st;
   };
 
+  const formatAction = (act) => {
+    if (!act) return "AI RECOMMENDATION";
+    const map = {
+      RESTOCK_URGENT: "URGENT RESTOCK",
+      REORDER_SEGERA: "IMMEDIATE REORDER",
+      ORDER_SUPPLIER: "ORDER FROM SUPPLIER",
+      RESTOCK_PRIORITAS: "PRIORITY RESTOCK",
+      PROMO_DISKON: "PROMOTIONAL DISCOUNT",
+      PROMO_DISCOUNT: "PROMOTIONAL DISCOUNT",
+      CLEARANCE_DISCOUNT: "CLEARANCE DISCOUNT",
+      BUNDLING_PRODUK: "PRODUCT BUNDLING",
+      FLASH_SALE: "FLASH SALE",
+      RELOKASI_DISPLAY: "DISPLAY RELOCATION",
+      PERTAHANKAN_STOK: "MAINTAIN CURRENT STOCK",
+      MAINTAIN_STOCK: "MAINTAIN CURRENT STOCK",
+      MONITORING_RUTIN: "ROUTINE MONITORING",
+      ROUTINE_MONITORING: "ROUTINE MONITORING",
+    };
+    return map[act] || act.replace(/_/g, " ").toUpperCase();
+  };
+
   return (
     <div
       className="rounded-2xl p-5 shadow-sm flex flex-col justify-between"
@@ -78,7 +99,7 @@ export default function AIInsightCard({ insight }) {
               </span>
               <div>
                 <span className="text-[9px] font-extrabold uppercase tracking-wide text-slate-400">
-                  {insight.ai_recommendation.action}
+                  {formatAction(insight.ai_recommendation.action)}
                 </span>
                 <p className="text-xs font-semibold text-slate-800 leading-snug mt-0.5">
                   {insight.ai_recommendation.recommendation}

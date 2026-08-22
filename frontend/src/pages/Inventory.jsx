@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { getMovements } from "../services/api";
 
 import MobileSidebar from "../components/layout/MobileSidebar";
 import TopBar from "../components/layout/TopBar";
 
 export default function Inventory() {
+  const searchInputRef = useRef(null);
   const [movements, setMovements] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("");
@@ -13,6 +14,25 @@ export default function Inventory() {
   const [error, setError] = useState(null);
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.shiftKey && (e.key === "S" || e.key === "s")) {
+        e.preventDefault();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.select();
+        }
+      } else if (e.key === "Escape") {
+        if (document.activeElement === searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const loadMovements = async () => {
     try {
@@ -82,10 +102,8 @@ export default function Inventory() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           onMenuOpen={() => setMobileSidebarOpen(true)}
-          searchQuery=""
-          onSearchChange={() => {}}
-          lowStockProducts={[]}
-          expiryAlerts={[]}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
         <main className="flex-1 p-4 lg:p-6">
@@ -136,21 +154,25 @@ export default function Inventory() {
 
             <div className="mb-4 rounded-xl border border-[#E2E8F0] bg-white p-4">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-
                 <div className="relative w-full lg:max-w-md">
                   <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-[#94A3B8]">
                     search
                   </span>
 
                   <input
+                    ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(event) =>
                       setSearchQuery(event.target.value)
                     }
-                    placeholder="Search product..."
-                    className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-white pl-10 pr-4 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10"
+                    placeholder="Search product or code..."
+                    className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-white pl-10 pr-20 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10"
                   />
+
+                  <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
+                    Shift + S
+                  </kbd>
                 </div>
 
                 <select
@@ -158,7 +180,7 @@ export default function Inventory() {
                   onChange={(event) =>
                     setSelectedType(event.target.value)
                   }
-                  className="h-10 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm text-[#141B2B] outline-none focus:border-[#00685F]"
+                  className="h-10 rounded-lg border border-[#E2E8F0] bg-white px-3 text-sm text-[#141B2B] outline-none focus:border-[#00685F] cursor-pointer"
                 >
                   <option value="">All Movements</option>
                   <option value="IN">Stock In</option>

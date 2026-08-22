@@ -185,18 +185,8 @@ def _get_ai_insight(db: Session) -> Optional[AIInsightDetail]:
         ai_recommendation=ai_rec
     )
 
-def get_dashboard_summary(db: Session) -> DashboardSummary:
-    """
-    Build the full Owner Dashboard payload.
-
-    Calls existing analytics service functions (no logic duplication).
-    All data is sourced from SELECT-only queries.
-    Nothing is written to the database.
-    """
-    LOW_STOCK_THRESHOLD = 5
+def get_dashboard_summary(db: Session, low_stock_threshold: int = 5) -> DashboardSummary:
     TOP_PRODUCTS_LIMIT = 5
-    from app.schemas.dashboard import AIInsightDetail
-
     return DashboardSummary(
         sales_today=_get_sales_today(db),
         top_products=get_top_products(
@@ -210,8 +200,8 @@ def get_dashboard_summary(db: Session) -> DashboardSummary:
             start_date=date.today(),
             end_date=date.today(),
         ),
-        inventory=get_inventory_summary(db, low_stock_threshold=LOW_STOCK_THRESHOLD),
-        low_stock_products=get_low_stock(db, threshold=LOW_STOCK_THRESHOLD),
+        inventory=get_inventory_summary(db, low_stock_threshold=low_stock_threshold),
+        low_stock_products=get_low_stock(db, threshold=low_stock_threshold),
         expiry_alerts=_get_expiry_alerts(db),
         ai_insight=_get_ai_insight(db),
     )

@@ -2,10 +2,10 @@
   "scenarios": {
     "red_risk": {
       "scenario_id": "SCENARIO-RED-01",
-      "scenario_name": "Stok Menipis & Permintaan Tinggi (Perlu Restock)",
-      "description": "Barang fast-moving dengan sisa stok kritis di bawah 1 hari operasional.",
+      "scenario_name": "Low Stock & High Demand (Urgent Restock Needed)",
+      "description": "Fast-moving product with critical remaining inventory below 1 operational day.",
       "payload": {
-        "product_name": "Kopi Tubruk Spesial 200g",
+        "product_name": "Special Ground Coffee 200g",
         "current_stock": 5,
         "sales_recent_7d": [8, 9, 7, 10, 8, 9, 8],
         "sales_prior_7d": [5, 4, 6, 5, 5, 6, 5]
@@ -14,10 +14,10 @@
     },
     "yellow_risk": {
       "scenario_id": "SCENARIO-YELLOW-01",
-      "scenario_name": "Penjualan Anjlok & Stok Menumpuk (Dead Stock Risk)",
-      "description": "Barang slow-moving dengan penurunan penjualan drastis (>80%) dan persediaan berlebih.",
+      "scenario_name": "Sales Drop & Overstock (Dead Stock Risk)",
+      "description": "Slow-moving product with sharp sales decline and excess inventory.",
       "payload": {
-        "product_name": "Minyak Goreng Pouch 2L",
+        "product_name": "Cooking Oil Pouch 2L",
         "current_stock": 140,
         "sales_recent_7d": [1, 0, 1, 0, 1, 0, 1],
         "sales_prior_7d": [6, 7, 5, 6, 7, 6, 8]
@@ -26,10 +26,10 @@
     },
     "green_safe": {
       "scenario_id": "SCENARIO-GREEN-01",
-      "scenario_name": "Perputaran Normal & Stok Stabil (Aman)",
-      "description": "Tingkat persediaan dan tren penjualan berada dalam batas wajar operasional.",
+      "scenario_name": "Normal Turnover & Stable Stock (Healthy)",
+      "description": "Inventory levels and sales trend within optimal operational ranges.",
       "payload": {
-        "product_name": "Sabun Mandi Fresh 100g",
+        "product_name": "Fresh Bath Soap 100g",
         "current_stock": 45,
         "sales_recent_7d": [3, 4, 3, 4, 3, 4, 3],
         "sales_prior_7d": [3, 3, 4, 3, 3, 4, 3]

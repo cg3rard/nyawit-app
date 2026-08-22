@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createProduct, deleteProduct, getProducts, updateProduct, getSuppliers } from "../services/api";
+import { getStoreSettings } from "../utils/storeProfile";
 
 import MobileSidebar from "../components/layout/MobileSidebar";
 import TopBar from "../components/layout/TopBar";
@@ -226,16 +227,18 @@ export default function Products() {
 
       let matchesStatus = true;
 
+      const threshold = getStoreSettings().lowStockThreshold || 5;
+
       if (selectedStatus === "out_of_stock") {
         matchesStatus = product.stock <= 0;
       }
 
       if (selectedStatus === "low_stock") {
-        matchesStatus = product.stock > 0 && product.stock <= 5;
+        matchesStatus = product.stock > 0 && product.stock <= threshold;
       }
 
       if (selectedStatus === "in_stock") {
-        matchesStatus = product.stock > 5;
+        matchesStatus = product.stock > threshold;
       }
 
       return matchesSearch && matchesCategory && matchesStatus;
@@ -342,7 +345,11 @@ export default function Products() {
       <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar onMenuOpen={() => setMobileSidebarOpen(true)} searchQuery="" onSearchChange={() => {}} lowStockProducts={[]} expiryAlerts={[]} />
+        <TopBar
+          onMenuOpen={() => setMobileSidebarOpen(true)}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+        />
 
         <main className="flex-1 p-4 lg:p-6">
           <div className="mx-auto max-w-[1600px]">

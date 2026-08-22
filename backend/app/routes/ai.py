@@ -126,22 +126,22 @@ def get_product_status_and_recommendation(db: Session, product: Product, days: i
     
     if is_expiry_near:
         status = "Kuning"
-        days_str = f"{days_to_expiry} hari lagi" if days_to_expiry >= 0 else "sudah kedaluwarsa"
+        days_str = f"{days_to_expiry} days remaining" if days_to_expiry >= 0 else "already expired"
         ai_output = {
-            "action": "PROMO_DISKON",
-            "recommendation": "Terapkan diskon cuci gudang sebesar 30% atau promo bundling beli 1 gratis 1.",
-            "rationale": f"Produk mendekati tanggal kedaluwarsa ({days_str} pada {product.expiry_date.strftime('%Y-%m-%d')}). Diperlukan diskon untuk menghabiskan stok secepatnya."
+            "action": "CLEARANCE_DISCOUNT",
+            "recommendation": "Apply a 30% clearance discount or buy-1-get-1 bundling promotion.",
+            "rationale": f"Product is nearing expiration date ({days_str} on {product.expiry_date.strftime('%Y-%m-%d')}). Immediate clearance discount recommended."
         }
     elif status == "Kuning" and (is_new_product or is_expiry_far):
         status = "Hijau"
         if is_new_product:
-            rationale_text = "Produk baru masuk sehingga fluktuasi awal penjualan wajar dan belum memerlukan tindakan promosi diskon."
+            rationale_text = "Newly introduced product; initial sales fluctuation is normal and does not require clearance discount."
         else:
-            rationale_text = "Masa kedaluwarsa produk masih lama (atau tidak diatur), sehingga tidak ada desakan untuk melakukan cuci gudang melalui diskon."
+            rationale_text = "Product has long expiration period remaining; no immediate clearance pressure."
             
         ai_output = {
-            "action": "MONITORING_RUTIN",
-            "recommendation": "Lanjutkan pemantauan penjualan rutin dan jaga ketersediaan stok standar.",
+            "action": "ROUTINE_MONITORING",
+            "recommendation": "Continue regular sales monitoring and maintain standard inventory replenishment.",
             "rationale": rationale_text
         }
     else:
@@ -170,30 +170,26 @@ def get_product_status_and_recommendation(db: Session, product: Product, days: i
     return metrics, ai_output, payload["sales_recent_7d"], payload["sales_prior_7d"], original_doi, days_to_expiry
 
 def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
-    """
-    Menjalankan inferensi dari fine-tuned model lokal.
-    Memiliki fallback berbasis rule jika runtime berjalan di lingkungan CPU/tanpa GPU atau adapter tidak ada.
-    """
     global llm_pipeline
 
     if not os.path.exists(ADAPTER_PATH):
         if status == "Merah":
             return {
                 "action": "RESTOCK_URGENT",
-                "recommendation": "Terbitkan purchase order (PO) darurat ke supplier utama hari ini.",
-                "rationale": "Sisa stok kritis berada di bawah batas aman operasional dengan permintaan aktif."
+                "recommendation": "Issue an urgent emergency purchase order (PO) to the primary supplier today.",
+                "rationale": "Critical stock level is below safe operational threshold with active customer demand."
             }
         elif status == "Kuning":
             return {
-                "action": "PROMO_DISKON",
-                "recommendation": "Terapkan diskon bundling 20% atau relokasi barang ke rak display kasir.",
-                "rationale": "Terjadi penurunan penjualan signifikan dalam 7 hari terakhir dengan persediaan menumpuk."
+                "action": "PROMO_DISCOUNT",
+                "recommendation": "Apply a 20% bundling discount or relocate items to the checkout display shelf.",
+                "rationale": "Significant sales velocity decline observed over the past 7 days with excess inventory."
             }
         else:
             return {
-                "action": "PERTAHANKAN_STOK",
-                "recommendation": "Pertahankan siklus replenishment reguler sesuai jadwal mingguan.",
-                "rationale": "Tingkat perputaran barang dan persediaan berada pada batas optimal."
+                "action": "MAINTAIN_STOCK",
+                "recommendation": "Maintain regular replenishment cycle according to weekly schedule.",
+                "rationale": "Inventory turnover rate and stock levels are within optimal operational bounds."
             }
 
     if llm_pipeline is None:
@@ -212,29 +208,28 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
             model.eval()
             llm_pipeline = (tokenizer, model)
         except Exception as e:
-            print(f"Warning: Gagal memuat fine-tuned model local ({e}). Menggunakan fallback rules.")
             if status == "Merah":
                 return {
                     "action": "RESTOCK_URGENT",
-                    "recommendation": "Terbitkan purchase order (PO) darurat ke supplier utama hari ini.",
-                    "rationale": "Sisa stok kritis berada di bawah batas aman operasional dengan permintaan aktif."
+                    "recommendation": "Issue an urgent emergency purchase order (PO) to the primary supplier today.",
+                    "rationale": "Critical stock level is below safe operational threshold with active customer demand."
                 }
             elif status == "Kuning":
                 return {
-                    "action": "PROMO_DISKON",
-                    "recommendation": "Terapkan diskon bundling 20% atau relokasi barang ke rak display kasir.",
-                    "rationale": "Terjadi penurunan penjualan signifikan dalam 7 hari terakhir dengan persediaan menumpuk."
+                    "action": "PROMO_DISCOUNT",
+                    "recommendation": "Apply a 20% bundling discount or relocate items to the checkout display shelf.",
+                    "rationale": "Significant sales velocity decline observed over the past 7 days with excess inventory."
                 }
             else:
                 return {
-                    "action": "PERTAHANKAN_STOK",
-                    "recommendation": "Pertahankan siklus replenishment reguler sesuai jadwal mingguan.",
-                    "rationale": "Tingkat perputaran barang dan persediaan berada pada batas optimal."
+                    "action": "MAINTAIN_STOCK",
+                    "recommendation": "Maintain regular replenishment cycle according to weekly schedule.",
+                    "rationale": "Inventory turnover rate and stock levels are within optimal operational bounds."
                 }
 
     tokenizer, model = llm_pipeline
     messages = [
-        {"role": "system", "content": "Kamu adalah POS Inventory Assistant. Berikan output JSON valid dengan key: action, recommendation, dan rationale."},
+        {"role": "system", "content": "You are a POS Inventory Assistant. Provide valid JSON output with keys: action, recommendation, and rationale."},
         {"role": "user", "content": prompt_payload}
     ]
 
@@ -255,9 +250,90 @@ def get_llm_recommendation(prompt_payload: str, status: str) -> Dict[str, str]:
     response_text = tokenizer.decode(outputs[0][len(inputs.input_ids[0]):], skip_special_tokens=True)
     
     try:
-        return json.loads(response_text)
+        raw_res = json.loads(response_text)
+        return normalize_ai_output_to_english(raw_res, status)
     except Exception:
-        return {"action": "EVALUASI_MANUAL", "recommendation": response_text, "rationale": "Parsed from raw model output."}
+        return normalize_ai_output_to_english({"action": "MANUAL_EVALUATION", "recommendation": response_text, "rationale": "Parsed from model output."}, status)
+
+def normalize_ai_output_to_english(ai_output: Dict[str, str], status: str) -> Dict[str, str]:
+    if not isinstance(ai_output, dict):
+        return ai_output
+    
+    action = ai_output.get("action", "")
+    rec = ai_output.get("recommendation", "")
+    rat = ai_output.get("rationale", "")
+
+    action_map = {
+        "RESTOCK_URGENT": "RESTOCK_URGENT",
+        "REORDER_SEGERA": "RESTOCK_URGENT",
+        "ORDER_SUPPLIER": "RESTOCK_URGENT",
+        "RESTOCK_PRIORITAS": "RESTOCK_URGENT",
+        "PROMO_DISKON": "PROMO_DISCOUNT",
+        "PROMO_DISCOUNT": "PROMO_DISCOUNT",
+        "CLEARANCE_DISCOUNT": "CLEARANCE_DISCOUNT",
+        "BUNDLING_PRODUK": "PROMO_DISCOUNT",
+        "FLASH_SALE": "PROMO_DISCOUNT",
+        "RELOKASI_DISPLAY": "PROMO_DISCOUNT",
+        "PERTAHANKAN_STOK": "MAINTAIN_STOCK",
+        "MAINTAIN_STOCK": "MAINTAIN_STOCK",
+        "MONITORING_RUTIN": "ROUTINE_MONITORING",
+        "ROUTINE_MONITORING": "ROUTINE_MONITORING",
+    }
+    action = action_map.get(action, action)
+
+    rec_translations = [
+        ("Terbitkan purchase order (PO) darurat ke supplier utama hari ini.", "Issue an urgent emergency purchase order (PO) to the primary supplier today."),
+        ("Terbitkan purchase order (PO) darurat", "Issue an emergency purchase order (PO)"),
+        ("ke supplier utama hari ini", "to the primary supplier today"),
+        ("Lakukan pemesanan restock sebanyak", "Place a restock order of"),
+        ("untuk mengamankan persediaan", "to secure inventory for the next"),
+        ("2 minggu ke depan", "2 weeks"),
+        ("Terapkan diskon bundling 20%", "Apply a 20% bundling discount"),
+        ("atau relokasi barang ke rak display kasir", "or relocate items to the checkout display shelf"),
+        ("Terapkan diskon cuci gudang sebesar 30%", "Apply a 30% clearance discount"),
+        ("atau promo bundling beli 1 gratis 1", "or buy-1-get-1 bundling promotion"),
+        ("Pertahankan siklus replenishment reguler sesuai jadwal mingguan", "Maintain regular replenishment cycle according to weekly schedule"),
+        ("Lanjutkan pemantauan penjualan rutin dan jaga ketersediaan stok standar", "Continue regular sales monitoring and maintain standard inventory replenishment"),
+        ("Segera pesan ulang minimal", "Promptly reorder at least"),
+        ("dan minta pengiriman prioritas", "and request priority delivery"),
+        ("pcs", "units"),
+    ]
+    for id_text, en_text in rec_translations:
+        rec = rec.replace(id_text, en_text)
+
+    rat_translations = [
+        ("Sisa stok kritis berada di bawah batas aman operasional dengan permintaan aktif.", "Critical stock level is below safe operational threshold with active customer demand."),
+        ("Sisa stok kritis berada di bawah batas aman operasional dengan permintaan aktif", "Critical stock level is below safe operational threshold with active customer demand"),
+        ("Stok tersisa", "Remaining stock of"),
+        ("hanya cukup untuk", "is only sufficient for"),
+        ("hari ke depan dengan tren penjualan", "days ahead with sales trend"),
+        ("Perputaran barang tinggi", "High inventory turnover rate"),
+        ("dan persediaan kritis di bawah batas aman", "and inventory level is below safe threshold"),
+        ("Risiko stockout tinggi dalam", "High stockout risk within"),
+        ("karena permintaan stabil", "due to steady demand"),
+        ("sedangkan sisa stok menipis", "while remaining stock is low"),
+        ("Terjadi penurunan penjualan signifikan dalam 7 hari terakhir dengan persediaan menumpuk", "Significant sales velocity decline observed over the past 7 days with excess inventory"),
+        ("Produk mendekati tanggal kedaluwarsa", "Product is nearing expiration date"),
+        ("Diperlukan diskon untuk menghabiskan stok secepatnya", "Discount needed to accelerate inventory turnover"),
+        ("Produk baru masuk sehingga fluktuasi awal penjualan wajar dan belum memerlukan tindakan promosi diskon", "Newly introduced product; initial sales fluctuation is normal and does not require clearance discount"),
+        ("Masa kedaluwarsa produk masih lama", "Product has long expiration period remaining"),
+        ("sehingga tidak ada desakan untuk melakukan cuci gudang melalui diskon", "no immediate clearance pressure"),
+        ("Tingkat perputaran barang dan persediaan berada pada batas optimal", "Inventory turnover rate and stock levels are within optimal operational bounds"),
+        ("hari lagi", "days remaining"),
+        ("sudah kedaluwarsa", "already expired"),
+        ("pada", "on"),
+        ("hari", "days"),
+        ("pcs/hari", "units/day"),
+        ("pcs", "units"),
+    ]
+    for id_text, en_text in rat_translations:
+        rat = rat.replace(id_text, en_text)
+
+    return {
+        "action": action,
+        "recommendation": rec,
+        "rationale": rat
+    }
 
 class TransactionPayload(BaseModel):
     product_name: str = Field(..., example="Kopi Tubruk Spesial 200g")
@@ -310,8 +386,8 @@ def get_available_scenarios(
                 "id": p.product_code,
                 "name": p.name,
                 "expected_status": metrics.status,
-                "description": f"Kategori: {p.category or 'Umum'} | Stok Saat Ini: {p.stock} pcs | Indikasi: {metrics.status}",
-                "category": p.category or "Umum"
+                "description": f"Category: {p.category or 'General'} | Current Stock: {p.stock} pcs | Status: {metrics.status}",
+                "category": p.category or "General"
             })
     except Exception as e:
         print(f"Error loading products: {e}")

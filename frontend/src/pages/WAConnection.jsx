@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { getWAMessages, receiveRestockOrder } from "../services/api";
 
 import MobileSidebar from "../components/layout/MobileSidebar";
@@ -70,26 +70,18 @@ function ResultBadge({ order, onReceive }) {
       <div className="space-y-1 text-left">
         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-2.5 py-1 text-[11px] font-semibold">
           <span className="material-symbols-outlined text-[12px]">check_circle</span>
-          Diterima & Masuk Stock
+          Sudah Diterima
         </span>
-        <p className="text-[10px] text-slate-600 font-semibold">
-          Diterima: {order.received_quantity} pcs
-        </p>
-        {order.received_expiry_date && (
+        {order.received_quantity && (
           <p className="text-[10px] text-slate-500">
-            Exp: {new Date(order.received_expiry_date).toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" })}
-          </p>
-        )}
-        {order.supplier_note && (
-          <p className="text-[10px] text-slate-400 max-w-[180px]">
-            <span className="font-semibold">Catatan: </span>{order.supplier_note}
+            Diterima: {order.received_quantity} pcs
           </p>
         )}
       </div>
     );
   }
 
-  return <span className="text-slate-400 text-xs">{order.status}</span>;
+  return <span className="text-slate-500 text-xs">{order.status}</span>;
 }
 
 function ReceiveModal({ order, onClose, onSuccess }) {
@@ -100,7 +92,11 @@ function ReceiveModal({ order, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (qty <= 0) { setError("Jumlah harus lebih dari 0."); return; }
+    if (qty <= 0) {
+      setError("Jumlah harus lebih dari 0.");
+      return;
+    }
+
     try {
       setSubmitting(true);
       setError(null);
@@ -198,12 +194,33 @@ function ReceiveModal({ order, onClose, onSuccess }) {
 }
 
 export default function WAConnection() {
+  const searchInputRef = useRef(null);
   const [messages, setMessages] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   const [receiveOrder, setReceiveOrder] = useState(null);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.shiftKey && (e.key === "S" || e.key === "s")) {
+        e.preventDefault();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.select();
+        }
+      } else if (e.key === "Escape") {
+        if (document.activeElement === searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const loadData = async () => {
     try {
@@ -228,9 +245,27 @@ export default function WAConnection() {
     loadData();
   };
 
+  const filteredMessages = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return messages;
+    return messages.filter((msg) => {
+      const prodName = msg.restock_order?.product?.name?.toLowerCase() || "";
+      const prodCode = msg.restock_order?.product?.product_code?.toLowerCase() || "";
+      const supName = msg.supplier?.name?.toLowerCase() || "";
+      const status = msg.restock_order?.status?.toLowerCase() || "";
+      const note = msg.restock_order?.supplier_note?.toLowerCase() || "";
+      const textMsg = msg.message?.toLowerCase() || "";
+      return prodName.includes(q) || prodCode.includes(q) || supName.includes(q) || status.includes(q) || note.includes(q) || textMsg.includes(q);
+    });
+  }, [messages, searchQuery]);
+
   return (
     <div className="flex flex-1 flex-col bg-[#F8FAFC]">
-      <TopBar onMenuClick={() => setMobileSidebarOpen(true)} />
+      <TopBar
+        onMenuClick={() => setMobileSidebarOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
       <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       {receiveOrder && (
@@ -267,6 +302,25 @@ export default function WAConnection() {
           </div>
         )}
 
+        <div className="mb-6 rounded-xl border border-[#E2E8F0] bg-white p-4">
+          <div className="relative w-full lg:max-w-md">
+            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-[#94A3B8]">
+              search
+            </span>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search product, supplier, message..."
+              className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-white pl-10 pr-20 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10"
+            />
+            <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
+              Shift + S
+            </kbd>
+          </div>
+        </div>
+
         {loading && messages.length === 0 ? (
           <div className="flex h-64 items-center justify-center">
             <span className="material-symbols-outlined animate-spin text-[32px] text-[#00685F]">progress_activity</span>
@@ -297,7 +351,7 @@ export default function WAConnection() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E8F0]">
-                    {messages.map((msg) => {
+                    {filteredMessages.map((msg) => {
                       const dateObj = new Date(msg.created_at);
                       const formattedDate = dateObj.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
                       const formattedTime = dateObj.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });

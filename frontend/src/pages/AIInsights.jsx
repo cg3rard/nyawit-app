@@ -17,6 +17,7 @@ export default function AIInsights() {
   const [loadingSimulation, setLoadingSimulation] = useState(false);
   const [simulationResult, setSimulationResult] = useState(null);
   const [presetError, setPresetError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedIndications, setSelectedIndications] = useState({
@@ -236,10 +237,8 @@ export default function AIInsights() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           onMenuOpen={() => setMobileSidebarOpen(true)}
-          searchQuery=""
-          onSearchChange={() => {}}
-          lowStockProducts={[]}
-          expiryAlerts={[]}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
         <main className="flex-1 p-4 lg:p-6">
@@ -378,17 +377,26 @@ export default function AIInsights() {
                     <LoadingResultCard />
                   ) : simulationResult && Array.isArray(simulationResult) ? (
                     (() => {
+                      const query = searchQuery.trim().toLowerCase();
                       const filteredResults = simulationResult.filter((res) => {
                         const matchedScenario = scenarios.find(
                           (s) => s.name === res.product_name,
                         );
-                        if (!matchedScenario) return true;
-                        return (
-                          (selectedIndications[res.status] || false) &&
-                          (selectedCategories[matchedScenario.category] ||
-                            false) &&
-                          (selectedProducts[matchedScenario.key] || false)
-                        );
+                        const passesSelection =
+                          !matchedScenario ||
+                          ((selectedIndications[res.status] || false) &&
+                            (selectedCategories[matchedScenario.category] ||
+                              false) &&
+                            (selectedProducts[matchedScenario.key] || false));
+
+                        if (!passesSelection) return false;
+                        if (!query) return true;
+
+                        const nameMatch = res.product_name?.toLowerCase().includes(query);
+                        const statusMatch = res.status?.toLowerCase().includes(query);
+                        const actionMatch = res.action?.toLowerCase().includes(query);
+                        const recMatch = res.ai_recommendation?.recommendation?.toLowerCase().includes(query);
+                        return nameMatch || statusMatch || actionMatch || recMatch;
                       });
 
                       return (
@@ -708,17 +716,17 @@ export default function AIInsights() {
                   {[
                     {
                       key: "Merah",
-                      label: "Urgent (Red)",
+                      label: "Critical (Red)",
                       color: "border-red-200 bg-red-50/50 text-red-700",
                     },
                     {
                       key: "Kuning",
-                      label: "Restock (Yellow)",
+                      label: "Warning (Yellow)",
                       color: "border-amber-200 bg-amber-50/50 text-amber-700",
                     },
                     {
                       key: "Hijau",
-                      label: "Pertahankan (Green)",
+                      label: "Optimal (Green)",
                       color:
                         "border-emerald-200 bg-emerald-50/50 text-emerald-700",
                     },
@@ -936,6 +944,27 @@ function ResultCard({ result }) {
     return st;
   };
 
+  const formatAction = (act) => {
+    if (!act) return "AI RECOMMENDATION";
+    const map = {
+      RESTOCK_URGENT: "URGENT RESTOCK",
+      REORDER_SEGERA: "IMMEDIATE REORDER",
+      ORDER_SUPPLIER: "ORDER FROM SUPPLIER",
+      RESTOCK_PRIORITAS: "PRIORITY RESTOCK",
+      PROMO_DISKON: "PROMOTIONAL DISCOUNT",
+      PROMO_DISCOUNT: "PROMOTIONAL DISCOUNT",
+      CLEARANCE_DISCOUNT: "CLEARANCE DISCOUNT",
+      BUNDLING_PRODUK: "PRODUCT BUNDLING",
+      FLASH_SALE: "FLASH SALE",
+      RELOKASI_DISPLAY: "DISPLAY RELOCATION",
+      PERTAHANKAN_STOK: "MAINTAIN CURRENT STOCK",
+      MAINTAIN_STOCK: "MAINTAIN CURRENT STOCK",
+      MONITORING_RUTIN: "ROUTINE MONITORING",
+      ROUTINE_MONITORING: "ROUTINE MONITORING",
+    };
+    return map[act] || act.replace(/_/g, " ").toUpperCase();
+  };
+
   return (
     <div
       className={`rounded-2xl border border-slate-100 bg-gradient-to-b ${gradientBg} p-5 shadow-sm`}
@@ -1132,7 +1161,7 @@ function ResultCard({ result }) {
             <span className="text-[10px] font-extrabold uppercase tracking-wide text-inherit">
               AI Action Recommendation
             </span>
-            <h4 className="text-sm font-bold mt-0.5 leading-snug">{action}</h4>
+            <h4 className="text-sm font-bold mt-0.5 leading-snug">{formatAction(action)}</h4>
             <p className="text-sm mt-2 text-slate-800 font-semibold">
               {ai_recommendation.recommendation}
             </p>

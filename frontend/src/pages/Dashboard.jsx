@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getDashboardSummary } from "../services/api";
+import { getStoreSettings } from "../utils/storeProfile";
 
 import MobileSidebar from "../components/layout/MobileSidebar";
 import TopBar from "../components/layout/TopBar";
@@ -21,12 +22,14 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [storeSettings, setStoreSettings] = useState(getStoreSettings);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await getDashboardSummary();
+      const currentThreshold = getStoreSettings().lowStockThreshold || 5;
+      const result = await getDashboardSummary(currentThreshold);
       setData(result);
     } catch (err) {
       setError(err?.response?.data?.detail || err.message || "Connection failed");
@@ -37,6 +40,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     fetchData();
+
+    const handleSettingsUpdate = () => {
+      setStoreSettings(getStoreSettings());
+      fetchData();
+    };
+
+    window.addEventListener("costore_settings_updated", handleSettingsUpdate);
+    window.addEventListener("storage", handleSettingsUpdate);
+
+    return () => {
+      window.removeEventListener("costore_settings_updated", handleSettingsUpdate);
+      window.removeEventListener("storage", handleSettingsUpdate);
+    };
   }, [fetchData]);
 
   const lowStockProducts = data?.low_stock_products ?? [];
@@ -47,7 +63,15 @@ export default function Dashboard() {
       <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       <div className="flex flex-1 flex-col min-w-0">
-        <TopBar onMenuOpen={() => setMobileSidebarOpen(true)} searchQuery={searchQuery} onSearchChange={setSearchQuery} lowStockProducts={lowStockProducts} expiryAlerts={expiryAlerts} />
+        <TopBar
+          onMenuOpen={() => setMobileSidebarOpen(true)}
+          showSearch={true}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          lowStockProducts={lowStockProducts}
+          expiryAlerts={expiryAlerts}
+          aiInsight={storeSettings.enableAIRecommendations !== false ? data?.ai_insight : null}
+        />
 
         <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-6">
           <div className="mb-6">
@@ -100,10 +124,12 @@ export default function Dashboard() {
               </div>
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                <div className="lg:col-span-2">
+                <div className={storeSettings.enableAIRecommendations !== false ? "lg:col-span-2" : "lg:col-span-3"}>
                   <InventoryStatus inventory={data.inventory} />
                 </div>
-                <AIInsightCard insight={data.ai_insight} />
+                {storeSettings.enableAIRecommendations !== false && (
+                  <AIInsightCard insight={data.ai_insight} />
+                )}
               </div>
 
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import {
   getSuppliers,
   getProducts,
@@ -16,12 +16,33 @@ const formatPhoneForWA = (phone) => {
 };
 
 export default function Suppliers() {
+  const searchInputRef = useRef(null);
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.shiftKey && (e.key === "S" || e.key === "s")) {
+        e.preventDefault();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.select();
+        }
+      } else if (e.key === "Escape") {
+        if (document.activeElement === searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
@@ -62,6 +83,21 @@ export default function Suppliers() {
   useEffect(() => {
     loadData();
   }, []);
+
+  const filteredSuppliers = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return suppliers;
+    return suppliers.filter((sup) => {
+      const nameMatch = sup.name?.toLowerCase().includes(q);
+      const phoneMatch = sup.whatsapp?.toLowerCase().includes(q);
+      const prodMatch = sup.products?.some(
+        (p) =>
+          p.name?.toLowerCase().includes(q) ||
+          p.product_code?.toLowerCase().includes(q)
+      );
+      return nameMatch || phoneMatch || prodMatch;
+    });
+  }, [suppliers, searchQuery]);
 
   const handleOpenAddModal = () => {
     setModalMode("add");
@@ -162,7 +198,11 @@ export default function Suppliers() {
 
   return (
     <div className="flex flex-1 flex-col bg-[#F8FAFC]">
-      <TopBar onMenuClick={() => setMobileSidebarOpen(true)} />
+      <TopBar
+        onMenuClick={() => setMobileSidebarOpen(true)}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+      />
       <MobileSidebar open={mobileSidebarOpen} onClose={() => setMobileSidebarOpen(false)} />
 
       <main className="flex-1 p-6 lg:p-8">
@@ -191,6 +231,25 @@ export default function Suppliers() {
           </div>
         )}
 
+        <div className="mb-6 rounded-xl border border-[#E2E8F0] bg-white p-4">
+          <div className="relative w-full lg:max-w-md">
+            <span className="material-symbols-outlined pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-[#94A3B8]">
+              search
+            </span>
+            <input
+              ref={searchInputRef}
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search supplier, phone, or product..."
+              className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-white pl-10 pr-20 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F] focus:ring-2 focus:ring-[#00685F]/10"
+            />
+            <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
+              Shift + S
+            </kbd>
+          </div>
+        </div>
+
         {loading ? (
           <div className="flex h-64 items-center justify-center">
             <span className="material-symbols-outlined animate-spin text-[32px] text-[#00685F]">
@@ -215,7 +274,7 @@ export default function Suppliers() {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            {suppliers.map((supplier) => (
+            {filteredSuppliers.map((supplier) => (
               <div key={supplier.id} className="rounded-2xl border border-[#E2E8F0] bg-white p-6 shadow-sm flex flex-col justify-between">
                 <div>
                   <div className="flex items-start justify-between border-b border-[#F1F5F9] pb-4 mb-4">

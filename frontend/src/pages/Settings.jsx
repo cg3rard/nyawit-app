@@ -4,6 +4,7 @@ import TopBar from "../components/layout/TopBar";
 
 export default function Settings() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [savedSuccess, setSavedSuccess] = useState(false);
 
@@ -38,6 +39,7 @@ export default function Settings() {
 
     setTimeout(() => {
       localStorage.setItem("costore_settings", JSON.stringify(storeSettings));
+      window.dispatchEvent(new Event("costore_settings_updated"));
       setIsSaving(false);
       setSavedSuccess(true);
     }, 400);
@@ -76,10 +78,8 @@ export default function Settings() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           onMenuOpen={() => setMobileSidebarOpen(true)}
-          searchQuery=""
-          onSearchChange={() => {}}
-          lowStockProducts={[]}
-          expiryAlerts={[]}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
         <main className="flex-1 p-4 lg:p-6">

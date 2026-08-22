@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { getTransactions, getProducts } from "../services/api";
+import { getStoreSettings } from "../utils/storeProfile";
 
 import MobileSidebar from "../components/layout/MobileSidebar";
 import TopBar from "../components/layout/TopBar";
 
 export default function Transactions() {
+  const searchInputRef = useRef(null);
   const [transactions, setTransactions] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +20,25 @@ export default function Transactions() {
 
   const [selectedTx, setSelectedTx] = useState(null);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.shiftKey && (e.key === "S" || e.key === "s")) {
+        e.preventDefault();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.select();
+        }
+      } else if (e.key === "Escape") {
+        if (document.activeElement === searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const fetchData = useCallback(async () => {
     try {
@@ -148,10 +169,8 @@ export default function Transactions() {
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar
           onMenuOpen={() => setMobileSidebarOpen(true)}
-          searchQuery=""
-          onSearchChange={() => {}}
-          lowStockProducts={[]}
-          expiryAlerts={[]}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
 
         <main className="flex-1 p-4 lg:p-6">
@@ -238,12 +257,16 @@ export default function Transactions() {
                     search
                   </span>
                   <input
+                    ref={searchInputRef}
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search by code/product..."
-                    className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-white pl-10 pr-4 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F]"
+                    className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-white pl-10 pr-20 text-sm text-[#141B2B] outline-none transition focus:border-[#00685F]"
                   />
+                  <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center rounded border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[10px] font-bold text-slate-400">
+                    Shift + S
+                  </kbd>
                 </div>
 
                 <div>
@@ -281,7 +304,7 @@ export default function Transactions() {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="h-10 rounded-lg border border-[#E2E8F0] bg-white text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] transition"
+                  className="h-10 rounded-lg border border-[#E2E8F0] bg-white text-sm font-semibold text-[#64748B] hover:bg-[#F8FAFC] transition cursor-pointer"
                 >
                   Clear Filters
                 </button>
@@ -653,9 +676,10 @@ function DetailsModal({
 
       <div id="thermal-receipt" className="hidden print:block font-mono">
         <div className="text-center">
-          <h2 className="text-sm font-bold uppercase">CoStore</h2>
-          <p className="text-[10px]">Nyawit Store</p>
-          <p className="text-[10px]">Jakarta, Indonesia</p>
+          <h2 className="text-sm font-bold uppercase">{getStoreSettings().storeName || "CoStore"}</h2>
+          <p className="text-[10px] font-semibold">{getStoreSettings().receiptHeader || "CoStore Retail & Convenience"}</p>
+          <p className="text-[10px]">{getStoreSettings().storeAddress || "Jakarta, Indonesia"}</p>
+          {getStoreSettings().storePhone && <p className="text-[10px]">{getStoreSettings().storePhone}</p>}
           <p className="my-1">================================</p>
         </div>
 
@@ -664,6 +688,7 @@ function DetailsModal({
             TXID: <span className="font-bold">{tx.transaction_code}</span>
           </p>
           <p>DATE: {formatDate(tx.created_at)}</p>
+          <p>CASHIER: {getStoreSettings().ownerName || "Nyawit"}</p>
         </div>
 
         <p className="my-1">--------------------------------</p>
@@ -703,8 +728,7 @@ function DetailsModal({
         <p className="my-1">================================</p>
 
         <div className="text-center text-[10px] mt-2">
-          <p className="font-bold">THANK YOU</p>
-          <p>TERIMAKASIH BANYAK</p>
+          <p className="font-semibold">{getStoreSettings().receiptFooter || "Thank you for shopping with us! Please come again."}</p>
         </div>
       </div>
     </div>

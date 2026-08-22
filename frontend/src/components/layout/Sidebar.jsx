@@ -1,4 +1,6 @@
+import { useState, useEffect } from "react";
 import { NavLink, Link } from "react-router-dom";
+import { getStoreProfile } from "../../utils/storeProfile";
 
 const NAV_ITEMS = [
   { to: "/", icon: "dashboard", label: "Dashboard" },
@@ -45,6 +47,22 @@ function NavItem({ to, icon, label, onClick }) {
 }
 
 export default function Sidebar({ onNavigate }) {
+  const [storeProfile, setStoreProfile] = useState(getStoreProfile);
+
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      setStoreProfile(getStoreProfile());
+    };
+
+    window.addEventListener("costore_settings_updated", handleProfileUpdate);
+    window.addEventListener("storage", handleProfileUpdate);
+
+    return () => {
+      window.removeEventListener("costore_settings_updated", handleProfileUpdate);
+      window.removeEventListener("storage", handleProfileUpdate);
+    };
+  }, []);
+
   return (
     <aside className="flex h-full w-64 flex-col bg-white border-r border-[#E2E8F0]">
       <div className="px-5 pt-6 pb-5">
@@ -60,8 +78,8 @@ export default function Sidebar({ onNavigate }) {
             >
               CoStore
             </h1>
-            <p className="text-xs text-[#64748B]">
-              Nyawit Store
+            <p className="text-xs text-[#64748B] truncate max-w-[140px]">
+              {storeProfile.storeName || "Nyawit Store"}
             </p>
           </div>
         </div>

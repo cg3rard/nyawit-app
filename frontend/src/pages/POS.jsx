@@ -1,6 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { getProducts, createTransaction } from "../services/api";
+import { getStoreSettings } from "../utils/storeProfile";
 
 import ProductGrid from "../components/pos/ProductGrid";
 import Cart from "../components/pos/Cart";
@@ -10,6 +11,8 @@ import AddToCartModal from "../components/pos/AddToCartModal";
 
 export default function POS() {
   const navigate = useNavigate();
+  const searchInputRef = useRef(null);
+  const [storeSettings, setStoreSettings] = useState(getStoreSettings);
 
   const [products, setProducts] = useState([]);
   const [cart, setCart] = useState([]);
@@ -48,63 +51,69 @@ export default function POS() {
 
   useEffect(() => {
     loadProducts();
+
+    const handleSettingsUpdate = () => {
+      setStoreSettings(getStoreSettings());
+    };
+
+    window.addEventListener("costore_settings_updated", handleSettingsUpdate);
+    window.addEventListener("storage", handleSettingsUpdate);
+
+    const handleKeyDown = (e) => {
+      if (e.shiftKey && (e.key === "S" || e.key === "s")) {
+        e.preventDefault();
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.select();
+        }
+      } else if (e.key === "Escape") {
+        if (document.activeElement === searchInputRef.current) {
+          searchInputRef.current.blur();
+        }
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("costore_settings_updated", handleSettingsUpdate);
+      window.removeEventListener("storage", handleSettingsUpdate);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const categories = useMemo(() => {
     const values = products.map((product) => product.category).filter(Boolean);
 
-    return [...new Set(values)];
+    return Array.from(new Set(values));
   }, [products]);
 
-  const groupedProducts = useMemo(() => {
-    const groups = {};
-    products.forEach((p) => {
-      const key = p.name.trim().toLowerCase();
-      if (!groups[key]) {
-        groups[key] = [];
-      }
-      groups[key].push(p);
+  const filteredProducts = useMemo(() => {
+    return products.filter((product) => {
+      const matchesSearch =
+        searchQuery.trim().length === 0 ||
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.product_code.toLowerCase().includes(searchQuery.toLowerCase());
+
+      const matchesCategory =
+        selectedCategory.length === 0 ||
+        product.category === selectedCategory;
+
+      return matchesSearch && matchesCategory;
     });
-
-    return Object.values(groups).map((batchList) => {
-      const sortedBatches = [...batchList].sort((a, b) => {
-        if (!a.expiry_date) return 1;
-        if (!b.expiry_date) return -1;
-        return new Date(a.expiry_date) - new Date(b.expiry_date);
-      });
-
-      const first = sortedBatches[0];
-      const totalStock = batchList.reduce((sum, b) => sum + b.stock, 0);
-
-      return {
-        ...first,
-        stock: totalStock,
-        batches: sortedBatches,
-      };
-    });
-  }, [products]);
+  }, [products, searchQuery, selectedCategory]);
 
   const addToCart = (product) => {
-    if (product.stock <= 0) {
-      return;
-    }
-    setCheckoutSuccess(null);
-    setSelectedProductForCart(product);
-    setAddToCartModalOpen(true);
-  };
-
-  const handleConfirmAddToCart = (selectedBatch, quantity) => {
-    if (!selectedBatch) return;
-
     setCart((currentCart) => {
-      const existing = currentCart.find((item) => item.id === selectedBatch.id);
+      const existingIndex = currentCart.findIndex(
+        (item) => item.id === product.id,
+      );
 
-      if (existing) {
-        return currentCart.map((item) =>
-          item.id === selectedBatch.id
+      if (existingIndex > -1) {
+        return currentCart.map((item, index) =>
+          index === existingIndex
             ? {
                 ...item,
-                quantity: Math.min(selectedBatch.stock, quantity),
+                quantity: item.quantity + 1,
               }
             : item,
         );
@@ -113,54 +122,70 @@ export default function POS() {
       return [
         ...currentCart,
         {
-          id: selectedBatch.id,
-          product_id: selectedBatch.id,
-          name: selectedBatch.name,
-          product_code: selectedBatch.product_code,
-          selling_price: selectedBatch.selling_price,
-          stock: selectedBatch.stock,
-          quantity: quantity,
-          expiry_date: selectedBatch.expiry_date,
+          id: product.id,
+          product_id: product.id,
+          name: product.name,
+          product_code: product.product_code,
+          selling_price: product.selling_price,
+          quantity: 1,
+          maxStock: product.stock,
         },
       ];
     });
+  };
 
+  const handleProductCardClick = (product) => {
+    setSelectedProductForCart(product);
+    setAddToCartModalOpen(true);
+  };
+
+  const handleConfirmAddToCart = (product, quantity) => {
+    setCart((currentCart) => {
+      const existingIndex = currentCart.findIndex((item) => item.id === product.id);
+      if (existingIndex > -1) {
+        return currentCart.map((item, index) =>
+          index === existingIndex
+            ? {
+                ...item,
+                quantity: item.quantity + quantity,
+              }
+            : item,
+        );
+      }
+      return [
+        ...currentCart,
+        {
+          id: product.id,
+          product_id: product.id,
+          name: product.name,
+          product_code: product.product_code,
+          selling_price: product.selling_price,
+          quantity: quantity,
+          maxStock: product.stock,
+        },
+      ];
+    });
     setAddToCartModalOpen(false);
     setSelectedProductForCart(null);
   };
 
-  const increaseQuantity = (productId) => {
-    setCart((currentCart) =>
-      currentCart.map((item) => {
-        if (item.id !== productId) {
-          return item;
-        }
-
-        if (item.quantity >= item.stock) {
-          return item;
-        }
-
-        return {
-          ...item,
-          quantity: item.quantity + 1,
-        };
-      }),
-    );
-  };
-
-  const decreaseQuantity = (productId) => {
+  const updateQuantity = (productId, delta) => {
     setCart((currentCart) =>
       currentCart
         .map((item) =>
           item.id === productId
             ? {
                 ...item,
-                quantity: item.quantity - 1,
+                quantity: item.quantity + delta,
               }
             : item,
         )
         .filter((item) => item.quantity > 0),
     );
+  };
+
+  const decreaseQuantity = (productId) => {
+    updateQuantity(productId, -1);
   };
 
   const removeFromCart = (productId) => {
@@ -184,15 +209,20 @@ export default function POS() {
       }));
 
       const transaction = await createTransaction(payload);
-
-      setCheckoutSuccess({
+      const newTx = {
         ...transaction,
         payment_method: paymentData.payment_method,
         cash_received: paymentData.cash_received,
         change: paymentData.change,
-      });
+      };
+
+      setCheckoutSuccess(newTx);
       setCart([]);
       setPaymentModalOpen(false);
+
+      if (storeSettings.autoPrintReceipt) {
+        handlePrintReceipt(newTx);
+      }
 
       await loadProducts();
     } catch (err) {
@@ -259,12 +289,17 @@ export default function POS() {
           </span>
 
           <input
+            ref={searchInputRef}
             type="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search products by name or code..."
-            className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] pl-10 pr-4 text-sm text-[#141B2B] outline-none transition-all placeholder:text-[#94A3B8] focus:border-[#00685F] focus:bg-white focus:ring-2 focus:ring-[#00685F]/10"
+            className="h-10 w-full rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] pl-10 pr-20 text-sm text-[#141B2B] outline-none transition-all placeholder:text-[#94A3B8] focus:border-[#00685F] focus:bg-white focus:ring-2 focus:ring-[#00685F]/10"
           />
+
+          <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 hidden sm:inline-flex items-center gap-0.5 rounded border border-slate-200 bg-white px-1.5 py-0.5 text-[10px] font-bold text-slate-400 shadow-2xs">
+            Shift + S
+          </kbd>
         </div>
 
         <div>
@@ -426,15 +461,17 @@ export default function POS() {
       {receiptToPrint && (
         <div id="thermal-receipt" className="hidden print:block font-mono">
           <div className="text-center">
-            <h2 className="text-sm font-bold uppercase">CoStore</h2>
-            <p className="text-[10px]">Nyawit Store</p>
-            <p className="text-[10px]">Jakarta, Indonesia</p>
+            <h2 className="text-sm font-bold uppercase">{storeSettings.storeName || "CoStore"}</h2>
+            <p className="text-[10px] font-semibold">{storeSettings.receiptHeader || "CoStore Retail & Convenience"}</p>
+            <p className="text-[10px]">{storeSettings.storeAddress || "Jakarta, Indonesia"}</p>
+            {storeSettings.storePhone && <p className="text-[10px]">{storeSettings.storePhone}</p>}
             <p className="my-1">================================</p>
           </div>
 
           <div className="text-[10px] space-y-0.5 text-left">
             <p>TXID: <span className="font-bold">{receiptToPrint.transaction_code}</span></p>
             <p>DATE: {new Date(receiptToPrint.created_at).toLocaleString("id-ID")}</p>
+            <p>CASHIER: {storeSettings.ownerName || "Nyawit"}</p>
           </div>
 
           <p className="my-1">--------------------------------</p>
@@ -486,8 +523,7 @@ export default function POS() {
           <p className="my-1">================================</p>
 
           <div className="text-center text-[10px] mt-2">
-            <p className="font-bold">THANK YOU</p>
-            <p>TERIMAKASIH BANYAK</p>
+            <p className="font-semibold">{storeSettings.receiptFooter || "Thank you for shopping with us! Please come again."}</p>
           </div>
         </div>
       )}

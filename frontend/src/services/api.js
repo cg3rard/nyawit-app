@@ -5,8 +5,12 @@ const api = axios.create({
   timeout: 15000,
 });
 
-export const getDashboardSummary = () =>
-  api.get("/api/dashboard/summary").then((r) => r.data);
+export const getDashboardSummary = (lowStockThreshold = 5) =>
+  api
+    .get("/api/dashboard/summary", {
+      params: { low_stock_threshold: lowStockThreshold },
+    })
+    .then((r) => r.data);
 
 export const getProducts = () =>
   api.get("/api/products/").then((r) => r.data);
